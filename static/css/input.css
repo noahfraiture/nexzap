@@ -1,0 +1,5 @@
+@import "tailwindcss" source(none);
+@plugin "../js/daisyui.js";
+@plugin "../js/daisyui-theme.js";
+
+@source "../../templates";

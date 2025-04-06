@@ -1,0 +1,16 @@
+package pages
+
+import "zapbyte/templates/layouts"
+
+templ Home(fromHtmx bool) {
+	if fromHtmx {
+		<title id="title" hx-swap-oob="#title">ZapByte - Home</title>
+		<h1 class="text-3xl font-bold mb-4">Welcome to ZapByte</h1>
+		<p class="text-lg">Learn a new language every week!</p>
+	} else {
+		@layouts.Base("ZapByte - Home") {
+			<h1 class="text-3xl font-bold mb-4">Welcome to ZapByte</h1>
+			<p class="text-lg">Learn a new language every week!</p>
+		}
+	}
+}
