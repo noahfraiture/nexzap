@@ -1,0 +1,14 @@
+language = "Go"
+highlighter = "go"
+
+[[sheets]]
+content = "This is an introduction to Go programming."
+is_code = false
+
+[[sheets]]
+content = "func main() {\n\tfmt.Println(\"Hello, mom!\")\n}"
+is_code = true
+
+[[sheets]]
+content = "The end"
+is_code = false

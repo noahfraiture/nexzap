@@ -1,5 +1,9 @@
 @import "tailwindcss" source(none);
-@plugin "../js/daisyui.js";
-@plugin "../js/daisyui-theme.js";
+
+/* TODO : use cdn with minimum */ 
+@plugin "../js/daisyui.js" { 
+  themes: dracula --default;
+}
 
 @source "../../templates";
+@source "./input.css";
