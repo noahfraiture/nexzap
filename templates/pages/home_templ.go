@@ -41,7 +41,7 @@ func homeContent(tutorial models.Tutorial) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"card-body\"><h2 class=\"card-title\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"p-6 space-y-4\"><h2 class=\"card-title\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +97,7 @@ func homeContent(tutorial models.Tutorial) templ.Component {
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"flex flex-col gap-6 h-full\"><div class=\"card bg-base-200 shadow-lg flex-1\"><div class=\"card-body\"><h3 class=\"card-title\">Your Solution</h3><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"flex flex-col gap-6 h-full\"><div class=\"card bg-base-200 shadow-lg flex-1\"><div class=\"card-body\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3><div class=\"flex justify-center items-center gap-4\"><input type=\"checkbox\" class=\"toggle\" x-model=\"enabled\" @change=\"toggleKeymap()\"> <select class=\"select\" x-model=\"keymap\" @change=\"setKeymap(keymap)\"><option value=\"default\">Keymap</option> <option value=\"vim\">Vim</option> <option value=\"emacs\">Emacs</option> <option value=\"sublime\">Sublime</option></select></div></div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -192,32 +192,32 @@ func CodeEditor(language string) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js\"></script><script src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", "language", "language"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 62, Col: 128}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 78, Col: 128}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></script><script>\n\t\tfunction initialized() {\n\t\t\treturn {\n\t\t\t\tshow: false,\n\t\t\t\tready() { this.show = true },\n\t\t\t\tisReady() { return this.show === true },\n\t\t\t}\n\t\t}\n\t</script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div x-data=\"initialized\"><textarea id=\"code\" x-show=\"isReady\"></textarea><script>\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    var editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></script><script>\n\t\tfunction initialized() {\n\t\t\treturn {\n\t\t\t\tshow: false,\n\t\t\t\tready() { this.show = true },\n\t\t\t\tisReady() { return this.show === true },\n\t\t\t}\n\t\t}\n\t</script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div x-data=\"initialized\"><textarea id=\"code\" x-show=\"isReady\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tconsole.log(keymap, newKeymap, enable)\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tconsole.log(keymap, enable)\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Var9, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 79, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 116, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4\n\t\t    });\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4,\n\n\t\t    });\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

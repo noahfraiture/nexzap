@@ -9,7 +9,7 @@ templ homeContent(tutorial models.Tutorial) {
 		// Left Panel
 		<div class="card card-border bg-base-200 shadow-lg">
 			@Highlight()
-			<div class="card-body">
+			<div class="p-6 space-y-4">
 				<h2 class="card-title">{ tutorial.Language }</h2>
 				for _, sheet := range tutorial.Sheets {
 					if sheet.IsCode {
@@ -24,8 +24,21 @@ templ homeContent(tutorial models.Tutorial) {
 		<div class="flex flex-col gap-6 h-full">
 			// Code Editor
 			<div class="card bg-base-200 shadow-lg flex-1">
-				<div class="card-body">
-					<h3 class="card-title">Your Solution</h3>
+				<div class="card-body" x-data="{keymap: 'default', enabled: false}">
+					// Change the keymap
+					<div class="flex justify-between">
+						<h3 class="card-title">Your Solution</h3>
+						<div class="flex justify-center items-center gap-4">
+							<input type="checkbox" class="toggle" x-model="enabled" @change="toggleKeymap()"/>
+							<select class="select" x-model="keymap" @change="setKeymap(keymap)">
+								<option value="default">Keymap</option>
+								<option value="vim">Vim</option>
+								<option value="emacs">Emacs</option>
+								<option value="sublime">Sublime</option>
+							</select>
+						</div>
+					</div>
+					// Editor itself
 					<div>
 						@CodeEditor(tutorial.Highlighter)
 					</div>
@@ -59,6 +72,9 @@ templ CodeEditor(language string) {
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css"/>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js"></script>
 	<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", "language", "language") }></script>
 	<script>
 		function initialized() {
@@ -74,15 +90,38 @@ templ CodeEditor(language string) {
 	<div x-data="initialized">
 		<textarea id="code" x-show="isReady"></textarea>
 		<script>
+			let editor = undefined;
+			let enable = false;
+			let keymap = "default";
+			function setKeymap(newKeymap) {
+				console.log(keymap, newKeymap, enable)
+				keymap = newKeymap;
+				updateKeymap();
+			}
+			function toggleKeymap() {
+				enable = !enable;
+				updateKeymap();
+			}
+			function updateKeymap() {
+				console.log(keymap, enable)
+				if (enable) {
+					editor.setOption('keyMap', keymap)
+				} else {
+					editor.setOption('keyMap', "default")
+				}
+			}
+
 			document.addEventListener('alpine:init', () => {
-		    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+		    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 		        mode: {{ language }},
 		        lineNumbers: true,
 						lineSeparator: false,
 		        theme: "daisyui",
-						indentUnit: 4
+						indentUnit: 4,
+
 		    });
 				Alpine.data('initialized', () => ({isReady: false}))
+
 			});
 	  </script>
 	</div>
