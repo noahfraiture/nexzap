@@ -2,36 +2,15 @@ package services
 
 import (
 	"os"
-	"path/filepath"
+	"regexp"
 	"zapbyte/internal/models"
-
-	"github.com/BurntSushi/toml"
 )
 
-func GetTutorials() (*[]models.Tutorial, error) {
-	dir := "tutorials"
-	tutorialsFiles, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	tutorials := []models.Tutorial{}
-	for _, file := range tutorialsFiles {
-		if file.Type().IsDir() {
-			continue
-		}
-		path := filepath.Join(dir, file.Name())
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return nil, err
-		}
+var (
+	textRegex *regexp.Regexp
+	testRegex *regexp.Regexp
+)
 
-		var tutorial models.Tutorial
-		_, err = toml.Decode(string(content), &tutorial)
-		if err != nil {
-			return nil, err
-		}
-		tutorials = append(tutorials, tutorial)
-	}
+func GetTutorials() (*[]models.Tutorial, error) { return nil, nil }
 
-	return &tutorials, nil
-}
+func getTutorial(tutorialsDir string, dir os.DirEntry) (*models.Tutorial, error) { return nil, nil }
