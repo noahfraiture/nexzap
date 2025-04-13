@@ -3,7 +3,6 @@ package container
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -60,7 +59,6 @@ func (p *Pool) newLanguage(
 	cli *client.Client,
 	lang Language,
 ) {
-	log.Printf("Creating new language pool for %s", lang.Name)
 	// Create the language
 	language := LanguagePool{
 		minPool:         make(chan string, MIN_CTN),
@@ -126,22 +124,17 @@ type LanguagePool struct {
 // The language pool can create new containers to keep a margin.
 // You must free it after usage.
 func (lp *LanguagePool) GetContainer(ctx context.Context, cli *client.Client) (string, error) {
-	log.Printf("Attempting to get container for language %s", lp.language.Name)
-	selectStart := time.Now()
 	select {
 	case c := <-lp.minPool:
 		lp.languageTimeout.StartTimer()
-		log.Printf("Container %s taken from minPool for language %s, select took %v", c[:12], lp.language.Name, time.Since(selectStart))
 		extendContainer(ctx, cli, lp)
 		return c, nil
 	case c := <-lp.extendedPool:
 		lp.languageTimeout.StartTimer()
 		lp.extendTimeout.StartTimer()
-		log.Printf("Container %s taken from extendedPool for language %s, select took %v", c[:12], lp.language.Name, time.Since(selectStart))
 		extendContainer(ctx, cli, lp)
 		return c, nil
 	case <-time.After(WAIT_TIMEOUT):
-		log.Printf("Timeout waiting for container for language %s, select took %v", lp.language.Name, time.Since(selectStart))
 		return "", fmt.Errorf("timeout waiting for container")
 	}
 }
@@ -152,15 +145,10 @@ func (lp *LanguagePool) FreeContainer(
 	cli *client.Client,
 	ctn string,
 ) {
-	log.Printf("Attempting to free container %s for language %s", ctn[:12], lp.language.Name)
-	selectStart := time.Now()
 	select {
 	case lp.minPool <- ctn:
-		log.Printf("Container %s returned to minPool, select took %v", ctn[:12], time.Since(selectStart))
 	case lp.extendedPool <- ctn:
-		log.Printf("Container %s returned to extendedPool, select took %v", ctn[:12], time.Since(selectStart))
 	default:
-		log.Printf("Container %s could not be returned to any pool, will be stopped and removed, select took %v", ctn[:12], time.Since(selectStart))
 		stopAndRemove(ctx, cli, ctn)
 	}
 }
@@ -169,14 +157,10 @@ func (lp *LanguagePool) FreeContainer(
 func extendContainer(ctx context.Context, cli *client.Client, lp *LanguagePool) {
 	nbFree := len(lp.extendedPool) + len(lp.minPool)
 	if nbFree < CONTAINER_MARGIN {
-		log.Printf("Attempting to extend container pool for language %s", lp.language.Name)
-		selectStart := time.Now()
 		select {
 		case <-lp.available:
-			log.Printf("Acquired slot to extend container for language %s, select took %v", lp.language.Name, time.Since(selectStart))
 			go createAndAddContainer(ctx, cli, lp)
 		default:
-			log.Printf("No available slots to extend container for language %s, select took %v", lp.language.Name, time.Since(selectStart))
 		}
 	}
 }
@@ -186,11 +170,9 @@ func createAndAddContainer(ctx context.Context, cli *client.Client, lp *Language
 	resp, err := createContainer(ctx, cli, lp.language)
 	if err != nil {
 		lp.available <- struct{}{}
-		log.Printf("Failed to extend container for language %s: %v", lp.language.Name, err)
 		return
 	}
 	lp.extendedPool <- resp.ID
-	log.Printf("Extended container pool with new container %s for language %s", resp.ID[:12], lp.language.Name)
 }
 
 // cleanLanguage removes a language from the main pool and cleans the minPool.
@@ -199,10 +181,8 @@ func (p *Pool) cleanLanguage(ctx context.Context, cli *client.Client, name strin
 	// TODO: fix that?
 	language, ok := p.pool[name]
 	if !ok {
-		log.Printf("Attempted to clean non-existent language pool: %s", name)
 		return
 	}
-	log.Printf("Cleaning language pool for %s", name)
 	close(language.minPool)
 	close(language.extendedPool)
 	for ctn := range language.minPool {

@@ -1,7 +1,6 @@
 package container
 
 import (
-	"log"
 	"time"
 )
 
@@ -35,16 +34,12 @@ func (t *Timeout) StartTimer() {
 	t.timer.Reset(t.duration)
 
 	go func() {
-		log.Printf("Starting timer for duration %v", t.duration)
-		selectStart := time.Now()
 		select {
 		case <-t.timer.C:
-			log.Printf("Timer expired after %v, executing action", time.Since(selectStart))
 			if t.action != nil {
 				t.action()
 			}
 		case <-t.stop:
-			log.Printf("Timer stopped after %v", time.Since(selectStart))
 		}
 	}()
 }

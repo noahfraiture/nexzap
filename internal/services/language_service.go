@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
 	"zapbyte/internal/services/container"
 
 	"github.com/docker/docker/client"
@@ -20,7 +19,7 @@ var languages = map[LanguageName]container.Language{
 	GO: {
 		Name:      "go",
 		Image:     "gotest",
-		WarmupDir: "languages/go/",
+		WarmupDir: "./languages/go/warmup/",
 		Command:   []string{"go", "test"},
 	},
 }
@@ -69,7 +68,6 @@ func (s *Service) RunTest(name LanguageName, files []string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Printf("Starting tests on container %s", ctn[:12])
 	output, err := container.Run(s.ctx, s.cli, ctn, files)
 	languagePool.FreeContainer(s.ctx, s.cli, ctn)
 	return output, err

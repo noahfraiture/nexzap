@@ -1,29 +1,35 @@
 package services
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 	"testing"
+	"time"
+
+	"zapbyte/internal/services/container"
+
+	"github.com/docker/docker/client"
 )
 
+// TODO : container discarded and that kind of stuff
+
+// TestRunTestGo tests the basic functionality of running Go tests
 func TestRunTestGo(t *testing.T) {
-	// Initialize the container service
 	svc, err := NewService()
 	if err != nil {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
 
-	// Define the directory containing the Go test files
-	goDir := "languages/go"
+	goDir := "./languages/go/warmup"
 
-	// Read all files from the directory
 	files, err := os.ReadDir(goDir)
 	if err != nil {
 		t.Fatalf("Failed to read Go directory: %v", err)
 	}
 
-	// Prepare a slice of file paths for the test
 	filePaths := make([]string, 0, len(files))
 	for _, file := range files {
 		if !file.IsDir() {
@@ -31,7 +37,6 @@ func TestRunTestGo(t *testing.T) {
 		}
 	}
 
-	// Run the test for Go language
 	var wg sync.WaitGroup
 	wg.Add(5)
 	for i := range 5 {
@@ -42,13 +47,181 @@ func TestRunTestGo(t *testing.T) {
 				t.Errorf("Run %d: Failed to run Go test: %v", runNum, err)
 				return
 			}
-			// Optionally, print the output for debugging purposes
 			t.Logf("Run %d - Go Test Output:\n%s", runNum, output)
-			// Check if output is not empty
 			if output == "" {
 				t.Errorf("Run %d: Expected non-empty output from Go test, but got empty string", runNum)
 			}
 		}(i + 1)
 	}
 	wg.Wait()
+}
+
+// TestServiceNotInitialized tests the behavior when service is not initialized
+func TestServiceNotInitialized(t *testing.T) {
+	svc := &Service{}
+	output, err := svc.RunTest(GO, []string{"test.go"})
+	if err == nil {
+		t.Error("Expected error when service is not initialized, but got nil")
+	}
+	if output != "" {
+		t.Errorf("Expected empty output when service is not initialized, but got: %s", output)
+	}
+	if err.Error() != "not initialized" {
+		t.Errorf("Expected error message 'not initialized', but got: %v", err)
+	}
+}
+
+// TestUnknownLanguage tests the behavior when an unknown language is provided
+func TestUnknownLanguage(t *testing.T) {
+	svc, err := NewService()
+	if err != nil {
+		t.Fatalf("Failed to initialize container service: %v", err)
+	}
+
+	unknownLang := LanguageName(999)
+	output, err := svc.RunTest(unknownLang, []string{"test.go"})
+	if err == nil {
+		t.Error("Expected error when using unknown language, but got nil")
+	}
+	if output != "" {
+		t.Errorf("Expected empty output when using unknown language, but got: %s", output)
+	}
+	if err.Error() != fmt.Sprintf("unknown language %d", unknownLang) {
+		t.Errorf("Expected error message 'unknown language %d', but got: %v", unknownLang, err)
+	}
+}
+
+// TestEmptyFileList tests the behavior when an empty file list is provided
+func TestEmptyFileList(t *testing.T) {
+	svc, err := NewService()
+	if err != nil {
+		t.Fatalf("Failed to initialize container service: %v", err)
+	}
+
+	output, err := svc.RunTest(GO, []string{})
+	if err != nil {
+		t.Errorf("Expected no error when running with empty file list, but got: %v", err)
+	}
+	if output == "" {
+		t.Log("Warning: Empty file list resulted in empty output, which might be expected behavior")
+	}
+}
+
+// TestConcurrentAccess tests the service under high concurrent access
+func TestConcurrentAccess(t *testing.T) {
+	svc, err := NewService()
+	if err != nil {
+		t.Fatalf("Failed to initialize container service: %v", err)
+	}
+
+	goDir := "./languages/go/warmup"
+	files, err := os.ReadDir(goDir)
+	if err != nil {
+		t.Fatalf("Failed to read Go directory: %v", err)
+	}
+
+	filePaths := make([]string, 0, len(files))
+	for _, file := range files {
+		if !file.IsDir() {
+			filePaths = append(filePaths, filepath.Join(goDir, file.Name()))
+		}
+	}
+
+	// Run 20 concurrent test requests
+	concurrency := 20
+	var wg sync.WaitGroup
+	wg.Add(concurrency)
+	errors := make(chan error, concurrency)
+	outputs := make(chan string, concurrency)
+
+	for i := range concurrency {
+		go func(runNum int) {
+			defer wg.Done()
+			output, err := svc.RunTest(GO, filePaths)
+			if err != nil {
+				errors <- fmt.Errorf("Run %d: Failed to run Go test: %v", runNum, err)
+				return
+			}
+			outputs <- fmt.Sprintf("Run %d: %s", runNum, output)
+		}(i)
+	}
+
+	// Wait for all goroutines to complete with a timeout
+	timeout := time.After(30 * time.Second)
+	go func() {
+		wg.Wait()
+		close(errors)
+		close(outputs)
+	}()
+
+	select {
+	case <-timeout:
+		t.Fatal("Test timed out waiting for concurrent operations to complete")
+	default:
+		// Check for errors
+		for err := range errors {
+			t.Error(err)
+		}
+		// Log outputs
+		for output := range outputs {
+			t.Log(output)
+		}
+	}
+}
+
+// TestNonExistentFiles tests the behavior when non-existent files are provided
+func TestNonExistentFiles(t *testing.T) {
+	svc, err := NewService()
+	if err != nil {
+		t.Fatalf("Failed to initialize container service: %v", err)
+	}
+
+	// Provide a list of non-existent files
+	files := []string{"/path/does/not/exist/test.go"}
+	output, err := svc.RunTest(GO, files)
+	if err != nil {
+		t.Logf("Expected error or specific handling for non-existent files, got: %v", err)
+	} else {
+		t.Logf("Warning: No error returned for non-existent files, output: %s", output)
+	}
+}
+
+// mockContainerPool is a mock implementation for testing container pool behavior
+type mockContainerPool struct {
+	getContainerFunc  func(ctx context.Context, cli *client.Client) (string, error)
+	freeContainerFunc func(ctx context.Context, cli *client.Client, ctn string)
+}
+
+func (m *mockContainerPool) GetLanguagePool(ctx context.Context, cli *client.Client, language container.Language) container.LanguagePool {
+	return container.LanguagePool{}
+}
+
+func (m *mockContainerPool) GetContainer(ctx context.Context, cli *client.Client) (string, error) {
+	if m.getContainerFunc != nil {
+		return m.getContainerFunc(ctx, cli)
+	}
+	return "", fmt.Errorf("mock get container not implemented")
+}
+
+func (m *mockContainerPool) FreeContainer(ctx context.Context, cli *client.Client, ctn string) {
+	if m.freeContainerFunc != nil {
+		m.freeContainerFunc(ctx, cli, ctn)
+	}
+}
+
+// TestContainerPoolExhaustion tests the behavior when container pool is exhausted
+func TestContainerPoolExhaustion(t *testing.T) {
+	// This test would ideally mock the container pool to simulate exhaustion
+	// However, due to the complexity of the container pool implementation,
+	// a full mock would be needed which is beyond the scope of this test file update.
+	// Instead, we'll note that this test needs to be implemented with proper mocking.
+	t.Skip("Test for container pool exhaustion requires mocking of container package")
+}
+
+// TestTimeoutScenarios tests various timeout scenarios
+func TestTimeoutScenarios(t *testing.T) {
+	// Similar to TestContainerPoolExhaustion, testing timeout scenarios
+	// requires mocking the container package to simulate timeouts.
+	// This test is skipped until proper mocking is implemented.
+	t.Skip("Test for timeout scenarios requires mocking of container package")
 }

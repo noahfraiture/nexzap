@@ -27,31 +27,35 @@ func Run(
 		return "", err
 	}
 
+	startTime := time.Now()
+	log.Printf("Starting CopyToContainer for container %s at %v", ctn, startTime)
 	err = cli.CopyToContainer(ctx, ctn, "/", archive, container.CopyToContainerOptions{})
 	if err != nil {
+		log.Printf("CopyToContainer for container %s failed, error: %v, duration: %v", ctn, err, time.Since(startTime))
 		stopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
+	log.Printf("CopyToContainer for container %s succeeded, duration: %v", ctn, time.Since(startTime))
 
-	startTime := time.Now()
-	log.Printf("Starting container %s", ctn[:12])
+	startTime = time.Now()
+	log.Printf("Starting ContainerStart for container %s at %v", ctn, startTime)
 	if err := cli.ContainerStart(ctx, ctn, container.StartOptions{}); err != nil {
+		log.Printf("ContainerStart for container %s failed, error: %v, duration: %v", ctn, err, time.Since(startTime))
 		stopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
+	log.Printf("ContainerStart for container %s succeeded, duration: %v", ctn, time.Since(startTime))
 
 	statusCh, errCh := cli.ContainerWait(ctx, ctn, container.WaitConditionNotRunning)
-	log.Printf("Waiting for container %s to finish", ctn[:12])
-	selectStart := time.Now()
 	select {
 	case err := <-errCh:
-		log.Printf("Select on container wait (errCh) took %v for container %s", time.Since(selectStart), ctn[:12])
 		if err != nil {
+			log.Printf("ContainerWait for container %s failed with error: %v", ctn, err)
 			stopAndRemove(ctx, cli, ctn)
 			return "", err
 		}
 	case <-statusCh:
-		log.Printf("Select on container wait (statusCh) took %v for container %s", time.Since(selectStart), ctn[:12])
+		log.Printf("ContainerWait for container %s completed", ctn)
 	}
 
 	logs, err := cli.ContainerLogs(ctx, ctn, container.LogsOptions{
@@ -60,6 +64,7 @@ func Run(
 		Since:      startTime.Format(time.RFC3339),
 	})
 	if err != nil {
+		log.Printf("ContainerLogs for container %s failed, error: %v", ctn, err)
 		stopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
@@ -68,6 +73,7 @@ func Run(
 	var logBytes bytes.Buffer
 	_, err = io.Copy(&logBytes, logs)
 	if err != nil {
+		log.Printf("Copying logs for container %s failed, error: %v", ctn, err)
 		stopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
@@ -84,6 +90,8 @@ func createContainer(
 	var emptyResp container.CreateResponse
 
 	// Create container
+	startTime := time.Now()
+	log.Printf("Starting ContainerCreate for language %s at %v", lang.Name, startTime)
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image:      lang.Image,
 		Cmd:        lang.Command,
@@ -91,14 +99,16 @@ func createContainer(
 		Tty:        false,
 	}, nil, nil, nil, "")
 	if err != nil {
+		log.Printf("ContainerCreate for language %s failed, error: %v, duration: %v", lang.Name, err, time.Since(startTime))
 		return emptyResp, err
 	}
-	log.Printf("Created new container %s for language %s", resp.ID[:12], lang.Name)
+	log.Printf("ContainerCreate for language %s succeeded, container ID: %s, duration: %v", lang.Name, resp.ID, time.Since(startTime))
 
 	// Warmup
 	if lang.WarmupDir != "" {
 		files, err := os.ReadDir(lang.WarmupDir)
 		if err != nil {
+			log.Printf("Reading WarmupDir %s for language %s failed, error: %v", lang.WarmupDir, lang.Name, err)
 			stopAndRemove(ctx, cli, resp.ID)
 			return emptyResp, err
 		}
@@ -108,10 +118,14 @@ func createContainer(
 			filesName = append(filesName, lang.WarmupDir+file.Name())
 		}
 
+		log.Printf("Starting warmup phase for container %s (language: %s)", resp.ID, lang.Name)
 		_, err = Run(ctx, cli, resp.ID, filesName)
 		if err != nil {
+			log.Printf("Warmup phase for container %s (language: %s) failed, error: %v", resp.ID, lang.Name, err)
+			stopAndRemove(ctx, cli, resp.ID)
 			return emptyResp, err
 		}
+		log.Printf("Warmup phase for container %s (language: %s) completed successfully", resp.ID, lang.Name)
 	}
 	return resp, nil
 }
@@ -120,24 +134,30 @@ func createContainer(
 func stopAndRemove(ctx context.Context, cli *client.Client, id string) {
 	// Stop the container with a timeout of 10 seconds
 	timeout := 10
-	log.Printf("Stopping container %s", id[:12])
+	log.Printf("Stopping container %s with timeout %d seconds", id, timeout)
 	if err := cli.ContainerStop(ctx, id, container.StopOptions{Timeout: &timeout}); err != nil {
 		// If the container is already stopped or not found, proceed to remove it
 		if !client.IsErrNotFound(err) {
-			log.Printf("Error stopping container %s: %v", id[:12], err)
-			panic(err)
+			log.Printf("Failed to stop container %s, error: %v (proceeding to remove)", id, err)
+			// Don't panic, just log the error and attempt removal
+		} else {
+			log.Printf("Container %s already stopped or not found, proceeding to remove", id)
 		}
-		log.Printf("Container %s already stopped or not found", id[:12])
+	} else {
+		log.Printf("Container %s stopped successfully", id)
 	}
 
 	// Remove the container
-	log.Printf("Removing container %s", id[:12])
+	log.Printf("Removing container %s", id)
 	if err := cli.ContainerRemove(ctx, id, container.RemoveOptions{}); err != nil {
 		if !client.IsErrNotFound(err) {
-			log.Printf("Error removing container %s: %v", id[:12], err)
-			panic(err)
+			log.Printf("Failed to remove container %s, error: %v", id, err)
+			// Don't panic, just log the error
+		} else {
+			log.Printf("Container %s already removed or not found", id)
 		}
-		log.Printf("Container %s already removed or not found", id[:12])
+	} else {
+		log.Printf("Container %s removed successfully", id)
 	}
 }
 
