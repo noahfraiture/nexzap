@@ -8,18 +8,12 @@ import (
 	"github.com/docker/docker/client"
 )
 
-type LanguageName int
-
-const (
-	_ LanguageName = iota
-	GO
-)
-
-var languages = map[LanguageName]container.Language{
-	GO: {
-		Name:      "go",
+var tutorialsContainer = []container.Tutorial{
+	{
+		Name:      "0_go",
+		Language:  "go",
 		Image:     "gotest",
-		WarmupDir: "./languages/go/warmup/",
+		WarmupDir: "",
 		Command:   []string{"go", "test"},
 	},
 }
@@ -55,14 +49,14 @@ func (s *Service) init() error {
 }
 
 // RunTest executes the provided files in test mode for a given language.
-func (s *Service) RunTest(name LanguageName, files []string) (string, error) {
+func (s *Service) RunTest(number int, files []string) (string, error) {
 	if !s.initialized {
 		return "", fmt.Errorf("not initialized")
 	}
-	if _, ok := languages[name]; !ok {
-		return "", fmt.Errorf("unknown language %d", name)
+	if len(tutorialsContainer) <= number {
+		return "", fmt.Errorf("Number longer than number of tutorials")
 	}
-	language := languages[name]
+	language := tutorialsContainer[number]
 	languagePool := s.pool.GetLanguagePool(s.ctx, s.cli, language)
 	ctn, err := languagePool.GetContainer(s.ctx, s.cli)
 	if err != nil {

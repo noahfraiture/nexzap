@@ -24,8 +24,9 @@ const (
 	CONTAINER_MARGIN = 2
 )
 
-type Language struct {
+type Tutorial struct {
 	Name      string
+	Language  string
 	Image     string
 	WarmupDir string
 	Command   []string
@@ -42,14 +43,14 @@ func NewPool() Pool {
 
 // GetLanguagePool creates a pool for a given language if it doesn't exist, then returns it.
 // Synchronized method to avoid duplicate language pool.
-func (p *Pool) GetLanguagePool(ctx context.Context, cli *client.Client, language Language) LanguagePool {
+func (p *Pool) GetLanguagePool(ctx context.Context, cli *client.Client, language Tutorial) LanguagePool {
 	p.Lock()
 	defer p.Unlock()
-	if lp, ok := p.pool[language.Name]; ok {
+	if lp, ok := p.pool[language.Language]; ok {
 		return lp
 	}
 	p.newLanguage(ctx, cli, language)
-	return p.pool[language.Name]
+	return p.pool[language.Language]
 }
 
 // newLanguage adds a pool for a language in the main pool.
@@ -57,7 +58,7 @@ func (p *Pool) GetLanguagePool(ctx context.Context, cli *client.Client, language
 func (p *Pool) newLanguage(
 	ctx context.Context,
 	cli *client.Client,
-	lang Language,
+	lang Tutorial,
 ) {
 	// Create the language
 	language := LanguagePool{
@@ -74,7 +75,7 @@ func (p *Pool) newLanguage(
 	}
 
 	language.languageTimeout.action = func() {
-		p.cleanLanguage(ctx, cli, lang.Name) // FIX: clean can try to remove self?
+		p.cleanLanguage(ctx, cli, lang.Language) // FIX: clean can try to remove self?
 	}
 
 	language.extendTimeout.action = func() {
@@ -107,12 +108,12 @@ func (p *Pool) newLanguage(
 	}
 	wg.Wait()
 
-	p.pool[lang.Name] = language
+	p.pool[lang.Language] = language
 }
 
 // LanguagePool represents a pool of containers for a specific language.
 type LanguagePool struct {
-	language        Language
+	language        Tutorial
 	minPool         chan string // pool of containers that should always be running
 	extendedPool    chan string // pool of containers that can shrink or expand
 	available       chan any    // quantity of containers still possible to deploy

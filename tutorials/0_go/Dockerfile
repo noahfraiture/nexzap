@@ -1,6 +1,6 @@
 FROM golang:alpine
 WORKDIR /workspace
-COPY . .
+COPY warmup/. .
 
 # warmup
 RUN go test

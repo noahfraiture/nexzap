@@ -14,8 +14,6 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// TODO : container discarded and that kind of stuff
-
 // TestRunTestGo tests the basic functionality of running Go tests
 func TestRunTestGo(t *testing.T) {
 	svc, err := NewService()
@@ -23,7 +21,7 @@ func TestRunTestGo(t *testing.T) {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
 
-	goDir := "./languages/go/warmup"
+	goDir := "../../tutorials/0_go/warmup/"
 
 	files, err := os.ReadDir(goDir)
 	if err != nil {
@@ -42,7 +40,7 @@ func TestRunTestGo(t *testing.T) {
 	for i := range 5 {
 		go func(runNum int) {
 			defer wg.Done()
-			output, err := svc.RunTest(GO, filePaths)
+			output, err := svc.RunTest(0, filePaths)
 			if err != nil {
 				t.Errorf("Run %d: Failed to run Go test: %v", runNum, err)
 				return
@@ -59,7 +57,7 @@ func TestRunTestGo(t *testing.T) {
 // TestServiceNotInitialized tests the behavior when service is not initialized
 func TestServiceNotInitialized(t *testing.T) {
 	svc := &Service{}
-	output, err := svc.RunTest(GO, []string{"test.go"})
+	output, err := svc.RunTest(0, []string{"test.go"})
 	if err == nil {
 		t.Error("Expected error when service is not initialized, but got nil")
 	}
@@ -78,7 +76,7 @@ func TestUnknownLanguage(t *testing.T) {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
 
-	unknownLang := LanguageName(999)
+	unknownLang := 999
 	output, err := svc.RunTest(unknownLang, []string{"test.go"})
 	if err == nil {
 		t.Error("Expected error when using unknown language, but got nil")
@@ -86,8 +84,8 @@ func TestUnknownLanguage(t *testing.T) {
 	if output != "" {
 		t.Errorf("Expected empty output when using unknown language, but got: %s", output)
 	}
-	if err.Error() != fmt.Sprintf("unknown language %d", unknownLang) {
-		t.Errorf("Expected error message 'unknown language %d', but got: %v", unknownLang, err)
+	if err.Error() != "Number longer than number of tutorials" {
+		t.Errorf("Expected error message 'Number longer than number of tutorials', but got: %v", err)
 	}
 }
 
@@ -98,7 +96,7 @@ func TestEmptyFileList(t *testing.T) {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
 
-	output, err := svc.RunTest(GO, []string{})
+	output, err := svc.RunTest(0, []string{})
 	if err != nil {
 		t.Errorf("Expected no error when running with empty file list, but got: %v", err)
 	}
@@ -114,7 +112,7 @@ func TestConcurrentAccess(t *testing.T) {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
 
-	goDir := "./languages/go/warmup"
+	goDir := "../../tutorials/0_go/warmup/"
 	files, err := os.ReadDir(goDir)
 	if err != nil {
 		t.Fatalf("Failed to read Go directory: %v", err)
@@ -137,7 +135,7 @@ func TestConcurrentAccess(t *testing.T) {
 	for i := range concurrency {
 		go func(runNum int) {
 			defer wg.Done()
-			output, err := svc.RunTest(GO, filePaths)
+			output, err := svc.RunTest(0, filePaths)
 			if err != nil {
 				errors <- fmt.Errorf("Run %d: Failed to run Go test: %v", runNum, err)
 				return
@@ -178,7 +176,7 @@ func TestNonExistentFiles(t *testing.T) {
 
 	// Provide a list of non-existent files
 	files := []string{"/path/does/not/exist/test.go"}
-	output, err := svc.RunTest(GO, files)
+	output, err := svc.RunTest(0, files)
 	if err != nil {
 		t.Logf("Expected error or specific handling for non-existent files, got: %v", err)
 	} else {
@@ -192,7 +190,7 @@ type mockContainerPool struct {
 	freeContainerFunc func(ctx context.Context, cli *client.Client, ctn string)
 }
 
-func (m *mockContainerPool) GetLanguagePool(ctx context.Context, cli *client.Client, language container.Language) container.LanguagePool {
+func (m *mockContainerPool) GetLanguagePool(ctx context.Context, cli *client.Client, language container.Tutorial) container.LanguagePool {
 	return container.LanguagePool{}
 }
 
