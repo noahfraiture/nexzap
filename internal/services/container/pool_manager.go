@@ -62,8 +62,8 @@ func (p *Pool) newLanguage(
 ) {
 	// Create the language
 	language := LanguagePool{
-		minPool:         make(chan string, MIN_CTN),
-		extendedPool:    make(chan string, MAX_CTN),
+		MinPool:         make(chan string, MIN_CTN),
+		ExtendedPool:    make(chan string, MAX_CTN),
 		available:       make(chan any, MAX_CTN),
 		language:        lang,
 		languageTimeout: *NewTimeout(LANGUAGE_TIMEOUT, nil),
@@ -80,11 +80,11 @@ func (p *Pool) newLanguage(
 
 	language.extendTimeout.action = func() {
 		var wg sync.WaitGroup
-		for c := range language.extendedPool {
+		for c := range language.ExtendedPool {
 			wg.Add(1)
 			go func(containerID string) {
 				defer wg.Done()
-				stopAndRemove(ctx, cli, containerID)
+				StopAndRemove(ctx, cli, containerID)
 			}(c)
 		}
 		wg.Wait()
@@ -103,7 +103,7 @@ func (p *Pool) newLanguage(
 			if err != nil {
 				panic(err)
 			}
-			language.minPool <- resp.ID
+			language.MinPool <- resp.ID
 		}()
 	}
 	wg.Wait()
@@ -114,8 +114,8 @@ func (p *Pool) newLanguage(
 // LanguagePool represents a pool of containers for a specific language.
 type LanguagePool struct {
 	language        Tutorial
-	minPool         chan string // pool of containers that should always be running
-	extendedPool    chan string // pool of containers that can shrink or expand
+	MinPool         chan string // pool of containers that should always be running
+	ExtendedPool    chan string // pool of containers that can shrink or expand
 	available       chan any    // quantity of containers still possible to deploy
 	languageTimeout Timeout
 	extendTimeout   Timeout
@@ -126,11 +126,11 @@ type LanguagePool struct {
 // You must free it after usage.
 func (lp *LanguagePool) GetContainer(ctx context.Context, cli *client.Client) (string, error) {
 	select {
-	case c := <-lp.minPool:
+	case c := <-lp.MinPool:
 		lp.languageTimeout.StartTimer()
 		extendContainer(ctx, cli, lp)
 		return c, nil
-	case c := <-lp.extendedPool:
+	case c := <-lp.ExtendedPool:
 		lp.languageTimeout.StartTimer()
 		lp.extendTimeout.StartTimer()
 		extendContainer(ctx, cli, lp)
@@ -147,16 +147,16 @@ func (lp *LanguagePool) FreeContainer(
 	ctn string,
 ) {
 	select {
-	case lp.minPool <- ctn:
-	case lp.extendedPool <- ctn:
+	case lp.MinPool <- ctn:
+	case lp.ExtendedPool <- ctn:
 	default:
-		stopAndRemove(ctx, cli, ctn)
+		StopAndRemove(ctx, cli, ctn)
 	}
 }
 
 // extendContainer extends the container pool if necessary to maintain a margin.
 func extendContainer(ctx context.Context, cli *client.Client, lp *LanguagePool) {
-	nbFree := len(lp.extendedPool) + len(lp.minPool)
+	nbFree := len(lp.ExtendedPool) + len(lp.MinPool)
 	if nbFree < CONTAINER_MARGIN {
 		select {
 		case <-lp.available:
@@ -173,7 +173,7 @@ func createAndAddContainer(ctx context.Context, cli *client.Client, lp *Language
 		lp.available <- struct{}{}
 		return
 	}
-	lp.extendedPool <- resp.ID
+	lp.ExtendedPool <- resp.ID
 }
 
 // cleanLanguage removes a language from the main pool and cleans the minPool.
@@ -184,9 +184,9 @@ func (p *Pool) cleanLanguage(ctx context.Context, cli *client.Client, name strin
 	if !ok {
 		return
 	}
-	close(language.minPool)
-	close(language.extendedPool)
-	for ctn := range language.minPool {
-		stopAndRemove(ctx, cli, ctn)
+	close(language.MinPool)
+	close(language.ExtendedPool)
+	for ctn := range language.MinPool {
+		StopAndRemove(ctx, cli, ctn)
 	}
 }

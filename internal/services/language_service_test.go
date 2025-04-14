@@ -20,6 +20,7 @@ func TestRunTestGo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
+	defer svc.Cleanup()
 
 	goDir := "../../tutorials/0_go/warmup/"
 
@@ -75,6 +76,7 @@ func TestUnknownLanguage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
+	defer svc.Cleanup()
 
 	unknownLang := 999
 	output, err := svc.RunTest(unknownLang, []string{"test.go"})
@@ -95,6 +97,7 @@ func TestEmptyFileList(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
+	defer svc.Cleanup()
 
 	output, err := svc.RunTest(0, []string{})
 	if err != nil {
@@ -111,6 +114,7 @@ func TestConcurrentAccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
+	defer svc.Cleanup()
 
 	goDir := "../../tutorials/0_go/warmup/"
 	files, err := os.ReadDir(goDir)
@@ -173,6 +177,7 @@ func TestNonExistentFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to initialize container service: %v", err)
 	}
+	defer svc.Cleanup()
 
 	// Provide a list of non-existent files
 	files := []string{"/path/does/not/exist/test.go"}
@@ -212,7 +217,6 @@ func TestContainerPoolExhaustion(t *testing.T) {
 	// This test would ideally mock the container pool to simulate exhaustion
 	// However, due to the complexity of the container pool implementation,
 	// a full mock would be needed which is beyond the scope of this test file update.
-	// Instead, we'll note that this test needs to be implemented with proper mocking.
 	t.Skip("Test for container pool exhaustion requires mocking of container package")
 }
 

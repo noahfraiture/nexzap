@@ -66,3 +66,34 @@ func (s *Service) RunTest(number int, files []string) (string, error) {
 	languagePool.FreeContainer(s.ctx, s.cli, ctn)
 	return output, err
 }
+
+// Cleanup stops and removes all containers in the pool.
+func (s *Service) Cleanup() error {
+	if !s.initialized {
+		return fmt.Errorf("not initialized")
+	}
+
+	// Iterate through all language pools and clean up containers
+	for _, tutorial := range tutorialsContainer {
+		languagePool := s.pool.GetLanguagePool(s.ctx, s.cli, tutorial)
+		// Drain minPool
+		for len(languagePool.MinPool) > 0 {
+			select {
+			case ctn := <-languagePool.MinPool:
+				container.StopAndRemove(s.ctx, s.cli, ctn)
+			default:
+				// No more containers to process
+			}
+		}
+		// Drain extendedPool
+		for len(languagePool.ExtendedPool) > 0 {
+			select {
+			case ctn := <-languagePool.ExtendedPool:
+				container.StopAndRemove(s.ctx, s.cli, ctn)
+			default:
+				// No more containers to process
+			}
+		}
+	}
+	return nil
+}

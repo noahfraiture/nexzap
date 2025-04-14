@@ -22,19 +22,19 @@ func Run(
 ) (string, error) {
 	archive, err := createTarArchive(files)
 	if err != nil {
-		stopAndRemove(ctx, cli, ctn)
+		StopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
 
 	err = cli.CopyToContainer(ctx, ctn, "/", archive, container.CopyToContainerOptions{})
 	if err != nil {
-		stopAndRemove(ctx, cli, ctn)
+		StopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
 
 	startTime := time.Now()
 	if err := cli.ContainerStart(ctx, ctn, container.StartOptions{}); err != nil {
-		stopAndRemove(ctx, cli, ctn)
+		StopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
 
@@ -42,7 +42,7 @@ func Run(
 	select {
 	case err := <-errCh:
 		if err != nil {
-			stopAndRemove(ctx, cli, ctn)
+			StopAndRemove(ctx, cli, ctn)
 			return "", err
 		}
 	case <-statusCh:
@@ -54,7 +54,7 @@ func Run(
 		Since:      startTime.Format(time.RFC3339),
 	})
 	if err != nil {
-		stopAndRemove(ctx, cli, ctn)
+		StopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
 	defer logs.Close()
@@ -62,7 +62,7 @@ func Run(
 	var logBytes bytes.Buffer
 	_, err = io.Copy(&logBytes, logs)
 	if err != nil {
-		stopAndRemove(ctx, cli, ctn)
+		StopAndRemove(ctx, cli, ctn)
 		return "", err
 	}
 
@@ -92,7 +92,7 @@ func createContainer(
 	if lang.WarmupDir != "" {
 		files, err := os.ReadDir(lang.WarmupDir)
 		if err != nil {
-			stopAndRemove(ctx, cli, resp.ID)
+			StopAndRemove(ctx, cli, resp.ID)
 			return emptyResp, err
 		}
 
@@ -103,15 +103,15 @@ func createContainer(
 
 		_, err = Run(ctx, cli, resp.ID, filesName)
 		if err != nil {
-			stopAndRemove(ctx, cli, resp.ID)
+			StopAndRemove(ctx, cli, resp.ID)
 			return emptyResp, err
 		}
 	}
 	return resp, nil
 }
 
-// stopAndRemove stops and removes a container.
-func stopAndRemove(ctx context.Context, cli *client.Client, id string) {
+// StopAndRemove stops and removes a container.
+func StopAndRemove(ctx context.Context, cli *client.Client, id string) {
 	// Stop the container with a timeout of 10 seconds
 	timeout := 10
 	if err := cli.ContainerStop(ctx, id, container.StopOptions{Timeout: &timeout}); err != nil {
