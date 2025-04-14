@@ -9,10 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import "zapbyte/templates/layouts"
-import "zapbyte/internal/models"
 import "fmt"
 
-func homeContent(tutorial models.Tutorial) templ.Component {
+func homeContent(languageName, firstSheet, firstTest string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -33,7 +32,7 @@ func homeContent(tutorial models.Tutorial) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"grid grid-cols-1 md:grid-cols-2 gap-6 h-full\"><div class=\"card card-border bg-base-200 shadow-lg\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"grid grid-cols-1 md:grid-cols-2 gap-6 h-full\" x-data=\"{page: 0}\"><div class=\"card card-border bg-base-200 shadow-lg\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,66 +45,39 @@ func homeContent(tutorial models.Tutorial) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(tutorial.Language)
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(languageName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 13, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 12, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h2>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h2></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, sheet := range tutorial.Sheets {
-			if sheet.IsCode {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<pre><code class=\"language-go\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sheet.Content)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 16, Col: 52}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code></pre>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<p>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sheet.Content)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 18, Col: 24}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"flex flex-col gap-6 h-full\"><div class=\"card bg-base-200 shadow-lg flex-1\"><div class=\"card-body\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3><div class=\"flex justify-center items-center gap-4\"><input type=\"checkbox\" class=\"toggle\" x-model=\"enabled\" @change=\"toggleKeymap()\"> <select class=\"select\" x-model=\"keymap\" @change=\"setKeymap(keymap)\"><option value=\"default\">Keymap</option> <option value=\"vim\">Vim</option> <option value=\"emacs\">Emacs</option> <option value=\"sublime\">Sublime</option></select></div></div><div>")
+		templ_7745c5c3_Err = PageContent(firstSheet, "").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CodeEditor(tutorial.Highlighter).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"flex flex-col gap-6 h-full\"><div class=\"card bg-base-200 shadow-lg flex-1\"><div class=\"card-body\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3><div class=\"flex justify-center items-center gap-4\"><input type=\"checkbox\" class=\"toggle\" x-model=\"enabled\" @change=\"toggleKeymap()\"> <select class=\"select\" x-model=\"keymap\" @change=\"setKeymap(keymap)\"><option value=\"default\">Keymap</option> <option value=\"vim\">Vim</option> <option value=\"emacs\">Emacs</option> <option value=\"sublime\">Sublime</option></select></div></div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"card-actions justify-end mt-4\"><button class=\"btn btn-primary\">Submit</button></div></div></div><div class=\"card card-border bg-base-200 shadow-lg flex-1\"><div class=\"card-body\"><h3 class=\"card-title\">Tests</h3><p class=\"text-sm\">Test results and output will show up here.</p></div></div></div></div>")
+		templ_7745c5c3_Err = CodeEditor(languageName).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"card-actions justify-end mt-4\"><button class=\"btn btn-primary\">Submit</button></div></div></div><div class=\"card card-border bg-base-200 shadow-lg flex-1\"><div class=\"card-body\"><h3 class=\"card-title\">Tests</h3>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = TestContent(firstTest).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -113,7 +85,63 @@ func homeContent(tutorial models.Tutorial) templ.Component {
 	})
 }
 
-func Home(fromHtmx bool, tutorial models.Tutorial) templ.Component {
+func PageContent(sheetContent, testContent string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var3 == nil {
+			templ_7745c5c3_Var3 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div id=\"sheet\"><button type=\"button\" x-on:click=\"page--\" x-bind:hx-get=\"`/sheet?page=${page}`\" hx-target=\"#sheet\">Previous</button><div x-html=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sheetContent)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 57, Col: 28}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"></div><button type=\"button\" x-on:click=\"page++\" x-bind:hx-get=\"`/sheet?page=${page}`\">Next</button></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if testContent != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div id=\"test\" hx-swap-oob=\"true\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = TestContent(testContent).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		return nil
+	})
+}
+
+func TestContent(content string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -134,17 +162,59 @@ func Home(fromHtmx bool, tutorial models.Tutorial) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div id=\"test\" x-html=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(content)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 68, Col: 32}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func Home(fromHtmx bool, languageName, firstSheet, firstTest string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		if fromHtmx {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<title id=\"title\" hx-swap-oob=\"#title\">ZapByte - Home</title>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<title id=\"title\" hx-swap-oob=\"#title\">ZapByte - Home</title>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = homeContent(tutorial).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = homeContent(languageName, firstSheet, firstTest).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_Var8 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 				if !templ_7745c5c3_IsBuffer {
@@ -156,13 +226,13 @@ func Home(fromHtmx bool, tutorial models.Tutorial) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = homeContent(tutorial).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = homeContent(languageName, firstSheet, firstTest).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.Base("ZapByte - Home").Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.Base("ZapByte - Home").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -187,37 +257,37 @@ func CodeEditor(language string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var7 == nil {
-			templ_7745c5c3_Var7 = templ.NopComponent
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", "language", "language"))
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", language, language))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 78, Col: 128}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 88, Col: 124}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></script><script>\n\t\tfunction initialized() {\n\t\t\treturn {\n\t\t\t\tshow: false,\n\t\t\t\tready() { this.show = true },\n\t\t\t\tisReady() { return this.show === true },\n\t\t\t}\n\t\t}\n\t</script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div x-data=\"initialized\"><textarea id=\"code\" x-show=\"isReady\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tconsole.log(keymap, newKeymap, enable)\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tconsole.log(keymap, enable)\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var9, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 116, Col: 27}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></script><script>\n\t\tfunction initialized() {\n\t\t\treturn {\n\t\t\t\tshow: false,\n\t\t\t\tready() { this.show = true },\n\t\t\t\tisReady() { return this.show === true },\n\t\t\t}\n\t\t}\n\t</script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div x-data=\"initialized\"><textarea id=\"code\" x-show=\"isReady\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tconsole.log(keymap, newKeymap, enable)\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tconsole.log(keymap, enable)\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4,\n\n\t\t    });\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
+		templ_7745c5c3_Var11, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 126, Col: 27}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4,\n\n\t\t    });\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -241,12 +311,12 @@ func Highlight() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var10 == nil {
-			templ_7745c5c3_Var10 = templ.NopComponent
+		templ_7745c5c3_Var12 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var12 == nil {
+			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js\"></script><script>hljs.highlightAll();</script><style>\n\t\t\t/* Base styles */\n\t\t.hljs {\n\t\t  background-color: var(--color-base-100);\n\t\t  color: var(--color-base-content);\n\t\t  padding: 1em;\n\t\t}\n\n\t\t/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */\n\t\t.hljs pre {\n\t\t  margin: 0;\n\t\t}\n\n\t\t/* Syntax highlighting matching CodeMirror */\n\t\t.hljs-keyword {\n\t\t  color: var(--color-secondary);\n\t\t}\n\n\t\t.hljs-string {\n\t\t  color: var(--color-success);\n\t\t}\n\n\t\t.hljs-comment {\n\t\t  color: var(--color-neutral-content);\n\t\t  font-style: italic;\n\t\t}\n\n\t\t.hljs-number {\n\t\t  color: var(--color-error);\n\t\t}\n\n\t\t/* Additional highlight.js classes mapped to DaisyUI colors */\n\t\t.hljs-title,\n\t\t.hljs-title.class,\n\t\t.hljs-title.function {\n\t\t  color: var(--color-primary);\n\t\t}\n\n\t\t.hljs-variable,\n\t\t.hljs-attribute,\n\t\t.hljs-tag {\n\t\t  color: var(--color-info);\n\t\t}\n\n\t\t.hljs-operator,\n\t\t.hljs-punctuation {\n\t\t  color: var(--color-base-content);\n\t\t}\n\n\t\t.hljs-literal,\n\t\t.hljs-built_in {\n\t\t  color: var(--color-warning);\n\t\t}\n\n\t\t.hljs-meta {\n\t\t  color: var(--color-accent);\n\t\t}\n\n\t\t/* Selection matching CodeMirror */\n\t\t.hljs::selection {\n\t\t  background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t\t}\n\n\t\t/* Optional: Add some subtle styling for better readability */\n\t\t.hljs code {\n\t\t  background: transparent;\n\t\t}\n\n\t\t/* Match the gutter styling if needed */\n\t\t.hljs-ln-numbers {\n\t\t  background: var(--color-base-200);\n\t\t  color: var(--color-neutral-content);\n\t\t  border-right: 1px solid var(--color-base-300);\n\t\t  padding-right: 0.5em;\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js\"></script><script>hljs.highlightAll();</script><style>\n\t\t\t/* Base styles */\n\t\t.hljs {\n\t\t  background-color: var(--color-base-100);\n\t\t  color: var(--color-base-content);\n\t\t  padding: 1em;\n\t\t}\n\n\t\t/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */\n\t\t.hljs pre {\n\t\t  margin: 0;\n\t\t}\n\n\t\t/* Syntax highlighting matching CodeMirror */\n\t\t.hljs-keyword {\n\t\t  color: var(--color-secondary);\n\t\t}\n\n\t\t.hljs-string {\n\t\t  color: var(--color-success);\n\t\t}\n\n\t\t.hljs-comment {\n\t\t  color: var(--color-neutral-content);\n\t\t  font-style: italic;\n\t\t}\n\n\t\t.hljs-number {\n\t\t  color: var(--color-error);\n\t\t}\n\n\t\t/* Additional highlight.js classes mapped to DaisyUI colors */\n\t\t.hljs-title,\n\t\t.hljs-title.class,\n\t\t.hljs-title.function {\n\t\t  color: var(--color-primary);\n\t\t}\n\n\t\t.hljs-variable,\n\t\t.hljs-attribute,\n\t\t.hljs-tag {\n\t\t  color: var(--color-info);\n\t\t}\n\n\t\t.hljs-operator,\n\t\t.hljs-punctuation {\n\t\t  color: var(--color-base-content);\n\t\t}\n\n\t\t.hljs-literal,\n\t\t.hljs-built_in {\n\t\t  color: var(--color-warning);\n\t\t}\n\n\t\t.hljs-meta {\n\t\t  color: var(--color-accent);\n\t\t}\n\n\t\t/* Selection matching CodeMirror */\n\t\t.hljs::selection {\n\t\t  background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t\t}\n\n\t\t/* Optional: Add some subtle styling for better readability */\n\t\t.hljs code {\n\t\t  background: transparent;\n\t\t}\n\n\t\t/* Match the gutter styling if needed */\n\t\t.hljs-ln-numbers {\n\t\t  background: var(--color-base-200);\n\t\t  color: var(--color-neutral-content);\n\t\t  border-right: 1px solid var(--color-base-300);\n\t\t  padding-right: 0.5em;\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

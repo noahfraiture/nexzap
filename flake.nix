@@ -22,6 +22,7 @@
           templ
           tailwindcss_4
           watchman
+          sqlc
         ];
 
         DIRENV = "ZapByte";

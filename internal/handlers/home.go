@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"fmt"
-	"math/rand/v2"
 	"net/http"
-	"zapbyte/internal/models"
+	"strconv"
 	"zapbyte/internal/services"
 	"zapbyte/templates/pages"
 )
@@ -12,20 +10,39 @@ import (
 func HomeHandler() http.HandlerFunc {
 	// Computed once
 	return func(w http.ResponseWriter, r *http.Request) {
-		tutorial, _ := getRandomTutorial()
-		pages.Home(fromHtmx(r), *tutorial).Render(r.Context(), w)
+		tutorial, err := services.LastTutorial()
+		if err != nil {
+			tutorial = &services.Tutorial{LanguageName: "Error"}
+		}
+		pages.Home(
+			isFromHtmx(r),
+			tutorial.LanguageName,
+			tutorial.SheetContents[0],
+			tutorial.TestContents[0],
+		).Render(r.Context(), w)
 	}
 }
 
-func getRandomTutorial() (*models.Tutorial, error) {
-
-	tutorials, err := services.GetTutorials()
-	if err != nil {
-		return nil, err
+// TODO : cache the tutorial
+// TODO : limit page and return error if not present
+func PageHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tutorial, err := services.LastTutorial()
+		if err != nil {
+			tutorial = &services.Tutorial{LanguageName: "Error"}
+		}
+		pageParam := r.URL.Query().Get("page")
+		pageIndex := 0
+		if pageParam != "" {
+			var convErr error
+			pageIndex, convErr = strconv.Atoi(pageParam)
+			if convErr != nil || pageIndex < 0 || pageIndex >= len(tutorial.SheetContents) {
+				pageIndex = 0
+			}
+		}
+		pages.PageContent(
+			tutorial.SheetContents[pageIndex],
+			tutorial.TestContents[pageIndex],
+		).Render(r.Context(), w)
 	}
-	if len(*tutorials) == 0 {
-		return nil, fmt.Errorf("No tutorial found")
-	}
-	randomIndex := rand.IntN(len(*tutorials))
-	return &(*tutorials)[randomIndex], nil
 }
