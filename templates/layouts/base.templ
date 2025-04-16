@@ -19,7 +19,7 @@ templ Base(title string) {
 			// Navigation partial
 			@partials.Nav()
 			// Main content slot
-			<main id="main" class="p-4 w-full h-full">
+			<main id="main" class="p-4 w-full flex-1 overflow-y-auto">
 				{ children... }
 			</main>
 		</body>

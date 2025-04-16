@@ -1,17 +1,21 @@
 package pages
 
-import "zapbyte/templates/layouts"
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"zapbyte/internal/models"
+	"zapbyte/templates/layouts"
+)
 
-templ homeContent(languageName, firstSheet, firstTest string) {
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full" x-data="{page: 0}">
+templ homeContent(languageName string, sheet models.Sheet) {
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
 		// Left Panel
 		<div class="card card-border bg-base-200 shadow-lg">
 			@Highlight()
-			<div class="p-6 space-y-4">
+			<div class="p-6 flex flex-col h-full">
 				<h2 class="card-title">{ languageName }</h2>
+				@GuideContent(sheet)
 			</div>
-			@PageContent(firstSheet, "")
 		</div>
 		// Right Panel (Code Editor & Tests)
 		<div class="flex flex-col gap-6 h-full">
@@ -44,37 +48,50 @@ templ homeContent(languageName, firstSheet, firstTest string) {
 			<div class="card card-border bg-base-200 shadow-lg flex-1">
 				<div class="card-body">
 					<h3 class="card-title">Tests</h3>
-					@TestContent(firstTest)
+					<div id="test">
+						@TestContent(sheet.TestContent)
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 }
 
-templ PageContent(sheetContent, testContent string) {
-	<div id="sheet">
-		<button type="button" x-on:click="page--" x-bind:hx-get="`/sheet?page=${page}`" hx-target="#sheet">Previous</button>
-		<div x-html={ sheetContent }></div>
-		<button type="button" x-on:click="page++" x-bind:hx-get="`/sheet?page=${page}`">Next</button>
-	</div>
-	if testContent != "" {
-		<div id="test" hx-swap-oob="true">
-			@TestContent(testContent)
+templ GuideContent(sheet models.Sheet) {
+	<div id="sheet" class="flex-1 flex flex-col">
+		<div class="flex-1">
+			@templ.Raw(sheet.SheetContent)
 		</div>
-	}
+		<div class="flex justify-center items-center gap-4">
+			if sheet.NbPage > 0 {
+				<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))) } hx-target="#sheet">Previous</button>
+			}
+			<span class="text-base">Page { strconv.Itoa(sheet.NbPage + 1) } of { strconv.Itoa(sheet.MaxPage) }</span>
+			if sheet.NbPage < sheet.MaxPage - 1 {
+				<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))) } hx-target="#sheet">Next</button>
+			}
+		</div>
+	</div>
+}
+
+templ NextContent(sheet models.Sheet) {
+	@GuideContent(sheet)
+	<div id="test" hx-swap-oob="true">
+		@TestContent(sheet.TestContent)
+	</div>
 }
 
 templ TestContent(content string) {
-	<div id="test" x-html={ content }></div>
+	@templ.Raw(content)
 }
 
-templ Home(fromHtmx bool, languageName, firstSheet, firstTest string) {
+templ Home(fromHtmx bool, languageName string, sheet models.Sheet) {
 	if fromHtmx {
 		<title id="title" hx-swap-oob="#title">ZapByte - Home</title>
-		@homeContent(languageName, firstSheet, firstTest)
+		@homeContent(languageName, sheet)
 	} else {
 		@layouts.Base("ZapByte - Home") {
-			@homeContent(languageName, firstSheet, firstTest)
+			@homeContent(languageName, sheet)
 		}
 	}
 }

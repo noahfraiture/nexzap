@@ -13,7 +13,7 @@ type File struct {
 	ID      uuid.UUID
 	Name    string
 	Content []byte
-	TestID  uuid.UUID
+	SheetID uuid.UUID
 }
 
 type Language struct {
@@ -22,16 +22,11 @@ type Language struct {
 }
 
 type Sheet struct {
-	ID         uuid.UUID
-	Content    string
-	TestID     uuid.UUID
-	TutorialID uuid.UUID
-}
-
-type Test struct {
-	ID          uuid.UUID
-	Content     string
-	DockerImage string
+	ID           uuid.UUID
+	GuideContent string
+	TestContent  pgtype.Text
+	DockerImage  pgtype.Text
+	TutorialID   uuid.UUID
 }
 
 type Tutorial struct {

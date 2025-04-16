@@ -9,4 +9,7 @@ templ:
 air:
 	air
 
-dev: tailwind templ air
+sqlc:
+	sqlc generate
+
+dev: sqlc tailwind templ air

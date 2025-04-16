@@ -30,12 +30,12 @@ func LastTutorial() (*Tutorial, error) {
 		return nil, err
 	}
 	tutorial := Tutorial(row)
-	for i, sheet := range tutorial.SheetContents {
+	for i, sheet := range tutorial.GuideContents {
 		newSheet, err := markdownToHtml(sheet)
 		if err != nil {
 			return nil, err
 		}
-		tutorial.SheetContents[i] = newSheet
+		tutorial.GuideContents[i] = newSheet
 	}
 	for i, test := range tutorial.TestContents {
 		newTest, err := markdownToHtml(test)

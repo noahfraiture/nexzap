@@ -13,17 +13,15 @@ import (
 
 const findLastTutorial = `-- name: FindLastTutorial :one
 SELECT
-  array_agg (s.content)::text[] AS sheet_contents,
-  array_agg (te.content)::text[] AS test_contents,
+  array_agg (s.guide_content)::text[] AS guide_contents,
+  array_agg (s.test_content)::text[] AS test_contents,
   l.name AS language_name
 FROM
   tutorials tu
   JOIN sheets s ON s.tutorial_id = tu.id
-  JOIN tests te ON te.id = s.test_id
   JOIN languages l ON l.id = tu.language_id
 GROUP BY
   tu.id,
-  te.docker_image,
   l.name
 ORDER BY
   tu.updated_at DESC
@@ -32,7 +30,7 @@ LIMIT
 `
 
 type FindLastTutorialRow struct {
-	SheetContents []string
+	GuideContents []string
 	TestContents  []string
 	LanguageName  string
 }
@@ -40,29 +38,27 @@ type FindLastTutorialRow struct {
 func (q *Queries) FindLastTutorial(ctx context.Context) (FindLastTutorialRow, error) {
 	row := q.db.QueryRow(ctx, findLastTutorial)
 	var i FindLastTutorialRow
-	err := row.Scan(&i.SheetContents, &i.TestContents, &i.LanguageName)
+	err := row.Scan(&i.GuideContents, &i.TestContents, &i.LanguageName)
 	return i, err
 }
 
 const insertCompleteTutorial = `-- name: InsertCompleteTutorial :one
-WITH lang AS (
+WITH lang_ins AS (
   INSERT INTO languages (name)
   VALUES ($1)
+  ON CONFLICT (name) DO NOTHING
   RETURNING id
-),
-test AS (
-  INSERT INTO tests (content, docker_image)
-  SELECT unnest($2::text[]), $3
+), lang_sel AS (
+  SELECT id
+  FROM languages
+  WHERE name = $1
+), tut AS (
+  INSERT INTO tutorials (language_id)
+  VALUES ((SELECT id FROM lang_ins UNION SELECT id FROM lang_sel))
   RETURNING id
-),
-tut AS (
-  INSERT INTO tutorials (language_id, created_at, updated_at)
-  VALUES ((SELECT id FROM lang), NOW(), NOW())
-  RETURNING id
-),
-sheet AS (
-  INSERT INTO sheets (content, test_id, tutorial_id)
-  SELECT unnest($4::text[]), (SELECT id FROM test LIMIT 1), (SELECT id FROM tut)
+), sheet AS (
+  INSERT INTO sheets (guide_content, test_content, docker_image, tutorial_id)
+  SELECT unnest($2::text[]), unnest($3::text[]), unnest($4::text[]), (SELECT id FROM tut)
   RETURNING id
 )
 SELECT (SELECT id FROM tut) AS tutorial_id
@@ -70,17 +66,17 @@ SELECT (SELECT id FROM tut) AS tutorial_id
 
 type InsertCompleteTutorialParams struct {
 	LanguageName  string
+	GuideContents []string
 	TestContents  []string
-	DockerImage   string
-	SheetContents []string
+	DockerImages  []string
 }
 
 func (q *Queries) InsertCompleteTutorial(ctx context.Context, arg InsertCompleteTutorialParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, insertCompleteTutorial,
 		arg.LanguageName,
+		arg.GuideContents,
 		arg.TestContents,
-		arg.DockerImage,
-		arg.SheetContents,
+		arg.DockerImages,
 	)
 	var tutorial_id uuid.UUID
 	err := row.Scan(&tutorial_id)

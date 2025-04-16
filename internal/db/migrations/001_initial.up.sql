@@ -3,13 +3,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE languages (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(255) NOT NULL
-);
-
-CREATE TABLE tests (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  content TEXT NOT NULL,
-  docker_image VARCHAR(255) NOT NULL
+  name VARCHAR(255) UNIQUE NOT NULL
 );
 
 CREATE TABLE tutorials (
@@ -21,8 +15,9 @@ CREATE TABLE tutorials (
 
 CREATE TABLE sheets (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  content TEXT NOT NULL,
-  test_id UUID NOT NULL REFERENCES tests (id),
+  guide_content TEXT NOT NULL,
+  test_content TEXT,
+  docker_image VARCHAR(127),
   tutorial_id UUID NOT NULL REFERENCES tutorials (id)
 );
 
@@ -30,5 +25,5 @@ CREATE TABLE files (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(255) NOT NULL,
   content BYTEA NOT NULL,
-  test_id UUID NOT NULL REFERENCES tests (id)
+  sheet_id UUID NOT NULL REFERENCES sheets (id)
 );
