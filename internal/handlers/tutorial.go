@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"zapbyte/internal/services"
+	"nexzap/internal/services"
 )
 
 // InsertTutorialHandler handles the HTTP request to insert a new complete tutorial

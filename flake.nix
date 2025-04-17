@@ -25,7 +25,7 @@
           sqlc
         ];
 
-        DIRENV = "ZapByte";
+        DIRENV = "NexZap";
       };
     };
 }

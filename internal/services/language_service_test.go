@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"zapbyte/internal/services/container"
+	"nexzap/internal/services/container"
 
 	"github.com/docker/docker/client"
 )

@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 	"strconv"
-	"zapbyte/internal/models"
-	"zapbyte/internal/services"
-	"zapbyte/templates/pages"
+	"nexzap/internal/models"
+	"nexzap/internal/services"
+	"nexzap/templates/pages"
 )
 
 func HomeHandler() http.HandlerFunc {

@@ -11,8 +11,8 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"strconv"
-	"zapbyte/internal/models"
-	"zapbyte/templates/layouts"
+	"nexzap/internal/models"
+	"nexzap/templates/layouts"
 )
 
 func homeContent(languageName string, sheet models.Sheet) templ.Component {
@@ -290,7 +290,7 @@ func Home(fromHtmx bool, languageName string, sheet models.Sheet) templ.Componen
 		}
 		ctx = templ.ClearChildren(ctx)
 		if fromHtmx {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<title id=\"title\" hx-swap-oob=\"#title\">ZapByte - Home</title>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<title id=\"title\" hx-swap-oob=\"#title\">NexZap - Home</title>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -317,7 +317,7 @@ func Home(fromHtmx bool, languageName string, sheet models.Sheet) templ.Componen
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.Base("ZapByte - Home").Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.Base("NexZap - Home").Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

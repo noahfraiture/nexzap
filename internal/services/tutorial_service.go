@@ -2,8 +2,8 @@ package services
 
 import (
 	"context"
-	"zapbyte/internal/db"
-	generated "zapbyte/internal/db/generated"
+	"nexzap/internal/db"
+	generated "nexzap/internal/db/generated"
 )
 
 type TutorialParams generated.InsertCompleteTutorialParams

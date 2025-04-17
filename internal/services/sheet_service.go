@@ -3,8 +3,8 @@ package services
 import (
 	"bytes"
 	"context"
-	"zapbyte/internal/db"
-	generated "zapbyte/internal/db/generated"
+	"nexzap/internal/db"
+	generated "nexzap/internal/db/generated"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/renderer/html"

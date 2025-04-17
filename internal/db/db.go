@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
-	db "zapbyte/internal/db/generated"
+	db "nexzap/internal/db/generated"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
-	"zapbyte/internal/services/container"
+	"nexzap/internal/services/container"
 
 	"github.com/docker/docker/client"
 )

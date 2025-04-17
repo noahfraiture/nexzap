@@ -3,8 +3,8 @@ package pages
 import (
 	"fmt"
 	"strconv"
-	"zapbyte/internal/models"
-	"zapbyte/templates/layouts"
+	"nexzap/internal/models"
+	"nexzap/templates/layouts"
 )
 
 templ homeContent(languageName string, sheet models.Sheet) {
@@ -87,10 +87,10 @@ templ TestContent(content string) {
 
 templ Home(fromHtmx bool, languageName string, sheet models.Sheet) {
 	if fromHtmx {
-		<title id="title" hx-swap-oob="#title">ZapByte - Home</title>
+		<title id="title" hx-swap-oob="#title">NexZap - Home</title>
 		@homeContent(languageName, sheet)
 	} else {
-		@layouts.Base("ZapByte - Home") {
+		@layouts.Base("NexZap - Home") {
 			@homeContent(languageName, sheet)
 		}
 	}

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"zapbyte/internal/db"
-	"zapbyte/internal/handlers"
-	"zapbyte/internal/services"
+	"nexzap/internal/db"
+	"nexzap/internal/handlers"
+	"nexzap/internal/services"
 )
 
 func router() {
