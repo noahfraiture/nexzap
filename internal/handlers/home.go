@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 	"nexzap/internal/models"
 	"nexzap/internal/services"
 	"nexzap/templates/pages"
+	"strconv"
 )
 
 func HomeHandler() http.HandlerFunc {
@@ -16,7 +16,7 @@ func HomeHandler() http.HandlerFunc {
 			tutorial = &services.Tutorial{LanguageName: "Error"}
 		}
 
-		sheet := models.Sheet{
+		sheet := models.SheetTempl{
 			SheetContent: tutorial.GuideContents[0],
 			TestContent:  tutorial.TestContents[0],
 			NbPage:       0,
@@ -47,7 +47,7 @@ func SheetHandler() http.HandlerFunc {
 				pageIndex = 0
 			}
 		}
-		sheet := models.Sheet{
+		sheet := models.SheetTempl{
 			SheetContent: tutorial.GuideContents[pageIndex],
 			TestContent:  tutorial.TestContents[pageIndex],
 			NbPage:       pageIndex,

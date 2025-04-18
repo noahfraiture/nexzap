@@ -17,9 +17,6 @@ func router() {
 
 	http.HandleFunc("/", handlers.HomeHandler())
 	http.HandleFunc("/sheet", handlers.SheetHandler())
-
-	// TODO : remove or protect
-	http.HandleFunc("/api/tutorials", handlers.InsertTutorialHandler())
 }
 
 func main() {

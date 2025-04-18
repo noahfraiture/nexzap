@@ -1,14 +1,13 @@
 -- Enable the UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE languages (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(255) UNIQUE NOT NULL
-);
-
 CREATE TABLE tutorials (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  language_id UUID NOT NULL REFERENCES languages (id),
+  title STRING NOT NULL,
+  highlight STRING,
+  code_editor STRING,
+  docker_image STRING NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMP DEFAULT NOW (),
   updated_at TIMESTAMP DEFAULT NOW ()
 );
@@ -16,8 +15,7 @@ CREATE TABLE tutorials (
 CREATE TABLE sheets (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   guide_content TEXT NOT NULL,
-  test_content TEXT,
-  docker_image VARCHAR(127),
+  exercise_content TEXT,
   tutorial_id UUID NOT NULL REFERENCES tutorials (id)
 );
 

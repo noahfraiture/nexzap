@@ -1,0 +1,5 @@
+title = "Go"
+highlight = "go"
+codeEditor = "go"
+dockerImage = "gotest"
+version = 1

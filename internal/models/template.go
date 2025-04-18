@@ -1,6 +1,6 @@
 package models
 
-type Sheet struct {
+type SheetTempl struct {
 	SheetContent string
 	TestContent  string
 	NbPage       int

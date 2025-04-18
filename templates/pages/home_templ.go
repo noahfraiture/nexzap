@@ -5,17 +5,17 @@ package pages
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import "github.com/a-h/templ"
-import templruntime "github.com/a-h/templ/runtime"
-
 import (
 	"fmt"
-	"strconv"
 	"nexzap/internal/models"
 	"nexzap/templates/layouts"
+	"strconv"
+
+	"github.com/a-h/templ"
+	templruntime "github.com/a-h/templ/runtime"
 )
 
-func homeContent(languageName string, sheet models.Sheet) templ.Component {
+func homeContent(languageName string, sheet models.SheetTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -89,7 +89,7 @@ func homeContent(languageName string, sheet models.Sheet) templ.Component {
 	})
 }
 
-func GuideContent(sheet models.Sheet) templ.Component {
+func GuideContent(sheet models.SheetTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -198,7 +198,7 @@ func GuideContent(sheet models.Sheet) templ.Component {
 	})
 }
 
-func NextContent(sheet models.Sheet) templ.Component {
+func NextContent(sheet models.SheetTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -268,7 +268,7 @@ func TestContent(content string) templ.Component {
 	})
 }
 
-func Home(fromHtmx bool, languageName string, sheet models.Sheet) templ.Component {
+func Home(fromHtmx bool, languageName string, sheet models.SheetTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
