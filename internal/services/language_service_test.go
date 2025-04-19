@@ -41,7 +41,7 @@ func TestRunTestGo(t *testing.T) {
 	for i := range 5 {
 		go func(runNum int) {
 			defer wg.Done()
-			output, err := svc.RunTest(0, filePaths)
+			output, err := svc.RunTest("gotest", "go test", filePaths)
 			if err != nil {
 				t.Errorf("Run %d: Failed to run Go test: %v", runNum, err)
 				return

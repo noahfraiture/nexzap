@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -18,7 +16,7 @@ func Run(
 	ctx context.Context,
 	cli *client.Client,
 	ctn string,
-	files []string,
+	files []File,
 ) (string, error) {
 	archive, err := createTarArchive(files)
 	if err != nil {
@@ -88,25 +86,6 @@ func createContainer(
 		return emptyResp, err
 	}
 
-	// Warmup
-	if lang.WarmupDir != "" {
-		files, err := os.ReadDir(lang.WarmupDir)
-		if err != nil {
-			StopAndRemove(ctx, cli, resp.ID)
-			return emptyResp, err
-		}
-
-		filesName := make([]string, 0, len(files))
-		for _, file := range files {
-			filesName = append(filesName, lang.WarmupDir+file.Name())
-		}
-
-		_, err = Run(ctx, cli, resp.ID, filesName)
-		if err != nil {
-			StopAndRemove(ctx, cli, resp.ID)
-			return emptyResp, err
-		}
-	}
 	return resp, nil
 }
 
@@ -132,36 +111,30 @@ func StopAndRemove(ctx context.Context, cli *client.Client, id string) {
 	}
 }
 
+type File struct {
+	Name    string
+	Content string
+}
+
 // createTarArchive creates a tar archive from the provided files.
-func createTarArchive(files []string) (*bytes.Buffer, error) {
+func createTarArchive(files []File) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
 	defer tw.Close()
 
-	for _, filePath := range files {
-		file, err := os.Open(filePath)
-		if err != nil {
-			return nil, err
-		}
-		defer file.Close()
-
-		stat, err := file.Stat()
-		if err != nil {
-			return nil, err
-		}
-
+	for _, file := range files {
 		header := &tar.Header{
-			Name:    "workspace/" + filepath.Base(filePath),
-			Size:    stat.Size(),
-			Mode:    int64(stat.Mode()),
-			ModTime: stat.ModTime(),
+			Name:    "workspace/" + file.Name,
+			Size:    int64(len(file.Content)),
+			Mode:    0644,
+			ModTime: time.Now(),
 		}
 
 		if err := tw.WriteHeader(header); err != nil {
 			return nil, err
 		}
 
-		if _, err := io.Copy(tw, file); err != nil {
+		if _, err := io.WriteString(tw, file.Content); err != nil {
 			return nil, err
 		}
 	}

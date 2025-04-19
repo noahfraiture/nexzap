@@ -5,14 +5,14 @@ package pages
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
+
 import (
 	"fmt"
 	"nexzap/internal/models"
 	"nexzap/templates/layouts"
 	"strconv"
-
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
 )
 
 func homeContent(languageName string, sheet models.SheetTempl) templ.Component {
@@ -77,7 +77,7 @@ func homeContent(languageName string, sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TestContent(sheet.TestContent).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ExerciseContent(sheet.ExerciseContent).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -227,7 +227,7 @@ func NextContent(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TestContent(sheet.TestContent).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ExerciseContent(sheet.ExerciseContent).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -239,7 +239,7 @@ func NextContent(sheet models.SheetTempl) templ.Component {
 	})
 }
 
-func TestContent(content string) templ.Component {
+func ExerciseContent(content string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

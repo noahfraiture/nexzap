@@ -11,74 +11,203 @@ import (
 	"github.com/google/uuid"
 )
 
-const findLastTutorial = `-- name: FindLastTutorial :one
+const findLastTutorialFirstSheet = `-- name: FindLastTutorialFirstSheet :one
 SELECT
-  array_agg (s.guide_content)::text[] AS guide_contents,
-  array_agg (s.test_content)::text[] AS test_contents,
-  l.name AS language_name
+  tu.title,
+  s.id,
+  s.guide_content,
+  s.exercise_content,
+  s.page,
+  COUNT(*) OVER (PARTITION BY tu.id) as total_pages
 FROM
   tutorials tu
   JOIN sheets s ON s.tutorial_id = tu.id
-  JOIN languages l ON l.id = tu.language_id
-GROUP BY
-  tu.id,
-  l.name
+WHERE
+  s.page = 1
 ORDER BY
-  tu.updated_at DESC
+  tu.updated_at DESC,
+  tu.version DESC
 LIMIT
   1
 `
 
-type FindLastTutorialRow struct {
-	GuideContents []string
-	TestContents  []string
-	LanguageName  string
+type FindLastTutorialFirstSheetRow struct {
+	Title           string
+	ID              uuid.UUID
+	GuideContent    string
+	ExerciseContent string
+	Page            int32
+	TotalPages      int64
 }
 
-func (q *Queries) FindLastTutorial(ctx context.Context) (FindLastTutorialRow, error) {
-	row := q.db.QueryRow(ctx, findLastTutorial)
-	var i FindLastTutorialRow
-	err := row.Scan(&i.GuideContents, &i.TestContents, &i.LanguageName)
+func (q *Queries) FindLastTutorialFirstSheet(ctx context.Context) (FindLastTutorialFirstSheetRow, error) {
+	row := q.db.QueryRow(ctx, findLastTutorialFirstSheet)
+	var i FindLastTutorialFirstSheetRow
+	err := row.Scan(
+		&i.Title,
+		&i.ID,
+		&i.GuideContent,
+		&i.ExerciseContent,
+		&i.Page,
+		&i.TotalPages,
+	)
 	return i, err
 }
 
-const insertCompleteTutorial = `-- name: InsertCompleteTutorial :one
-WITH lang_ins AS (
-  INSERT INTO languages (name)
-  VALUES ($1)
-  ON CONFLICT (name) DO NOTHING
-  RETURNING id
-), lang_sel AS (
-  SELECT id
-  FROM languages
-  WHERE name = $1
-), tut AS (
-  INSERT INTO tutorials (language_id)
-  VALUES ((SELECT id FROM lang_ins UNION SELECT id FROM lang_sel))
-  RETURNING id
-), sheet AS (
-  INSERT INTO sheets (guide_content, test_content, docker_image, tutorial_id)
-  SELECT unnest($2::text[]), unnest($3::text[]), unnest($4::text[]), (SELECT id FROM tut)
-  RETURNING id
-)
-SELECT (SELECT id FROM tut) AS tutorial_id
+const findLastTutorialSheet = `-- name: FindLastTutorialSheet :one
+SELECT
+  tu.title,
+  s.id,
+  s.guide_content,
+  s.exercise_content,
+  s.page,
+  COUNT(*) OVER (PARTITION BY tu.id) as total_pages
+FROM
+  tutorials tu
+  JOIN sheets s ON s.tutorial_id = tu.id
+WHERE
+  s.page = $1
+ORDER BY
+  tu.updated_at DESC,
+  tu.version DESC
+LIMIT
+  1
 `
 
-type InsertCompleteTutorialParams struct {
-	LanguageName  string
-	GuideContents []string
-	TestContents  []string
-	DockerImages  []string
+type FindLastTutorialSheetRow struct {
+	Title           string
+	ID              uuid.UUID
+	GuideContent    string
+	ExerciseContent string
+	Page            int32
+	TotalPages      int64
 }
 
-func (q *Queries) InsertCompleteTutorial(ctx context.Context, arg InsertCompleteTutorialParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, insertCompleteTutorial,
-		arg.LanguageName,
-		arg.GuideContents,
-		arg.TestContents,
-		arg.DockerImages,
+func (q *Queries) FindLastTutorialSheet(ctx context.Context, page int32) (FindLastTutorialSheetRow, error) {
+	row := q.db.QueryRow(ctx, findLastTutorialSheet, page)
+	var i FindLastTutorialSheetRow
+	err := row.Scan(
+		&i.Title,
+		&i.ID,
+		&i.GuideContent,
+		&i.ExerciseContent,
+		&i.Page,
+		&i.TotalPages,
 	)
-	var tutorial_id uuid.UUID
-	err := row.Scan(&tutorial_id)
-	return tutorial_id, err
+	return i, err
+}
+
+const findSubmissionData = `-- name: FindSubmissionData :one
+SELECT
+  s.docker_image,
+  s.command,
+  s.submission_file,
+  array_agg (f.name)::text[] AS files_name,
+  array_agg (f.content)::text[] AS files_content
+FROM
+  sheets s
+  JOIN files f ON f.sheet_id = s.id
+WHERE
+  s.id = $1
+`
+
+type FindSubmissionDataRow struct {
+	DockerImage    string
+	Command        string
+	SubmissionFile string
+	FilesName      []string
+	FilesContent   []string
+}
+
+func (q *Queries) FindSubmissionData(ctx context.Context, sheetID uuid.UUID) (FindSubmissionDataRow, error) {
+	row := q.db.QueryRow(ctx, findSubmissionData, sheetID)
+	var i FindSubmissionDataRow
+	err := row.Scan(
+		&i.DockerImage,
+		&i.Command,
+		&i.SubmissionFile,
+		&i.FilesName,
+		&i.FilesContent,
+	)
+	return i, err
+}
+
+const insertFiles = `-- name: InsertFiles :exec
+INSERT INTO files (name, content, sheet_id)
+SELECT unnest($1::text[]), unnest($2::text[]), $3
+`
+
+type InsertFilesParams struct {
+	Names    []string
+	Contents []string
+	SheetID  uuid.UUID
+}
+
+func (q *Queries) InsertFiles(ctx context.Context, arg InsertFilesParams) error {
+	_, err := q.db.Exec(ctx, insertFiles, arg.Names, arg.Contents, arg.SheetID)
+	return err
+}
+
+const insertTutorial = `-- name: InsertTutorial :many
+WITH tutorial AS (
+  INSERT INTO tutorials (title, highlight, code_editor, version)
+  VALUES ($1, $2, $3, $4)
+  RETURNING id
+), sheet AS (
+  INSERT INTO sheets (tutorial_id, page, guide_content, exercise_content, docker_image, command, submission_file)
+  SELECT
+    (SELECT id FROM tutorial),
+    unnest($5::integer[]),
+    unnest($6::text[]),
+    unnest($7::text[]),
+    unnest($8::text[]),
+    unnest($9::text[]),
+    unnest($10::text[])
+  RETURNING id
+)
+SELECT id FROM sheet
+`
+
+type InsertTutorialParams struct {
+	Title            string
+	Highlight        string
+	CodeEditor       string
+	Version          int32
+	Pages            []int32
+	GuidesContent    []string
+	ExercisesContent []string
+	DockerImages     []string
+	Commands         []string
+	SubmissionFile   []string
+}
+
+func (q *Queries) InsertTutorial(ctx context.Context, arg InsertTutorialParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, insertTutorial,
+		arg.Title,
+		arg.Highlight,
+		arg.CodeEditor,
+		arg.Version,
+		arg.Pages,
+		arg.GuidesContent,
+		arg.ExercisesContent,
+		arg.DockerImages,
+		arg.Commands,
+		arg.SubmissionFile,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

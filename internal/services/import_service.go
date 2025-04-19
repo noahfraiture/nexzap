@@ -12,29 +12,34 @@ import (
 
 // TutorialMeta holds metadata for a programming language tutorial.
 type TutorialMeta struct {
-	title       string `toml:"title"`
-	highlight   string `toml:"highlight"`
-	codeEditor  string `toml:"code_editor"`
-	dockerImage string `toml:"docker_image"`
-	version     int    `toml:"version"`
+	Title      string `toml:"title"`
+	Highlight  string `toml:"highlight"`
+	CodeEditor string `toml:"codeEditor"`
+	Version    int    `toml:"version"`
 }
 
 // CorrectionFile represents a file with correction content for a tutorial sheet.
 type CorrectionFile struct {
-	name    string
-	content string
+	Name    string
+	Content string
 }
 
-// Sheet represents a tutorial sheet with guide, exercise, and correction content.
+// Sheet represents a tutorial Sheet with guide, exercise, and correction content.
 type Sheet struct {
-	guide      string
-	exercise   string
-	correction []CorrectionFile
+	Guide          string
+	Exercise       string
+	Image          string `toml:"image"`
+	Command        string `toml:"command"`
+	SubmissionFile string `toml:"submission"`
+	Files          []CorrectionFile
 }
 
-// readDirectory reads a tutorial directory, returning metadata and sheets.
+type SheetMeta struct {
+}
+
+// ReadDirectory reads a tutorial directory, returning metadata and sheets.
 // Errors if directory unreadable or files missing.
-func readDirectory(path string) (*TutorialMeta, *[]Sheet, error) {
+func ReadDirectory(path string) (*TutorialMeta, *[]Sheet, error) {
 	dir, err := os.ReadDir(path)
 	if err != nil {
 		return nil, nil, err
@@ -60,7 +65,7 @@ func readDirectory(path string) (*TutorialMeta, *[]Sheet, error) {
 	sort.Slice(guides, func(i, j int) bool { return guides[i].Name() < guides[j].Name() })
 	sheets := []Sheet{}
 	for _, guide := range guides {
-		sheet, err := readGuide(guide)
+		sheet, err := readGuide(guide, path)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -96,13 +101,10 @@ func extractMeta(dir []os.DirEntry, path string) (*TutorialMeta, error) {
 	}
 
 	// Check if all required fields are set
-	if meta.title == "" {
+	if meta.Title == "" {
 		return nil, errors.New("title field is not set in meta.toml")
 	}
-	if meta.dockerImage == "" {
-		return nil, errors.New("docker_image field is not set in meta.toml")
-	}
-	if meta.version == 0 {
+	if meta.Version == 0 {
 		return nil, errors.New("version field is not set in meta.toml")
 	}
 
@@ -111,8 +113,8 @@ func extractMeta(dir []os.DirEntry, path string) (*TutorialMeta, error) {
 
 // readGuide processes a guide directory to create a Sheet.
 // Errors if required files missing or unreadable.
-func readGuide(dir os.DirEntry) (Sheet, error) {
-	dirPath := dir.Name()
+func readGuide(dir os.DirEntry, basePath string) (Sheet, error) {
+	dirPath := filepath.Join(basePath, dir.Name())
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		return Sheet{}, err
@@ -141,10 +143,26 @@ func readGuide(dir os.DirEntry) (Sheet, error) {
 		return Sheet{}, err
 	}
 
+	// Read metadata from meta.toml in the guide directory
+	var sheetMeta Sheet
+	metaPath := filepath.Join(dirPath, "meta.toml")
+	metaContent, err := os.ReadFile(metaPath)
+	if err == nil {
+		if err := toml.Unmarshal(metaContent, &sheetMeta); err != nil {
+			return Sheet{}, err
+		}
+	} else {
+		// If meta.toml is not found, initialize with empty values
+		sheetMeta = Sheet{}
+	}
+
 	sheet := Sheet{
-		guide:      string(guideContent),
-		exercise:   string(exerciseContent),
-		correction: correctionFiles,
+		Guide:          string(guideContent),
+		Exercise:       string(exerciseContent),
+		Image:          sheetMeta.Image,
+		Command:        sheetMeta.Command,
+		SubmissionFile: sheetMeta.SubmissionFile,
+		Files:          correctionFiles,
 	}
 
 	return sheet, nil
@@ -192,8 +210,8 @@ func readCorrectionFiles(entries []os.DirEntry, dirPath string) ([]CorrectionFil
 				return nil, err
 			}
 			correctionFiles = append(correctionFiles, CorrectionFile{
-				name:    corrEntry.Name(),
-				content: string(content),
+				Name:    corrEntry.Name(),
+				Content: string(content),
 			})
 		}
 	}

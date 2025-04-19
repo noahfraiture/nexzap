@@ -1,0 +1,3 @@
+image = "rusttest"
+command = "cargo test"
+submission = "submission.rs"

@@ -11,20 +11,20 @@ import (
 func HomeHandler() http.HandlerFunc {
 	// Computed once
 	return func(w http.ResponseWriter, r *http.Request) {
-		tutorial, err := services.LastTutorial()
+		tutorial, err := services.LastTutorialFirstPage()
 		if err != nil {
-			tutorial = &services.Tutorial{LanguageName: "Error"}
+			tutorial = &services.FindTutorialModelSelect{Title: "Error"}
 		}
 
 		sheet := models.SheetTempl{
-			SheetContent: tutorial.GuideContents[0],
-			TestContent:  tutorial.TestContents[0],
-			NbPage:       0,
-			MaxPage:      len(tutorial.GuideContents),
+			SheetContent:    tutorial.GuideContent,
+			ExerciseContent: tutorial.ExerciseContent,
+			NbPage:          0,
+			MaxPage:         int(tutorial.TotalPages),
 		}
 		pages.Home(
 			isFromHtmx(r),
-			tutorial.LanguageName,
+			tutorial.Title,
 			sheet,
 		).Render(r.Context(), w)
 	}
@@ -34,24 +34,24 @@ func HomeHandler() http.HandlerFunc {
 // TODO : limit page and return error if not present
 func SheetHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tutorial, err := services.LastTutorial()
+		tutorial, err := services.LastTutorialFirstPage()
 		if err != nil {
-			tutorial = &services.Tutorial{LanguageName: "Error"}
+			tutorial = &services.FindTutorialModelSelect{Title: "Error"}
 		}
 		pageParam := r.URL.Query().Get("page")
 		pageIndex := 0
 		if pageParam != "" {
 			var convErr error
 			pageIndex, convErr = strconv.Atoi(pageParam)
-			if convErr != nil || pageIndex < 0 || pageIndex >= len(tutorial.GuideContents) {
+			if convErr != nil || pageIndex < 0 || pageIndex >= int(tutorial.TotalPages) {
 				pageIndex = 0
 			}
 		}
 		sheet := models.SheetTempl{
-			SheetContent: tutorial.GuideContents[pageIndex],
-			TestContent:  tutorial.TestContents[pageIndex],
-			NbPage:       pageIndex,
-			MaxPage:      len(tutorial.GuideContents),
+			SheetContent:    tutorial.GuideContent,
+			ExerciseContent: tutorial.ExerciseContent,
+			NbPage:          pageIndex,
+			MaxPage:         int(tutorial.TotalPages),
 		}
 		pages.NextContent(sheet).Render(r.Context(), w)
 	}

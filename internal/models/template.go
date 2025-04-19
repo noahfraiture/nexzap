@@ -1,8 +1,8 @@
 package models
 
 type SheetTempl struct {
-	SheetContent string
-	TestContent  string
-	NbPage       int
-	MaxPage      int
+	SheetContent    string
+	ExerciseContent string
+	NbPage          int
+	MaxPage         int
 }

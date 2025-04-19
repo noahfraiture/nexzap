@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	db "nexzap/internal/db/generated"
 	"os"
 	"strings"
-	db "nexzap/internal/db/generated"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -58,12 +58,20 @@ func Init() error {
 	}
 	repo = db.New(dbPool)
 
+	return nil
+}
+
+func Populate() error {
+	password, err := getPassword()
+	if err != nil {
+		return err
+	}
 	if err := buildDatabase(password); err != nil && err != migrate.ErrNoChange {
 		fmt.Println("error during building of database")
 		return err
 	}
-
 	return nil
+
 }
 
 func buildDatabase(password string) error {
@@ -100,4 +108,24 @@ func getPassword() (string, error) {
 		password = strings.TrimSpace(string(data))
 	}
 	return password, nil
+}
+
+// NukeDatabase drops the public schema and all its contents from the database.
+// WARNING: This is a destructive operation and will delete all data in the public schema.
+func NukeDatabase() error {
+	if dbPool == nil {
+		return fmt.Errorf("DB not initialized")
+	}
+
+	_, err := dbPool.Exec(context.Background(), "DROP SCHEMA IF EXISTS public CASCADE")
+	if err != nil {
+		return fmt.Errorf("failed to drop public schema: %v", err)
+	}
+
+	_, err = dbPool.Exec(context.Background(), "CREATE SCHEMA public")
+	if err != nil {
+		return fmt.Errorf("failed to recreate public schema: %v", err)
+	}
+
+	return nil
 }

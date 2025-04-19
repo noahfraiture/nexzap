@@ -25,43 +25,40 @@ const (
 )
 
 type Tutorial struct {
-	Name      string
-	Language  string
-	Image     string
-	WarmupDir string
-	Command   []string
+	Image   string
+	Command []string
 }
 
 type Pool struct {
 	sync.Mutex
-	pool map[string]LanguagePool
+	pool map[string]ImagePool
 }
 
 func NewPool() Pool {
-	return Pool{pool: make(map[string]LanguagePool)}
+	return Pool{pool: make(map[string]ImagePool)}
 }
 
 // GetLanguagePool creates a pool for a given language if it doesn't exist, then returns it.
 // Synchronized method to avoid duplicate language pool.
-func (p *Pool) GetLanguagePool(ctx context.Context, cli *client.Client, language Tutorial) LanguagePool {
+func (p *Pool) GetLanguagePool(ctx context.Context, cli *client.Client, language Tutorial) ImagePool {
 	p.Lock()
 	defer p.Unlock()
-	if lp, ok := p.pool[language.Language]; ok {
+	if lp, ok := p.pool[language.Image]; ok {
 		return lp
 	}
-	p.newLanguage(ctx, cli, language)
-	return p.pool[language.Language]
+	p.newImage(ctx, cli, language)
+	return p.pool[language.Image]
 }
 
-// newLanguage adds a pool for a language in the main pool.
+// newImage adds a pool for a language in the main pool.
 // Defines its configuration and starts its base container.
-func (p *Pool) newLanguage(
+func (p *Pool) newImage(
 	ctx context.Context,
 	cli *client.Client,
 	lang Tutorial,
 ) {
 	// Create the language
-	language := LanguagePool{
+	language := ImagePool{
 		MinPool:         make(chan string, MIN_CTN),
 		ExtendedPool:    make(chan string, MAX_CTN),
 		available:       make(chan any, MAX_CTN),
@@ -75,7 +72,7 @@ func (p *Pool) newLanguage(
 	}
 
 	language.languageTimeout.action = func() {
-		p.cleanLanguage(ctx, cli, lang.Language) // FIX: clean can try to remove self?
+		p.cleanLanguage(ctx, cli, lang.Image) // FIX: clean can try to remove self?
 	}
 
 	language.extendTimeout.action = func() {
@@ -108,11 +105,11 @@ func (p *Pool) newLanguage(
 	}
 	wg.Wait()
 
-	p.pool[lang.Language] = language
+	p.pool[lang.Image] = language
 }
 
-// LanguagePool represents a pool of containers for a specific language.
-type LanguagePool struct {
+// ImagePool represents a pool of containers for a specific language.
+type ImagePool struct {
 	language        Tutorial
 	MinPool         chan string // pool of containers that should always be running
 	ExtendedPool    chan string // pool of containers that can shrink or expand
@@ -124,7 +121,7 @@ type LanguagePool struct {
 // GetContainer queries a container from the language pool and resets the timeout.
 // The language pool can create new containers to keep a margin.
 // You must free it after usage.
-func (lp *LanguagePool) GetContainer(ctx context.Context, cli *client.Client) (string, error) {
+func (lp *ImagePool) GetContainer(ctx context.Context, cli *client.Client) (string, error) {
 	select {
 	case c := <-lp.MinPool:
 		lp.languageTimeout.StartTimer()
@@ -141,7 +138,7 @@ func (lp *LanguagePool) GetContainer(ctx context.Context, cli *client.Client) (s
 }
 
 // FreeContainer returns a container to the pool after usage.
-func (lp *LanguagePool) FreeContainer(
+func (lp *ImagePool) FreeContainer(
 	ctx context.Context,
 	cli *client.Client,
 	ctn string,
@@ -155,7 +152,7 @@ func (lp *LanguagePool) FreeContainer(
 }
 
 // extendContainer extends the container pool if necessary to maintain a margin.
-func extendContainer(ctx context.Context, cli *client.Client, lp *LanguagePool) {
+func extendContainer(ctx context.Context, cli *client.Client, lp *ImagePool) {
 	nbFree := len(lp.ExtendedPool) + len(lp.MinPool)
 	if nbFree < CONTAINER_MARGIN {
 		select {
@@ -167,7 +164,7 @@ func extendContainer(ctx context.Context, cli *client.Client, lp *LanguagePool) 
 }
 
 // createAndAddContainer creates a new container and adds it to the extended pool.
-func createAndAddContainer(ctx context.Context, cli *client.Client, lp *LanguagePool) {
+func createAndAddContainer(ctx context.Context, cli *client.Client, lp *ImagePool) {
 	resp, err := createContainer(ctx, cli, lp.language)
 	if err != nil {
 		lp.available <- struct{}{}
@@ -188,5 +185,15 @@ func (p *Pool) cleanLanguage(ctx context.Context, cli *client.Client, name strin
 	close(language.ExtendedPool)
 	for ctn := range language.MinPool {
 		StopAndRemove(ctx, cli, ctn)
+	}
+}
+
+func (p *Pool) CleanAll(ctx context.Context, cli *client.Client) {
+	p.Lock()
+	defer p.Unlock()
+
+	for imageName := range p.pool {
+		p.cleanLanguage(ctx, cli, imageName)
+		delete(p.pool, imageName)
 	}
 }

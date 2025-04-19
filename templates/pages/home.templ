@@ -7,7 +7,7 @@ import (
 	"nexzap/templates/layouts"
 )
 
-templ homeContent(languageName string, sheet models.Sheet) {
+templ homeContent(languageName string, sheet models.SheetTempl) {
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
 		// Left Panel
 		<div class="card card-border bg-base-200 shadow-lg">
@@ -49,7 +49,7 @@ templ homeContent(languageName string, sheet models.Sheet) {
 				<div class="card-body">
 					<h3 class="card-title">Tests</h3>
 					<div id="test">
-						@TestContent(sheet.TestContent)
+						@ExerciseContent(sheet.ExerciseContent)
 					</div>
 				</div>
 			</div>
@@ -57,7 +57,7 @@ templ homeContent(languageName string, sheet models.Sheet) {
 	</div>
 }
 
-templ GuideContent(sheet models.Sheet) {
+templ GuideContent(sheet models.SheetTempl) {
 	<div id="sheet" class="flex-1 flex flex-col">
 		<div class="flex-1">
 			@templ.Raw(sheet.SheetContent)
@@ -74,18 +74,18 @@ templ GuideContent(sheet models.Sheet) {
 	</div>
 }
 
-templ NextContent(sheet models.Sheet) {
+templ NextContent(sheet models.SheetTempl) {
 	@GuideContent(sheet)
 	<div id="test" hx-swap-oob="true">
-		@TestContent(sheet.TestContent)
+		@ExerciseContent(sheet.ExerciseContent)
 	</div>
 }
 
-templ TestContent(content string) {
+templ ExerciseContent(content string) {
 	@templ.Raw(content)
 }
 
-templ Home(fromHtmx bool, languageName string, sheet models.Sheet) {
+templ Home(fromHtmx bool, languageName string, sheet models.SheetTempl) {
 	if fromHtmx {
 		<title id="title" hx-swap-oob="#title">NexZap - Home</title>
 		@homeContent(languageName, sheet)

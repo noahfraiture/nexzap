@@ -6,6 +6,7 @@ import (
 	"nexzap/internal/db"
 	generated "nexzap/internal/db/generated"
 
+	"github.com/google/uuid"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/renderer/html"
 )
@@ -21,28 +22,21 @@ func InitMarkdown() {
 	)
 }
 
-type Tutorial generated.FindLastTutorialRow
+type FindTutorialModelSelect = generated.FindLastTutorialFirstSheetRow
 
-// LastTutorial get the last tutorial and parse the content of sheets and tests
-func LastTutorial() (*Tutorial, error) {
-	row, err := db.GetRepository().FindLastTutorial(context.Background())
+// LastTutorialFirstPage get the last tutorial and parse the content of sheets and tests
+func LastTutorialFirstPage() (*FindTutorialModelSelect, error) {
+	tutorial, err := db.GetRepository().FindLastTutorialFirstSheet(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	tutorial := Tutorial(row)
-	for i, sheet := range tutorial.GuideContents {
-		newSheet, err := markdownToHtml(sheet)
-		if err != nil {
-			return nil, err
-		}
-		tutorial.GuideContents[i] = newSheet
+	tutorial.GuideContent, err = markdownToHtml(tutorial.GuideContent)
+	if err != nil {
+		return nil, err
 	}
-	for i, test := range tutorial.TestContents {
-		newTest, err := markdownToHtml(test)
-		if err != nil {
-			return nil, err
-		}
-		tutorial.TestContents[i] = newTest
+	tutorial.GuideContent, err = markdownToHtml(tutorial.GuideContent)
+	if err != nil {
+		return nil, err
 	}
 	return &tutorial, nil
 }
@@ -54,4 +48,15 @@ func markdownToHtml(content string) (string, error) {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+type InsertTutorialModelInsert = generated.InsertTutorialParams
+type InsertFilesModelInsert = generated.InsertFilesParams
+
+func InsertTutorial(args InsertTutorialModelInsert) ([]uuid.UUID, error) {
+	return db.GetRepository().InsertTutorial(context.Background(), generated.InsertTutorialParams(args))
+}
+
+func InsertFile(args InsertFilesModelInsert) error {
+	return db.GetRepository().InsertFiles(context.Background(), generated.InsertFilesParams(args))
 }

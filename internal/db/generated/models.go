@@ -12,26 +12,27 @@ import (
 type File struct {
 	ID      uuid.UUID
 	Name    string
-	Content []byte
+	Content string
 	SheetID uuid.UUID
 }
 
-type Language struct {
-	ID   uuid.UUID
-	Name string
-}
-
 type Sheet struct {
-	ID           uuid.UUID
-	GuideContent string
-	TestContent  pgtype.Text
-	DockerImage  pgtype.Text
-	TutorialID   uuid.UUID
+	ID              uuid.UUID
+	TutorialID      uuid.UUID
+	Page            int32
+	GuideContent    string
+	ExerciseContent string
+	DockerImage     string
+	Command         string
+	SubmissionFile  string
 }
 
 type Tutorial struct {
 	ID         uuid.UUID
-	LanguageID uuid.UUID
+	Title      string
+	Highlight  string
+	CodeEditor string
+	Version    int32
 	CreatedAt  pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
 }

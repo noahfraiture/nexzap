@@ -4,19 +4,12 @@ import (
 	"context"
 	"fmt"
 	"nexzap/internal/services/container"
+	"strings"
+
+	generated "nexzap/internal/db/generated"
 
 	"github.com/docker/docker/client"
 )
-
-var tutorialsContainer = []container.Tutorial{
-	{
-		Name:      "0_go",
-		Language:  "go",
-		Image:     "gotest",
-		WarmupDir: "",
-		Command:   []string{"go", "test"},
-	},
-}
 
 // Service encapsulates the state and operations for language testing services.
 type Service struct {
@@ -48,20 +41,34 @@ func (s *Service) init() error {
 	return nil
 }
 
+type Correction = generated.FindSubmissionDataRow
+
 // RunTest executes the provided files in test mode for a given language.
-func (s *Service) RunTest(number int, files []string) (string, error) {
+func (s *Service) RunTest(correction Correction, payload string) (string, error) {
 	if !s.initialized {
 		return "", fmt.Errorf("not initialized")
 	}
-	if len(tutorialsContainer) <= number {
-		return "", fmt.Errorf("Number longer than number of tutorials")
+	tutorial := container.Tutorial{
+		Image:   correction.DockerImage,
+		Command: strings.Split(correction.Command, " "),
 	}
-	language := tutorialsContainer[number]
-	languagePool := s.pool.GetLanguagePool(s.ctx, s.cli, language)
+	languagePool := s.pool.GetLanguagePool(s.ctx, s.cli, tutorial)
 	ctn, err := languagePool.GetContainer(s.ctx, s.cli)
 	if err != nil {
 		return "", err
 	}
+
+	files := []container.File{}
+	for i := range correction.FilesName {
+		files = append(files, container.File{
+			Name:    correction.FilesName[i],
+			Content: correction.FilesContent[i],
+		})
+	}
+	files = append(files, container.File{
+		Name:    correction.SubmissionFile,
+		Content: payload,
+	})
 	output, err := container.Run(s.ctx, s.cli, ctn, files)
 	languagePool.FreeContainer(s.ctx, s.cli, ctn)
 	return output, err
@@ -73,27 +80,6 @@ func (s *Service) Cleanup() error {
 		return fmt.Errorf("not initialized")
 	}
 
-	// Iterate through all language pools and clean up containers
-	for _, tutorial := range tutorialsContainer {
-		languagePool := s.pool.GetLanguagePool(s.ctx, s.cli, tutorial)
-		// Drain minPool
-		for len(languagePool.MinPool) > 0 {
-			select {
-			case ctn := <-languagePool.MinPool:
-				container.StopAndRemove(s.ctx, s.cli, ctn)
-			default:
-				// No more containers to process
-			}
-		}
-		// Drain extendedPool
-		for len(languagePool.ExtendedPool) > 0 {
-			select {
-			case ctn := <-languagePool.ExtendedPool:
-				container.StopAndRemove(s.ctx, s.cli, ctn)
-			default:
-				// No more containers to process
-			}
-		}
-	}
+	s.pool.CleanAll(s.ctx, s.cli)
 	return nil
 }
