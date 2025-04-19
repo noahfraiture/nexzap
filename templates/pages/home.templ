@@ -2,9 +2,9 @@ package pages
 
 import (
 	"fmt"
-	"strconv"
 	"nexzap/internal/models"
 	"nexzap/templates/layouts"
+	"strconv"
 )
 
 templ homeContent(languageName string, sheet models.SheetTempl) {
@@ -63,11 +63,11 @@ templ GuideContent(sheet models.SheetTempl) {
 			@templ.Raw(sheet.SheetContent)
 		</div>
 		<div class="flex justify-center items-center gap-4">
-			if sheet.NbPage > 0 {
+			if sheet.NbPage > 1 {
 				<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))) } hx-target="#sheet">Previous</button>
 			}
-			<span class="text-base">Page { strconv.Itoa(sheet.NbPage + 1) } of { strconv.Itoa(sheet.MaxPage) }</span>
-			if sheet.NbPage < sheet.MaxPage - 1 {
+			<span class="text-base">Page { strconv.Itoa(sheet.NbPage) } of { strconv.Itoa(sheet.MaxPage) }</span>
+			if sheet.NbPage < sheet.MaxPage {
 				<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))) } hx-target="#sheet">Next</button>
 			}
 		</div>

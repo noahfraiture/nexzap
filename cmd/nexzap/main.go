@@ -16,7 +16,7 @@ func router(s *services.Service) {
 	})
 
 	http.HandleFunc("/", handlers.HomeHandler())
-	http.HandleFunc("/sheet", handlers.SheetHandler())
+	http.HandleFunc("GET /sheet", handlers.SheetHandler())
 	http.HandleFunc("POST /submit", handlers.SubmitHandler(s))
 	http.HandleFunc("POST /import", handlers.ImportHandler())
 	http.HandleFunc("GET /refresh", handlers.RefreshHandler())

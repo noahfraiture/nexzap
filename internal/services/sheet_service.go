@@ -22,10 +22,11 @@ func InitMarkdown() {
 	)
 }
 
-type FindTutorialModelSelect = generated.FindLastTutorialFirstSheetRow
+type FindTutorialFirstSheetModelSelect = generated.FindLastTutorialFirstSheetRow
+type FindTutorialSheetModelSelect = generated.FindLastTutorialSheetRow
 
 // LastTutorialFirstPage get the last tutorial and parse the content of sheets and tests
-func LastTutorialFirstPage() (*FindTutorialModelSelect, error) {
+func LastTutorialFirstPage() (*FindTutorialFirstSheetModelSelect, error) {
 	tutorial, err := db.GetRepository().FindLastTutorialFirstSheet(context.Background())
 	if err != nil {
 		return nil, err
@@ -34,7 +35,23 @@ func LastTutorialFirstPage() (*FindTutorialModelSelect, error) {
 	if err != nil {
 		return nil, err
 	}
+	tutorial.ExerciseContent, err = markdownToHtml(tutorial.ExerciseContent)
+	if err != nil {
+		return nil, err
+	}
+	return &tutorial, nil
+}
+
+func LastTutorialPage(page int) (*FindTutorialSheetModelSelect, error) {
+	tutorial, err := db.GetRepository().FindLastTutorialSheet(context.Background(), int32(page))
+	if err != nil {
+		return nil, err
+	}
 	tutorial.GuideContent, err = markdownToHtml(tutorial.GuideContent)
+	if err != nil {
+		return nil, err
+	}
+	tutorial.ExerciseContent, err = markdownToHtml(tutorial.ExerciseContent)
 	if err != nil {
 		return nil, err
 	}

@@ -18,7 +18,7 @@ SELECT
   s.guide_content,
   s.exercise_content,
   s.page,
-  COUNT(*) OVER (PARTITION BY tu.id) as total_pages
+  (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
 FROM
   tutorials tu
   JOIN sheets s ON s.tutorial_id = tu.id
@@ -61,7 +61,7 @@ SELECT
   s.guide_content,
   s.exercise_content,
   s.page,
-  COUNT(*) OVER (PARTITION BY tu.id) as total_pages
+  (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
 FROM
   tutorials tu
   JOIN sheets s ON s.tutorial_id = tu.id
