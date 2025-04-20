@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"nexzap/internal/models"
 	"nexzap/internal/services"
@@ -23,17 +22,21 @@ func SheetHandler() http.HandlerFunc {
 			}
 		}
 
-		fmt.Println(pageIndex)
 		tutorial, err := services.LastTutorialPage(pageIndex)
 		if err != nil {
 			tutorial = &services.FindTutorialSheetModelSelect{Title: "Error"}
 		}
-		sheet := models.SheetTempl{
-			SheetContent:    tutorial.GuideContent,
-			ExerciseContent: tutorial.ExerciseContent,
-			NbPage:          pageIndex,
-			MaxPage:         int(tutorial.TotalPages),
-		}
+		sheet := models.NewSheetTempl(
+			tutorial.ID.String(),
+			tutorial.Title,
+			tutorial.Highlight,
+			tutorial.CodeEditor,
+			tutorial.GuideContent,
+			tutorial.ExerciseContent,
+			tutorial.SubmissionContent,
+			pageIndex,
+			int(tutorial.TotalPages),
+		)
 		pages.NextContent(sheet).Render(r.Context(), w)
 	}
 }

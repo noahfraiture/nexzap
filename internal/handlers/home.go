@@ -17,16 +17,19 @@ func HomeHandler() http.HandlerFunc {
 			log.Println(err)
 		}
 
-		sheet := models.SheetTempl{
-			SheetContent:      tutorial.GuideContent,
-			ExerciseContent:   tutorial.ExerciseContent,
-			CorrectionContent: tutorial.SubmissionContent,
-			NbPage:            1,
-			MaxPage:           int(tutorial.TotalPages),
-		}
+		sheet := models.NewSheetTempl(
+			tutorial.ID.String(),
+			tutorial.Title,
+			tutorial.Highlight,
+			tutorial.CodeEditor,
+			tutorial.GuideContent,
+			tutorial.ExerciseContent,
+			tutorial.SubmissionContent,
+			1,
+			int(tutorial.TotalPages),
+		)
 		pages.Home(
 			isFromHtmx(r),
-			tutorial.Title,
 			sheet,
 		).Render(r.Context(), w)
 	}

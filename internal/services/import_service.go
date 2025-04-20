@@ -155,9 +155,7 @@ func readDirectory(path string) (*tutorialMeta, *[]sheet, error) {
 	sort.Slice(guides, func(i, j int) bool { return guides[i].Name() < guides[j].Name() })
 	sheets := []sheet{}
 	for _, guide := range guides {
-		fmt.Println(guide)
-		fmt.Println(path)
-		sheet, err := readGuide(guide, path) // FIXME
+		sheet, err := readGuide(guide, path)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -229,7 +227,8 @@ func readGuide(dir os.DirEntry, basePath string) (sheet, error) {
 	var correctionFiles []correctionFile
 
 	// get the markdown content exercise.md and guide.md
-	guideFile, exerciseFile, submissionFile = findFiles(entries, dirPath, sheetMeta.SubmissionName)
+	submissionFileName := filepath.Base(sheetMeta.SubmissionName)
+	guideFile, exerciseFile, submissionFile = findFiles(entries, dirPath, submissionFileName)
 	if guideFile == "" || exerciseFile == "" {
 		return sheet{}, errors.New("guide.md or exercise.md not found in directory")
 	}
@@ -300,25 +299,40 @@ func readCorrectionFiles(entries []os.DirEntry, dirPath string) ([]correctionFil
 	if correctionDir == "" {
 		return nil, errors.New("correction directory not found")
 	}
-	corrEntries, err := os.ReadDir(correctionDir)
-	if err != nil {
-		return nil, err
-	}
+	err := readCodeFiles(correctionDir, "", &correctionFiles)
+	return correctionFiles, err
+}
 
-	for _, corrEntry := range corrEntries {
-		if !corrEntry.IsDir() {
-			content, err := os.ReadFile(filepath.Join(correctionDir, corrEntry.Name()))
+// readCodeFiles recursively reads code files from a directory and its subdirectories.
+// It appends the file information to the provided files slice.
+// Errors if directory is unreadable or file operations fail.
+func readCodeFiles(dirPath, subDir string, files *[]correctionFile) error {
+	dir, err := os.ReadDir(dirPath)
+	if err != nil {
+		return err
+	}
+	for _, entry := range dir {
+		if entry.IsDir() {
+			err = readCodeFiles(
+				filepath.Join(dirPath, entry.Name()),
+				filepath.Join(subDir, entry.Name()),
+				files,
+			)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			correctionFiles = append(correctionFiles, correctionFile{
-				Name:    corrEntry.Name(),
+		} else {
+			content, err := os.ReadFile(filepath.Join(dirPath, entry.Name()))
+			if err != nil {
+				return err
+			}
+			*files = append(*files, correctionFile{
+				Name:    filepath.Join(subDir, entry.Name()),
 				Content: string(content),
 			})
 		}
 	}
-
-	return correctionFiles, nil
+	return nil
 }
 
 // FilesPerSheet defines file data for a single sheet

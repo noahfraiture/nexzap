@@ -34,6 +34,8 @@ SELECT unnest(@names::text[]), unnest(@contents::text[]), @sheet_id;
 -- name: FindLastTutorialFirstSheet :one
 SELECT
   tu.title,
+  tu.highlight,
+  tu.code_editor,
   s.id,
   s.guide_content,
   s.exercise_content,
@@ -54,6 +56,8 @@ LIMIT
 -- name: FindLastTutorialSheet :one
 SELECT
   tu.title,
+  tu.highlight,
+  tu.code_editor,
   s.id,
   s.guide_content,
   s.exercise_content,
@@ -76,10 +80,12 @@ SELECT
   s.docker_image,
   s.command,
   s.submission_name,
-  array_agg (f.name)::text[] AS files_name,
-  array_agg (f.content)::text[] AS files_content
+  array_agg(f.name)::text[] AS files_name,
+  array_agg(f.content)::text[] AS files_content
 FROM
   sheets s
   JOIN files f ON f.sheet_id = s.id
 WHERE
-  s.id = @sheet_id;
+  s.id = @sheet_id
+GROUP BY
+  s.id, s.docker_image, s.command, s.submission_name;

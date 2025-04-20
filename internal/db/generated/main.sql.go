@@ -14,6 +14,8 @@ import (
 const findLastTutorialFirstSheet = `-- name: FindLastTutorialFirstSheet :one
 SELECT
   tu.title,
+  tu.highlight,
+  tu.code_editor,
   s.id,
   s.guide_content,
   s.exercise_content,
@@ -34,6 +36,8 @@ LIMIT
 
 type FindLastTutorialFirstSheetRow struct {
 	Title             string
+	Highlight         string
+	CodeEditor        string
 	ID                uuid.UUID
 	GuideContent      string
 	ExerciseContent   string
@@ -47,6 +51,8 @@ func (q *Queries) FindLastTutorialFirstSheet(ctx context.Context) (FindLastTutor
 	var i FindLastTutorialFirstSheetRow
 	err := row.Scan(
 		&i.Title,
+		&i.Highlight,
+		&i.CodeEditor,
 		&i.ID,
 		&i.GuideContent,
 		&i.ExerciseContent,
@@ -60,6 +66,8 @@ func (q *Queries) FindLastTutorialFirstSheet(ctx context.Context) (FindLastTutor
 const findLastTutorialSheet = `-- name: FindLastTutorialSheet :one
 SELECT
   tu.title,
+  tu.highlight,
+  tu.code_editor,
   s.id,
   s.guide_content,
   s.exercise_content,
@@ -80,6 +88,8 @@ LIMIT
 
 type FindLastTutorialSheetRow struct {
 	Title             string
+	Highlight         string
+	CodeEditor        string
 	ID                uuid.UUID
 	GuideContent      string
 	ExerciseContent   string
@@ -93,6 +103,8 @@ func (q *Queries) FindLastTutorialSheet(ctx context.Context, page int32) (FindLa
 	var i FindLastTutorialSheetRow
 	err := row.Scan(
 		&i.Title,
+		&i.Highlight,
+		&i.CodeEditor,
 		&i.ID,
 		&i.GuideContent,
 		&i.ExerciseContent,
@@ -108,13 +120,15 @@ SELECT
   s.docker_image,
   s.command,
   s.submission_name,
-  array_agg (f.name)::text[] AS files_name,
-  array_agg (f.content)::text[] AS files_content
+  array_agg(f.name)::text[] AS files_name,
+  array_agg(f.content)::text[] AS files_content
 FROM
   sheets s
   JOIN files f ON f.sheet_id = s.id
 WHERE
   s.id = $1
+GROUP BY
+  s.id, s.docker_image, s.command, s.submission_name
 `
 
 type FindSubmissionDataRow struct {

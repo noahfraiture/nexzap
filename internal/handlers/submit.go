@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"nexzap/internal/db"
 	"nexzap/internal/services"
+	"nexzap/templates/partials"
 
 	"github.com/google/uuid"
 )
@@ -35,16 +36,15 @@ func SubmitHandler(s *services.Service) http.HandlerFunc {
 		repo := db.GetRepository()
 		submissionData, err := repo.FindSubmissionData(context.Background(), sheetUUID)
 		if err != nil {
-			http.Error(w, "Failed to retrieve submission data", http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("Failed to retrieve submission data. Error : %s", err), http.StatusInternalServerError)
 			return
 		}
-		fmt.Println(submissionData)
 
-		fmt.Println(submissionData)
-		fmt.Println(payload)
-		s.RunTest(submissionData, payload)
+		output, status, err := s.RunTest(submissionData, payload)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Failed to run test. Error: %s", err), http.StatusInternalServerError)
+		}
 
-		// Process the payload as needed
-		w.WriteHeader(http.StatusOK)
+		partials.Result(output, status).Render(r.Context(), w)
 	}
 }

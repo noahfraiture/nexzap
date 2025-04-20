@@ -1,0 +1,265 @@
+package partials
+
+import (
+	"fmt"
+	"nexzap/internal/models"
+	"strconv"
+)
+
+templ GuideContent(sheet models.SheetTempl) {
+	<div class="h-screen overflow-y-scroll">
+		@templ.Raw(sheet.SheetContent)
+	</div>
+}
+
+templ Buttons(sheet models.SheetTempl) {
+	<div class="flex justify-center items-center gap-4">
+		if sheet.NbPage > 1 {
+			<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))) } hx-target="#sheet">Previous</button>
+		}
+		<span class="text-base">Page { strconv.Itoa(sheet.NbPage) } of { strconv.Itoa(sheet.MaxPage) }</span>
+		if sheet.NbPage < sheet.MaxPage {
+			<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))) } hx-target="#sheet">Next</button>
+		}
+	</div>
+}
+
+templ ExerciseContent(content string) {
+	@templ.Raw(content)
+}
+
+templ EditorPanel(sheet models.SheetTempl) {
+	<div class="card bg-base-200 shadow-lg">
+		<div class="card-body" x-data="{keymap: 'default', enabled: false, loading: false}">
+			// Change the keymap
+			<div class="flex justify-between">
+				<h3 class="card-title">Your Solution</h3>
+				<div class="flex justify-center items-center gap-4">
+					<input type="checkbox" class="toggle" x-model="enabled" @change="toggleKeymap()"/>
+					<select class="select" x-model="keymap" @change="setKeymap(keymap)">
+						<option value="default">Keymap</option>
+						<option value="vim">Vim</option>
+						<option value="emacs">Emacs</option>
+						<option value="sublime">Sublime</option>
+					</select>
+				</div>
+			</div>
+			// Editor itself
+			<div>
+				// FIX: real language code
+				@CodeEditor(sheet.CodeEditor, sheet.CorrectionContent)
+			</div>
+			<div class="card-actions justify-end mt-4">
+				<form
+					hx-post="/submit"
+					hx-target="#response"
+					hx-swap="innerHTML"
+					x-on:htmx:before-request="loading = true"
+					x-on:htmx:after-request="loading = false"
+				>
+					<input type="hidden" name="sheet" value={ sheet.Id }/>
+					<input type="hidden" name="payload" id="payload" value=""/>
+					<button
+						type="submit"
+						class="btn btn-primary"
+						x-on:click="document.getElementById('payload').value = editor.getValue();"
+						x-bind:disabled="loading"
+					>
+						<span x-show="!loading">Submit</span>
+						<span x-show="loading" class="loading loading-spinner text-primary"></span>
+					</button>
+				</form>
+				<div x-show="!loading" id="response"></div>
+			</div>
+		</div>
+	</div> // Tests Output
+}
+
+templ CodeEditor(language string, content string) {
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js"></script>
+	<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", language, language) }></script>
+	<script>
+		function initialized() {
+			return {
+				show: false,
+				ready() { this.show = true },
+				isReady() { return this.show === true },
+			}
+		}
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+	<div x-data="initialized">
+		<textarea id="code" x-show="isReady"></textarea>
+		<script>
+			let editor = undefined;
+			let enable = false;
+			let keymap = "default";
+			function setKeymap(newKeymap) {
+				console.log(keymap, newKeymap, enable)
+				keymap = newKeymap;
+				updateKeymap();
+			}
+			function toggleKeymap() {
+				enable = !enable;
+				updateKeymap();
+			}
+			function updateKeymap() {
+				console.log(keymap, enable)
+				if (enable) {
+					editor.setOption('keyMap', keymap)
+				} else {
+					editor.setOption('keyMap', "default")
+				}
+			}
+
+			document.addEventListener('alpine:init', () => {
+		    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+		        mode: {{ language }},
+		        lineNumbers: true,
+						lineSeparator: false,
+		        theme: "daisyui",
+						indentUnit: 4,
+
+		    });
+				editor.setValue({{ content }});
+				Alpine.data('initialized', () => ({isReady: false}))
+
+			});
+	  </script>
+	</div>
+	// Custom theme based on daisy
+	<style>
+	  /* Custom CodeMirror theme: "daisyui" using CSS variables */
+	  .cm-s-daisyui.CodeMirror {
+	    background-color: var(--color-base-100);
+	    color: var(--color-base-content);
+	  }
+
+	  .cm-s-daisyui .CodeMirror-gutters {
+	    background: var(--color-base-200);
+	    color: var(--color-neutral-content);
+	    border-right: 1px solid var(--color-base-300);
+	  }
+
+	  .cm-s-daisyui .CodeMirror-cursor {
+	    border-left: 1px solid var(--color-warning);
+	  }
+
+	  .cm-s-daisyui .CodeMirror-linenumber {
+	    color: var(--color-neutral-content);
+	  }
+
+	  .cm-s-daisyui .CodeMirror-selected {
+	    background: color-mix(in oklch, var(--color-primary) 30%, transparent);
+	  }
+
+	  /* Syntax highlighting using DaisyUI theme colors */
+	  .cm-s-daisyui .cm-keyword {
+	    color: var(--color-secondary);
+	  }
+
+	  .cm-s-daisyui .cm-string {
+	    color: var(--color-success);
+	  }
+
+	  .cm-s-daisyui .cm-comment {
+	    color: var(--color-neutral-content);
+	    font-style: italic;
+	  }
+
+	  .cm-s-daisyui .cm-number {
+	    color: var(--color-error);
+	  }
+
+	  .CodeMirror {
+	    height: 300px;
+	    width: 100%;
+	  }
+	</style>
+}
+
+templ Highlight() {
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+	<script>hljs.highlightAll();</script>
+	<style>
+			/* Base styles */
+		.hljs {
+		  background-color: var(--color-base-100);
+		  color: var(--color-base-content);
+		  padding: 1em;
+		}
+
+		/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */
+		.hljs pre {
+		  margin: 0;
+		}
+
+		/* Syntax highlighting matching CodeMirror */
+		.hljs-keyword {
+		  color: var(--color-secondary);
+		}
+
+		.hljs-string {
+		  color: var(--color-success);
+		}
+
+		.hljs-comment {
+		  color: var(--color-neutral-content);
+		  font-style: italic;
+		}
+
+		.hljs-number {
+		  color: var(--color-error);
+		}
+
+		/* Additional highlight.js classes mapped to DaisyUI colors */
+		.hljs-title,
+		.hljs-title.class,
+		.hljs-title.function {
+		  color: var(--color-primary);
+		}
+
+		.hljs-variable,
+		.hljs-attribute,
+		.hljs-tag {
+		  color: var(--color-info);
+		}
+
+		.hljs-operator,
+		.hljs-punctuation {
+		  color: var(--color-base-content);
+		}
+
+		.hljs-literal,
+		.hljs-built_in {
+		  color: var(--color-warning);
+		}
+
+		.hljs-meta {
+		  color: var(--color-accent);
+		}
+
+		/* Selection matching CodeMirror */
+		.hljs::selection {
+		  background: color-mix(in oklch, var(--color-primary) 30%, transparent);
+		}
+
+		/* Optional: Add some subtle styling for better readability */
+		.hljs code {
+		  background: transparent;
+		}
+
+		/* Match the gutter styling if needed */
+		.hljs-ln-numbers {
+		  background: var(--color-base-200);
+		  color: var(--color-neutral-content);
+		  border-right: 1px solid var(--color-base-300);
+		  padding-right: 0.5em;
+		}
+	</style>
+}

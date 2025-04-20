@@ -44,9 +44,9 @@ func (s *Service) init() error {
 type Correction = generated.FindSubmissionDataRow
 
 // RunTest executes the provided files in test mode for a given language.
-func (s *Service) RunTest(correction Correction, payload string) (string, error) {
+func (s *Service) RunTest(correction Correction, payload string) (string, container.RunResponse, error) {
 	if !s.initialized {
-		return "", fmt.Errorf("not initialized")
+		return "", container.RunResponse{}, fmt.Errorf("not initialized")
 	}
 	tutorial := container.Tutorial{
 		Image:   correction.DockerImage,
@@ -55,7 +55,7 @@ func (s *Service) RunTest(correction Correction, payload string) (string, error)
 	languagePool := s.pool.GetLanguagePool(s.ctx, s.cli, tutorial)
 	ctn, err := languagePool.GetContainer(s.ctx, s.cli)
 	if err != nil {
-		return "", err
+		return "", container.RunResponse{}, err
 	}
 
 	files := []container.File{}
@@ -69,9 +69,9 @@ func (s *Service) RunTest(correction Correction, payload string) (string, error)
 		Name:    correction.SubmissionName,
 		Content: payload,
 	})
-	output, err := container.Run(s.ctx, s.cli, ctn, files)
+	output, status, err := container.Run(s.ctx, s.cli, ctn, files)
 	languagePool.FreeContainer(s.ctx, s.cli, ctn)
-	return output, err
+	return output, status, err
 }
 
 // Cleanup stops and removes all containers in the pool.

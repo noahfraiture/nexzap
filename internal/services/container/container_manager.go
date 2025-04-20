@@ -11,49 +11,52 @@ import (
 	"github.com/docker/docker/client"
 )
 
+type RunResponse = container.WaitResponse
+
 // Run executes a container with the provided files and returns the output.
 func Run(
 	ctx context.Context,
 	cli *client.Client,
 	ctn string,
 	files []File,
-) (string, error) {
+) (string, RunResponse, error) {
 	archive, err := createTarArchive(files)
 	if err != nil {
 		StopAndRemove(ctx, cli, ctn)
-		return "", err
+		return "", RunResponse{}, err
 	}
 
 	err = cli.CopyToContainer(ctx, ctn, "/", archive, container.CopyToContainerOptions{})
 	if err != nil {
 		StopAndRemove(ctx, cli, ctn)
-		return "", err
+		return "", RunResponse{}, err
 	}
 
 	startTime := time.Now()
 	if err := cli.ContainerStart(ctx, ctn, container.StartOptions{}); err != nil {
 		StopAndRemove(ctx, cli, ctn)
-		return "", err
+		return "", RunResponse{}, err
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctx, ctn, container.WaitConditionNotRunning)
+	var status container.WaitResponse
 	select {
 	case err := <-errCh:
 		if err != nil {
 			StopAndRemove(ctx, cli, ctn)
-			return "", err
+			return "", RunResponse{}, err
 		}
-	case <-statusCh:
+	case status = <-statusCh:
 	}
 
 	logs, err := cli.ContainerLogs(ctx, ctn, container.LogsOptions{
 		ShowStdout: true,
-		ShowStderr: true,
+		ShowStderr: false,
 		Since:      startTime.Format(time.RFC3339),
 	})
 	if err != nil {
 		StopAndRemove(ctx, cli, ctn)
-		return "", err
+		return "", RunResponse{}, err
 	}
 	defer logs.Close()
 
@@ -61,10 +64,10 @@ func Run(
 	_, err = io.Copy(&logBytes, logs)
 	if err != nil {
 		StopAndRemove(ctx, cli, ctn)
-		return "", err
+		return "", RunResponse{}, err
 	}
 
-	return logBytes.String(), nil
+	return logBytes.String(), status, nil
 }
 
 // createContainer Creates a new container. If the WarmupDir is not empty, runs a warmup phase.
