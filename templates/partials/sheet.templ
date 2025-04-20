@@ -27,7 +27,9 @@ templ Buttons(sheet models.SheetTempl) {
 }
 
 templ ExerciseContent(content string) {
-	@templ.Raw(content)
+	<div class="min-h-0 overflow-y-scroll prose">
+		@templ.Raw(content)
+	</div>
 }
 
 templ EditorPanel(sheet models.SheetTempl) {

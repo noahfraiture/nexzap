@@ -32,8 +32,8 @@ templ rightPanel(sheet models.SheetTempl) {
 
 templ exercisePanel(sheet models.SheetTempl) {
 	<div class="card card-border card-body bg-base-200 shadow-lg min-h-0">
-		<h3 class="card-title">Tests</h3>
-		<div id="test" class="min-h-0 overflow-y-scroll">
+		<h2 class="card-title">Tests</h2>
+		<div id="test" class="flex min-h-0">
 			@partials.ExerciseContent(sheet.ExerciseContent)
 		</div>
 	</div>
@@ -42,7 +42,7 @@ templ exercisePanel(sheet models.SheetTempl) {
 templ NextContent(sheet models.SheetTempl) {
 	@partials.GuideContent(sheet)
 	@partials.Buttons(sheet)
-	<div id="test" hx-swap-oob="true">
+	<div id="test" hx-swap-oob="innerHTML">
 		@partials.ExerciseContent(sheet.ExerciseContent)
 	</div>
 }

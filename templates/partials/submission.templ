@@ -7,18 +7,22 @@ templ Result(output string, status container.RunResponse) {
 	if status.StatusCode == 0 {
 		<div class="alert alert-success shadow-lg">
 			<div>
-				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+				</svg>
 				<span>Success: Your submission was successful!</span>
 			</div>
 		</div>
 	} else {
-		<div class="alert alert-error shadow-lg flex flex-row min-h-0">
-			<div class="min-w-0">
-				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+		<div class="alert alert-error shadow-lg flex flex-row">
+			<div>
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
 				<span>Error: Your submission failed with status code { strconv.Itoa(int(status.StatusCode)) }.</span>
 			</div>
-			<div class="mt-2 min-w-0">
-				<pre class="p-2 rounded min-h-0 overflow-x-auto bg-red-800">{ output }</pre>
+			<div class="mt-2">
+				<pre class="p-2 rounded overflow-x-auto bg-red-800">{ output }</pre>
 			</div>
 		</div>
 	}

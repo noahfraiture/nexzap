@@ -177,7 +177,15 @@ func ExerciseContent(content string) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"min-h-0 overflow-y-scroll prose\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		templ_7745c5c3_Err = templ.Raw(content).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -206,7 +214,7 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"card bg-base-200 shadow-lg\"><div class=\"card-body\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3><div class=\"flex justify-center items-center gap-4\"><input type=\"checkbox\" class=\"toggle\" x-model=\"enabled\" @change=\"toggleKeymap()\"> <select class=\"select\" x-model=\"keymap\" @change=\"setKeymap(keymap)\"><option value=\"default\">Keymap</option> <option value=\"vim\">Vim</option> <option value=\"emacs\">Emacs</option> <option value=\"sublime\">Sublime</option></select></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"card bg-base-200 shadow-lg\"><div class=\"card-body\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3><div class=\"flex justify-center items-center gap-4\"><input type=\"checkbox\" class=\"toggle\" x-model=\"enabled\" @change=\"toggleKeymap()\"> <select class=\"select\" x-model=\"keymap\" @change=\"setKeymap(keymap)\"><option value=\"default\">Keymap</option> <option value=\"vim\">Vim</option> <option value=\"emacs\">Emacs</option> <option value=\"sublime\">Sublime</option></select></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -218,7 +226,7 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -247,44 +255,44 @@ func CodeEditor(language string, content string) templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", language, language))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 62, Col: 124}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 64, Col: 124}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></script><script>\n\t\tfunction initialized() {\n\t\t\treturn {\n\t\t\t\tshow: false,\n\t\t\t\tready() { this.show = true },\n\t\t\t\tisReady() { return this.show === true },\n\t\t\t}\n\t\t}\n\t</script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div x-data=\"initialized\"><textarea id=\"code\" x-show=\"isReady\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tconsole.log(keymap, newKeymap, enable)\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tconsole.log(keymap, enable)\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"></script><script>\n\t\tfunction initialized() {\n\t\t\treturn {\n\t\t\t\tshow: false,\n\t\t\t\tready() { this.show = true },\n\t\t\t\tisReady() { return this.show === true },\n\t\t\t}\n\t\t}\n\t</script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div x-data=\"initialized\"><textarea id=\"code\" x-show=\"isReady\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tconsole.log(keymap, newKeymap, enable)\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tconsole.log(keymap, enable)\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Var11, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 99, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 101, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4,\n\n\t\t    });\n\t\t\t\teditor.setValue(")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4,\n\n\t\t    });\n\t\t\t\teditor.setValue(")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Var12, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 106, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 108, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, ");\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ");\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -314,7 +322,7 @@ func Prism() templ.Component {
 			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-core.min.js\" integrity=\"sha512-Uw06iFFf9hwoN77+kPl/1DZL66tKsvZg6EWm7n6QxInyptVuycfrO52hATXDRozk7KWeXnrSueiglILct8IkkA==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/plugins/autoloader/prism-autoloader.min.js\" integrity=\"sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-core.min.js\" integrity=\"sha512-Uw06iFFf9hwoN77+kPl/1DZL66tKsvZg6EWm7n6QxInyptVuycfrO52hATXDRozk7KWeXnrSueiglILct8IkkA==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/plugins/autoloader/prism-autoloader.min.js\" integrity=\"sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
