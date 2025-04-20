@@ -15,11 +15,11 @@ templ Base(title string) {
 			// Alpine
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 		</head>
-		<body class="bg-base-300 text-base-content flex flex-col h-screen">
+		<div class="bg-base-300 text-base-content flex flex-col h-screen">
 			@partials.Nav()
-			<main id="main" class="p-4 w-full flex-1">
+			<main id="main" class="p-4 w-full flex-1 min-h-0">
 				{ children... }
 			</main>
-		</body>
+		</div>
 	</html>
 }

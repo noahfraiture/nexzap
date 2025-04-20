@@ -35,7 +35,7 @@ func GuideContent(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"h-screen overflow-y-scroll\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-0 overflow-y-scroll grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -210,20 +210,20 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"card-actions justify-end mt-4\"><form hx-post=\"/submit\" hx-target=\"#response\" hx-swap=\"innerHTML\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false\"><input type=\"hidden\" name=\"sheet\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"card-actions flex flex-row justify-between mt-4\"><div x-show=\"!loading\" id=\"response\"></div><form hx-post=\"/submit\" hx-target=\"#response\" hx-swap=\"innerHTML\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false\"><input type=\"hidden\" name=\"sheet\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(sheet.Id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 60, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 61, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"> <input type=\"hidden\" name=\"payload\" id=\"payload\" value=\"\"> <button type=\"submit\" class=\"btn btn-primary\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = editor.getValue();\" x-bind:disabled=\"loading\"><span x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form><div x-show=\"!loading\" id=\"response\"></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"> <input type=\"hidden\" name=\"payload\" id=\"payload\" value=\"\"> <button type=\"submit\" class=\"btn btn-primary\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = editor.getValue();\" x-bind:disabled=\"loading\"><span x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

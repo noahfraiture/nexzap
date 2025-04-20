@@ -7,17 +7,17 @@ import (
 )
 
 templ homeContent(sheet models.SheetTempl) {
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
 		@leftPanel(sheet)
 		@rightPanel(sheet)
 	</div>
 }
 
 templ leftPanel(sheet models.SheetTempl) {
-	<div class="card card-border bg-base-200 shadow-lg p-6 flex flex-col">
+	<div class="card card-border card-body bg-base-200 shadow-lg flex flex-col min-h-0">
 		@partials.Highlight()
 		<h2 class="card-title">{ sheet.Title }</h2>
-		<div id="sheet" class="flex flex-col">
+		<div id="sheet" class="flex flex-col min-h-0 grow">
 			@partials.GuideContent(sheet)
 			@partials.Buttons(sheet)
 		</div>
@@ -25,19 +25,17 @@ templ leftPanel(sheet models.SheetTempl) {
 }
 
 templ rightPanel(sheet models.SheetTempl) {
-	<div class="flex flex-col gap-6 h-full">
+	<div class="flex flex-col gap-6 min-h-0">
 		@partials.EditorPanel(sheet)
 		@exercisePanel(sheet)
 	</div>
 }
 
 templ exercisePanel(sheet models.SheetTempl) {
-	<div class="card card-border bg-base-200 shadow-lg flex-1">
-		<div class="card-body">
-			<h3 class="card-title">Tests</h3>
-			<div id="test">
-				@partials.ExerciseContent(sheet.ExerciseContent)
-			</div>
+	<div class="card card-border card-body bg-base-200 shadow-lg min-h-0">
+		<h3 class="card-title">Tests</h3>
+		<div id="test" class="min-h-0 overflow-y-scroll">
+			@partials.ExerciseContent(sheet.ExerciseContent)
 		</div>
 	</div>
 }
