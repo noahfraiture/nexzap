@@ -10,6 +10,8 @@ templ GuideContent(sheet models.SheetTempl) {
 	<div class="min-h-0 overflow-y-scroll grow">
 		@templ.Raw(sheet.SheetContent)
 	</div>
+	// must load here to reapply on change context (next page)
+	@Highlight()
 }
 
 templ Buttons(sheet models.SheetTempl) {
@@ -76,7 +78,6 @@ templ EditorPanel(sheet models.SheetTempl) {
 }
 
 templ CodeEditor(language string, content string) {
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css"/>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js"></script>
@@ -183,7 +184,6 @@ templ CodeEditor(language string, content string) {
 }
 
 templ Highlight() {
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"/>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 	<script>hljs.highlightAll();</script>
 	<style>

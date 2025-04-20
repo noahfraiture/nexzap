@@ -47,6 +47,10 @@ func GuideContent(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = Highlight().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		return nil
 	})
 }
@@ -84,7 +88,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 18, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 20, Col: 122}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -102,7 +106,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(sheet.NbPage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 20, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 22, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -115,7 +119,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(sheet.MaxPage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 20, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 22, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -133,7 +137,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 22, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 24, Col: 122}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -217,7 +221,7 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(sheet.Id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 61, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 63, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -252,14 +256,14 @@ func CodeEditor(language string, content string) templ.Component {
 			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", language, language))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 84, Col: 124}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 85, Col: 124}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -271,7 +275,7 @@ func CodeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var12, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 121, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 122, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
@@ -283,7 +287,7 @@ func CodeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var13, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 128, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 129, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
@@ -318,7 +322,7 @@ func Highlight() templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js\"></script><script>hljs.highlightAll();</script><style>\n\t\t\t/* Base styles */\n\t\t.hljs {\n\t\t  background-color: var(--color-base-100);\n\t\t  color: var(--color-base-content);\n\t\t  padding: 1em;\n\t\t}\n\n\t\t/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */\n\t\t.hljs pre {\n\t\t  margin: 0;\n\t\t}\n\n\t\t/* Syntax highlighting matching CodeMirror */\n\t\t.hljs-keyword {\n\t\t  color: var(--color-secondary);\n\t\t}\n\n\t\t.hljs-string {\n\t\t  color: var(--color-success);\n\t\t}\n\n\t\t.hljs-comment {\n\t\t  color: var(--color-neutral-content);\n\t\t  font-style: italic;\n\t\t}\n\n\t\t.hljs-number {\n\t\t  color: var(--color-error);\n\t\t}\n\n\t\t/* Additional highlight.js classes mapped to DaisyUI colors */\n\t\t.hljs-title,\n\t\t.hljs-title.class,\n\t\t.hljs-title.function {\n\t\t  color: var(--color-primary);\n\t\t}\n\n\t\t.hljs-variable,\n\t\t.hljs-attribute,\n\t\t.hljs-tag {\n\t\t  color: var(--color-info);\n\t\t}\n\n\t\t.hljs-operator,\n\t\t.hljs-punctuation {\n\t\t  color: var(--color-base-content);\n\t\t}\n\n\t\t.hljs-literal,\n\t\t.hljs-built_in {\n\t\t  color: var(--color-warning);\n\t\t}\n\n\t\t.hljs-meta {\n\t\t  color: var(--color-accent);\n\t\t}\n\n\t\t/* Selection matching CodeMirror */\n\t\t.hljs::selection {\n\t\t  background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t\t}\n\n\t\t/* Optional: Add some subtle styling for better readability */\n\t\t.hljs code {\n\t\t  background: transparent;\n\t\t}\n\n\t\t/* Match the gutter styling if needed */\n\t\t.hljs-ln-numbers {\n\t\t  background: var(--color-base-200);\n\t\t  color: var(--color-neutral-content);\n\t\t  border-right: 1px solid var(--color-base-300);\n\t\t  padding-right: 0.5em;\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js\"></script><script>hljs.highlightAll();</script><style>\n\t\t\t/* Base styles */\n\t\t.hljs {\n\t\t  background-color: var(--color-base-100);\n\t\t  color: var(--color-base-content);\n\t\t  padding: 1em;\n\t\t}\n\n\t\t/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */\n\t\t.hljs pre {\n\t\t  margin: 0;\n\t\t}\n\n\t\t/* Syntax highlighting matching CodeMirror */\n\t\t.hljs-keyword {\n\t\t  color: var(--color-secondary);\n\t\t}\n\n\t\t.hljs-string {\n\t\t  color: var(--color-success);\n\t\t}\n\n\t\t.hljs-comment {\n\t\t  color: var(--color-neutral-content);\n\t\t  font-style: italic;\n\t\t}\n\n\t\t.hljs-number {\n\t\t  color: var(--color-error);\n\t\t}\n\n\t\t/* Additional highlight.js classes mapped to DaisyUI colors */\n\t\t.hljs-title,\n\t\t.hljs-title.class,\n\t\t.hljs-title.function {\n\t\t  color: var(--color-primary);\n\t\t}\n\n\t\t.hljs-variable,\n\t\t.hljs-attribute,\n\t\t.hljs-tag {\n\t\t  color: var(--color-info);\n\t\t}\n\n\t\t.hljs-operator,\n\t\t.hljs-punctuation {\n\t\t  color: var(--color-base-content);\n\t\t}\n\n\t\t.hljs-literal,\n\t\t.hljs-built_in {\n\t\t  color: var(--color-warning);\n\t\t}\n\n\t\t.hljs-meta {\n\t\t  color: var(--color-accent);\n\t\t}\n\n\t\t/* Selection matching CodeMirror */\n\t\t.hljs::selection {\n\t\t  background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t\t}\n\n\t\t/* Optional: Add some subtle styling for better readability */\n\t\t.hljs code {\n\t\t  background: transparent;\n\t\t}\n\n\t\t/* Match the gutter styling if needed */\n\t\t.hljs-ln-numbers {\n\t\t  background: var(--color-base-200);\n\t\t  color: var(--color-neutral-content);\n\t\t  border-right: 1px solid var(--color-base-300);\n\t\t  padding-right: 0.5em;\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
