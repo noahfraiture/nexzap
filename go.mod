@@ -3,18 +3,16 @@ module nexzap
 go 1.24.1
 
 require (
+	github.com/BurntSushi/toml v1.5.0
 	github.com/a-h/templ v0.3.857
 	github.com/docker/docker v28.0.4+incompatible
-	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/joho/godotenv v1.5.1
-	github.com/yuin/goldmark v1.7.8
 )
 
 require (
-	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect

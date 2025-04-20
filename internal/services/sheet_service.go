@@ -1,25 +1,17 @@
 package services
 
 import (
-	"bytes"
 	"context"
 	"nexzap/internal/db"
 	generated "nexzap/internal/db/generated"
 
 	"github.com/google/uuid"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/renderer/html"
 )
 
-var md goldmark.Markdown
+var md *MarkdownParser
 
 func InitMarkdown() {
-	md = goldmark.New(
-		goldmark.WithRendererOptions(
-			html.WithHardWraps(),
-			html.WithXHTML(),
-		),
-	)
+	md = NewMarkdownParser()
 }
 
 type FindTutorialFirstSheetModelSelect = generated.FindLastTutorialFirstSheetRow
@@ -31,14 +23,8 @@ func LastTutorialFirstPage() (*FindTutorialFirstSheetModelSelect, error) {
 	if err != nil {
 		return nil, err
 	}
-	tutorial.GuideContent, err = markdownToHtml(tutorial.GuideContent)
-	if err != nil {
-		return nil, err
-	}
-	tutorial.ExerciseContent, err = markdownToHtml(tutorial.ExerciseContent)
-	if err != nil {
-		return nil, err
-	}
+	tutorial.GuideContent = markdownToHtml(tutorial.GuideContent)
+	tutorial.ExerciseContent = markdownToHtml(tutorial.ExerciseContent)
 	return &tutorial, nil
 }
 
@@ -47,24 +33,13 @@ func LastTutorialPage(page int) (*FindTutorialSheetModelSelect, error) {
 	if err != nil {
 		return nil, err
 	}
-	tutorial.GuideContent, err = markdownToHtml(tutorial.GuideContent)
-	if err != nil {
-		return nil, err
-	}
-	tutorial.ExerciseContent, err = markdownToHtml(tutorial.ExerciseContent)
-	if err != nil {
-		return nil, err
-	}
+	tutorial.GuideContent = markdownToHtml(tutorial.GuideContent)
+	tutorial.ExerciseContent = markdownToHtml(tutorial.ExerciseContent)
 	return &tutorial, nil
 }
 
-func markdownToHtml(content string) (string, error) {
-	var buf bytes.Buffer
-	err := md.Convert([]byte(content), &buf)
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
+func markdownToHtml(content string) string {
+	return md.ParseMarkdown(content)
 }
 
 type InsertTutorialModelInsert = generated.InsertTutorialParams
