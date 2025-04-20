@@ -17,14 +17,15 @@ type File struct {
 }
 
 type Sheet struct {
-	ID              uuid.UUID
-	TutorialID      uuid.UUID
-	Page            int32
-	GuideContent    string
-	ExerciseContent string
-	DockerImage     string
-	Command         string
-	SubmissionFile  string
+	ID                uuid.UUID
+	TutorialID        uuid.UUID
+	Page              int32
+	GuideContent      string
+	ExerciseContent   string
+	SubmissionName    string
+	SubmissionContent string
+	DockerImage       string
+	Command           string
 }
 
 type Tutorial struct {

@@ -41,6 +41,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = services.RefreshTutorials()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	router(exerciseService)
 	port := "8080"

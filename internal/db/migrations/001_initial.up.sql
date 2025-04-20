@@ -18,9 +18,10 @@ CREATE TABLE sheets (
   page INTEGER NOT NULL,
   guide_content TEXT NOT NULL,
   exercise_content TEXT NOT NULL,
+  submission_name TEXT NOT NULL,
+  submission_content TEXT NOT NULL,
   docker_image TEXT NOT NULL,
   command TEXT NOT NULL, -- Command to run the test
-  submission_file TEXT NOT NULL,
   UNIQUE (tutorial_id, page)
 );
 

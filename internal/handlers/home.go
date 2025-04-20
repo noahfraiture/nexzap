@@ -18,10 +18,11 @@ func HomeHandler() http.HandlerFunc {
 		}
 
 		sheet := models.SheetTempl{
-			SheetContent:    tutorial.GuideContent,
-			ExerciseContent: tutorial.ExerciseContent,
-			NbPage:          1,
-			MaxPage:         int(tutorial.TotalPages),
+			SheetContent:      tutorial.GuideContent,
+			ExerciseContent:   tutorial.ExerciseContent,
+			CorrectionContent: tutorial.SubmissionContent,
+			NbPage:            1,
+			MaxPage:           int(tutorial.TotalPages),
 		}
 		pages.Home(
 			isFromHtmx(r),

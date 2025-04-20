@@ -4,15 +4,25 @@ WITH tutorial AS (
   VALUES (@title, @highlight, @code_editor, @version)
   RETURNING id
 ), sheet AS (
-  INSERT INTO sheets (tutorial_id, page, guide_content, exercise_content, docker_image, command, submission_file)
+  INSERT INTO sheets (
+    tutorial_id,
+    page,
+    guide_content,
+    exercise_content,
+    submission_name,
+    submission_content,
+    docker_image,
+    command
+  )
   SELECT
     (SELECT id FROM tutorial),
     unnest(@pages::integer[]),
     unnest(@guides_content::text[]),
     unnest(@exercises_content::text[]),
+    unnest(@submissions_name::text[]),
+    unnest(@submissions_content::text[]),
     unnest(@docker_images::text[]),
-    unnest(@commands::text[]),
-    unnest(@submission_file::text[])
+    unnest(@commands::text[])
   RETURNING id
 )
 SELECT id FROM sheet;
@@ -28,6 +38,7 @@ SELECT
   s.guide_content,
   s.exercise_content,
   s.page,
+  s.submission_content,
   (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
 FROM
   tutorials tu
@@ -47,6 +58,7 @@ SELECT
   s.guide_content,
   s.exercise_content,
   s.page,
+  s.submission_content,
   (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
 FROM
   tutorials tu
@@ -63,7 +75,7 @@ LIMIT
 SELECT
   s.docker_image,
   s.command,
-  s.submission_file,
+  s.submission_name,
   array_agg (f.name)::text[] AS files_name,
   array_agg (f.content)::text[] AS files_content
 FROM

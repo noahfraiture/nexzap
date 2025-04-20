@@ -40,6 +40,8 @@ func SubmitHandler(s *services.Service) http.HandlerFunc {
 		}
 		fmt.Println(submissionData)
 
+		fmt.Println(submissionData)
+		fmt.Println(payload)
 		s.RunTest(submissionData, payload)
 
 		// Process the payload as needed

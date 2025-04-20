@@ -69,7 +69,7 @@ func homeContent(languageName string, sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CodeEditor(languageName).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = CodeEditor(languageName, sheet.CorrectionContent).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -326,7 +326,7 @@ func Home(fromHtmx bool, languageName string, sheet models.SheetTempl) templ.Com
 	})
 }
 
-func CodeEditor(language string) templ.Component {
+func CodeEditor(language string, content string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -366,13 +366,25 @@ func CodeEditor(language string) templ.Component {
 		}
 		templ_7745c5c3_Var14, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 143, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 142, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4,\n\n\t\t    });\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\",\n\t\t\t\t\t\tindentUnit: 4,\n\n\t\t    });\n\t\t\t\teditor.setValue(")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var15, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 149, Col: 30}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, ");\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -396,12 +408,12 @@ func Highlight() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var15 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var15 == nil {
-			templ_7745c5c3_Var15 = templ.NopComponent
+		templ_7745c5c3_Var16 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var16 == nil {
+			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js\"></script><script>hljs.highlightAll();</script><style>\n\t\t\t/* Base styles */\n\t\t.hljs {\n\t\t  background-color: var(--color-base-100);\n\t\t  color: var(--color-base-content);\n\t\t  padding: 1em;\n\t\t}\n\n\t\t/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */\n\t\t.hljs pre {\n\t\t  margin: 0;\n\t\t}\n\n\t\t/* Syntax highlighting matching CodeMirror */\n\t\t.hljs-keyword {\n\t\t  color: var(--color-secondary);\n\t\t}\n\n\t\t.hljs-string {\n\t\t  color: var(--color-success);\n\t\t}\n\n\t\t.hljs-comment {\n\t\t  color: var(--color-neutral-content);\n\t\t  font-style: italic;\n\t\t}\n\n\t\t.hljs-number {\n\t\t  color: var(--color-error);\n\t\t}\n\n\t\t/* Additional highlight.js classes mapped to DaisyUI colors */\n\t\t.hljs-title,\n\t\t.hljs-title.class,\n\t\t.hljs-title.function {\n\t\t  color: var(--color-primary);\n\t\t}\n\n\t\t.hljs-variable,\n\t\t.hljs-attribute,\n\t\t.hljs-tag {\n\t\t  color: var(--color-info);\n\t\t}\n\n\t\t.hljs-operator,\n\t\t.hljs-punctuation {\n\t\t  color: var(--color-base-content);\n\t\t}\n\n\t\t.hljs-literal,\n\t\t.hljs-built_in {\n\t\t  color: var(--color-warning);\n\t\t}\n\n\t\t.hljs-meta {\n\t\t  color: var(--color-accent);\n\t\t}\n\n\t\t/* Selection matching CodeMirror */\n\t\t.hljs::selection {\n\t\t  background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t\t}\n\n\t\t/* Optional: Add some subtle styling for better readability */\n\t\t.hljs code {\n\t\t  background: transparent;\n\t\t}\n\n\t\t/* Match the gutter styling if needed */\n\t\t.hljs-ln-numbers {\n\t\t  background: var(--color-base-200);\n\t\t  color: var(--color-neutral-content);\n\t\t  border-right: 1px solid var(--color-base-300);\n\t\t  padding-right: 0.5em;\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css\"><script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js\"></script><script>hljs.highlightAll();</script><style>\n\t\t\t/* Base styles */\n\t\t.hljs {\n\t\t  background-color: var(--color-base-100);\n\t\t  color: var(--color-base-content);\n\t\t  padding: 1em;\n\t\t}\n\n\t\t/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */\n\t\t.hljs pre {\n\t\t  margin: 0;\n\t\t}\n\n\t\t/* Syntax highlighting matching CodeMirror */\n\t\t.hljs-keyword {\n\t\t  color: var(--color-secondary);\n\t\t}\n\n\t\t.hljs-string {\n\t\t  color: var(--color-success);\n\t\t}\n\n\t\t.hljs-comment {\n\t\t  color: var(--color-neutral-content);\n\t\t  font-style: italic;\n\t\t}\n\n\t\t.hljs-number {\n\t\t  color: var(--color-error);\n\t\t}\n\n\t\t/* Additional highlight.js classes mapped to DaisyUI colors */\n\t\t.hljs-title,\n\t\t.hljs-title.class,\n\t\t.hljs-title.function {\n\t\t  color: var(--color-primary);\n\t\t}\n\n\t\t.hljs-variable,\n\t\t.hljs-attribute,\n\t\t.hljs-tag {\n\t\t  color: var(--color-info);\n\t\t}\n\n\t\t.hljs-operator,\n\t\t.hljs-punctuation {\n\t\t  color: var(--color-base-content);\n\t\t}\n\n\t\t.hljs-literal,\n\t\t.hljs-built_in {\n\t\t  color: var(--color-warning);\n\t\t}\n\n\t\t.hljs-meta {\n\t\t  color: var(--color-accent);\n\t\t}\n\n\t\t/* Selection matching CodeMirror */\n\t\t.hljs::selection {\n\t\t  background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t\t}\n\n\t\t/* Optional: Add some subtle styling for better readability */\n\t\t.hljs code {\n\t\t  background: transparent;\n\t\t}\n\n\t\t/* Match the gutter styling if needed */\n\t\t.hljs-ln-numbers {\n\t\t  background: var(--color-base-200);\n\t\t  color: var(--color-neutral-content);\n\t\t  border-right: 1px solid var(--color-base-300);\n\t\t  padding-right: 0.5em;\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

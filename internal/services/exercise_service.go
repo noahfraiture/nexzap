@@ -66,7 +66,7 @@ func (s *Service) RunTest(correction Correction, payload string) (string, error)
 		})
 	}
 	files = append(files, container.File{
-		Name:    correction.SubmissionFile,
+		Name:    correction.SubmissionName,
 		Content: payload,
 	})
 	output, err := container.Run(s.ctx, s.cli, ctn, files)

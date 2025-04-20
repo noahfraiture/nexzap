@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -10,36 +11,125 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// TutorialMeta holds metadata for a programming language tutorial.
-type TutorialMeta struct {
+// RefreshTutorials read the tutorials in the current directory and insert them
+func RefreshTutorials() error {
+	tutorials, err := os.ReadDir("tutorials/")
+	if err != nil {
+		return fmt.Errorf("Failed to read tutorials directory: %v", err)
+	}
+
+	for _, tutorialDir := range tutorials {
+		if !tutorialDir.IsDir() {
+			return fmt.Errorf("Invalid entry in tutorials directory: %s", tutorialDir.Name())
+		}
+		path := filepath.Join("tutorials", tutorialDir.Name())
+		meta, sheets, err := readDirectory(path)
+		if err != nil {
+			return fmt.Errorf("Failed to read tutorial directory: %s. Error: %v", path, err)
+		}
+
+		// Construct tutorial and files per sheet
+		pages := []int32{}
+		guides := []string{}
+		exercises := []string{}
+		images := []string{}
+		commands := []string{}
+		submissionName := []string{}
+		submissionContent := []string{}
+		var filesPerSheet []FilesPerSheet
+		for i, sheet := range *sheets {
+			pages = append(pages, int32(i+1))
+			guides = append(guides, sheet.Guide)
+			exercises = append(exercises, sheet.Exercise)
+			images = append(images, sheet.Image)
+			commands = append(commands, sheet.Command)
+			submissionName = append(submissionName, sheet.SubmissionName)
+			submissionContent = append(submissionContent, sheet.SubmissionContent)
+
+			filesName := []string{}
+			filesContent := []string{}
+			for _, f := range sheet.Files {
+				filesName = append(filesName, f.Name)
+				filesContent = append(filesContent, f.Content)
+			}
+			filesPerSheet = append(filesPerSheet, FilesPerSheet{
+				Names:    filesName,
+				Contents: filesContent,
+			})
+		}
+
+		tutorial := InsertTutorialModelInsert{
+			Title:              meta.Title,
+			Highlight:          meta.Highlight,
+			CodeEditor:         meta.CodeEditor,
+			Version:            int32(meta.Version),
+			Pages:              pages,
+			GuidesContent:      guides,
+			ExercisesContent:   exercises,
+			DockerImages:       images,
+			Commands:           commands,
+			SubmissionsName:    submissionName,
+			SubmissionsContent: submissionContent,
+		}
+
+		if err := InsertTutorialAndFiles(tutorial, filesPerSheet); err != nil {
+			return fmt.Errorf("Failed to insert tutorial %s: %v", meta.Title, err)
+		}
+	}
+
+	return nil
+}
+
+// InsertTutorialAndFiles inserts a tutorial and its associated files per sheet
+func InsertTutorialAndFiles(tutorial InsertTutorialModelInsert, filesPerSheet []FilesPerSheet) error {
+	sheetsID, err := InsertTutorial(tutorial)
+	if err != nil {
+		return err
+	}
+	if len(sheetsID) != len(filesPerSheet) {
+		return fmt.Errorf("number of sheets (%d) does not match number of files data (%d)", len(sheetsID), len(filesPerSheet))
+	}
+	for i, sheetID := range sheetsID {
+		fileInsert := InsertFilesModelInsert{
+			Names:    filesPerSheet[i].Names,
+			Contents: filesPerSheet[i].Contents,
+			SheetID:  sheetID,
+		}
+		if err := InsertFile(fileInsert); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// tutorialMeta holds metadata for a programming language tutorial.
+type tutorialMeta struct {
 	Title      string `toml:"title"`
 	Highlight  string `toml:"highlight"`
 	CodeEditor string `toml:"codeEditor"`
 	Version    int    `toml:"version"`
 }
 
-// CorrectionFile represents a file with correction content for a tutorial sheet.
-type CorrectionFile struct {
+// correctionFile represents a file with correction content for a tutorial sheet.
+type correctionFile struct {
 	Name    string
 	Content string
 }
 
-// Sheet represents a tutorial Sheet with guide, exercise, and correction content.
-type Sheet struct {
-	Guide          string
-	Exercise       string
-	Image          string `toml:"image"`
-	Command        string `toml:"command"`
-	SubmissionFile string `toml:"submission"`
-	Files          []CorrectionFile
+// sheet represents a tutorial sheet with guide, exercise, and correction content.
+type sheet struct {
+	Guide             string
+	Exercise          string
+	SubmissionContent string
+	SubmissionName    string `toml:"submission"`
+	Image             string `toml:"image"`
+	Command           string `toml:"command"`
+	Files             []correctionFile
 }
 
-type SheetMeta struct {
-}
-
-// ReadDirectory reads a tutorial directory, returning metadata and sheets.
+// readDirectory reads a tutorial directory, returning metadata and sheets.
 // Errors if directory unreadable or files missing.
-func ReadDirectory(path string) (*TutorialMeta, *[]Sheet, error) {
+func readDirectory(path string) (*tutorialMeta, *[]sheet, error) {
 	dir, err := os.ReadDir(path)
 	if err != nil {
 		return nil, nil, err
@@ -63,9 +153,11 @@ func ReadDirectory(path string) (*TutorialMeta, *[]Sheet, error) {
 		}
 	}
 	sort.Slice(guides, func(i, j int) bool { return guides[i].Name() < guides[j].Name() })
-	sheets := []Sheet{}
+	sheets := []sheet{}
 	for _, guide := range guides {
-		sheet, err := readGuide(guide, path)
+		fmt.Println(guide)
+		fmt.Println(path)
+		sheet, err := readGuide(guide, path) // FIXME
 		if err != nil {
 			return nil, nil, err
 		}
@@ -76,7 +168,7 @@ func ReadDirectory(path string) (*TutorialMeta, *[]Sheet, error) {
 
 // extractMeta extracts metadata from meta.toml in the directory.
 // Errors if file missing, unreadable, or fields unset.
-func extractMeta(dir []os.DirEntry, path string) (*TutorialMeta, error) {
+func extractMeta(dir []os.DirEntry, path string) (*tutorialMeta, error) {
 	var metaFile *os.DirEntry
 	for _, f := range dir {
 		if f.Name() == "meta.toml" {
@@ -95,7 +187,7 @@ func extractMeta(dir []os.DirEntry, path string) (*TutorialMeta, error) {
 		return nil, err
 	}
 
-	var meta TutorialMeta
+	var meta tutorialMeta
 	if err := toml.Unmarshal(content, &meta); err != nil {
 		return nil, err
 	}
@@ -113,79 +205,89 @@ func extractMeta(dir []os.DirEntry, path string) (*TutorialMeta, error) {
 
 // readGuide processes a guide directory to create a Sheet.
 // Errors if required files missing or unreadable.
-func readGuide(dir os.DirEntry, basePath string) (Sheet, error) {
+func readGuide(dir os.DirEntry, basePath string) (sheet, error) {
 	dirPath := filepath.Join(basePath, dir.Name())
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
-		return Sheet{}, err
-	}
-
-	var guideFile, exerciseFile string
-	var correctionFiles []CorrectionFile
-
-	guideFile, exerciseFile = findGuideAndExerciseFiles(entries, dirPath)
-	if guideFile == "" || exerciseFile == "" {
-		return Sheet{}, errors.New("guide.md or exercise.md not found in directory")
-	}
-
-	correctionFiles, err = readCorrectionFiles(entries, dirPath)
-	if err != nil {
-		return Sheet{}, err
-	}
-
-	guideContent, err := os.ReadFile(guideFile)
-	if err != nil {
-		return Sheet{}, err
-	}
-
-	exerciseContent, err := os.ReadFile(exerciseFile)
-	if err != nil {
-		return Sheet{}, err
+		return sheet{}, err
 	}
 
 	// Read metadata from meta.toml in the guide directory
-	var sheetMeta Sheet
+	var sheetMeta sheet
 	metaPath := filepath.Join(dirPath, "meta.toml")
 	metaContent, err := os.ReadFile(metaPath)
 	if err == nil {
 		if err := toml.Unmarshal(metaContent, &sheetMeta); err != nil {
-			return Sheet{}, err
+			return sheet{}, err
 		}
 	} else {
 		// If meta.toml is not found, initialize with empty values
-		sheetMeta = Sheet{}
+		sheetMeta = sheet{}
 	}
 
-	sheet := Sheet{
-		Guide:          string(guideContent),
-		Exercise:       string(exerciseContent),
-		Image:          sheetMeta.Image,
-		Command:        sheetMeta.Command,
-		SubmissionFile: sheetMeta.SubmissionFile,
-		Files:          correctionFiles,
+	var guideFile, exerciseFile, submissionFile string
+	var correctionFiles []correctionFile
+
+	// get the markdown content exercise.md and guide.md
+	guideFile, exerciseFile, submissionFile = findFiles(entries, dirPath, sheetMeta.SubmissionName)
+	if guideFile == "" || exerciseFile == "" {
+		return sheet{}, errors.New("guide.md or exercise.md not found in directory")
+	}
+
+	// Find each file in the correction/ that will be run
+	correctionFiles, err = readCorrectionFiles(entries, dirPath)
+	if err != nil {
+		return sheet{}, err
+	}
+
+	guideContent, err := os.ReadFile(guideFile)
+	if err != nil {
+		return sheet{}, err
+	}
+
+	exerciseContent, err := os.ReadFile(exerciseFile)
+	if err != nil {
+		return sheet{}, err
+	}
+
+	submissionContent, err := os.ReadFile(submissionFile)
+	if err != nil {
+		return sheet{}, err
+	}
+
+	sheet := sheet{
+		Guide:             string(guideContent),
+		Exercise:          string(exerciseContent),
+		Image:             sheetMeta.Image,
+		Command:           sheetMeta.Command,
+		SubmissionName:    sheetMeta.SubmissionName,
+		SubmissionContent: string(submissionContent),
+		Files:             correctionFiles,
 	}
 
 	return sheet, nil
 }
 
 // findGuideAndExerciseFiles finds paths to guide.md and exercise.md files.
-func findGuideAndExerciseFiles(entries []os.DirEntry, dirPath string) (string, string) {
-	var guideFile, exerciseFile string
+func findFiles(entries []os.DirEntry, dirPath string, submissionName string) (string, string, string) {
+	var guideFile, exerciseFile, submissionFile string
 	for _, entry := range entries {
 		switch entry.Name() {
 		case "guide.md":
 			guideFile = filepath.Join(dirPath, entry.Name())
 		case "exercise.md":
 			exerciseFile = filepath.Join(dirPath, entry.Name())
+		case submissionName:
+			submissionFile = filepath.Join(dirPath, entry.Name())
 		}
 	}
-	return guideFile, exerciseFile
+	return guideFile, exerciseFile, submissionFile
 }
 
 // readCorrectionFiles reads correction files from a subdirectory.
 // Errors if directory unreadable.
-func readCorrectionFiles(entries []os.DirEntry, dirPath string) ([]CorrectionFile, error) {
-	var correctionFiles []CorrectionFile
+func readCorrectionFiles(entries []os.DirEntry, dirPath string) ([]correctionFile, error) {
+	var correctionFiles []correctionFile
 	var correctionDir string
 
 	for _, entry := range entries {
@@ -209,7 +311,7 @@ func readCorrectionFiles(entries []os.DirEntry, dirPath string) ([]CorrectionFil
 			if err != nil {
 				return nil, err
 			}
-			correctionFiles = append(correctionFiles, CorrectionFile{
+			correctionFiles = append(correctionFiles, correctionFile{
 				Name:    corrEntry.Name(),
 				Content: string(content),
 			})
@@ -217,4 +319,10 @@ func readCorrectionFiles(entries []os.DirEntry, dirPath string) ([]CorrectionFil
 	}
 
 	return correctionFiles, nil
+}
+
+// FilesPerSheet defines file data for a single sheet
+type FilesPerSheet struct {
+	Names    []string
+	Contents []string
 }

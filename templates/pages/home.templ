@@ -38,7 +38,7 @@ templ homeContent(languageName string, sheet models.SheetTempl) {
 					// Editor itself
 					<div>
 						// FIX: real language code
-						@CodeEditor(languageName)
+						@CodeEditor(languageName, sheet.CorrectionContent)
 					</div>
 					<div class="card-actions justify-end mt-4">
 						<button class="btn btn-primary">Submit</button>
@@ -96,7 +96,7 @@ templ Home(fromHtmx bool, languageName string, sheet models.SheetTempl) {
 	}
 }
 
-templ CodeEditor(language string) {
+templ CodeEditor(language string, content string) {
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css"/>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js"></script>
@@ -112,7 +112,6 @@ templ CodeEditor(language string) {
 			}
 		}
 	</script>
-	// Show the code editor only when it's fully load
 	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 	<div x-data="initialized">
 		<textarea id="code" x-show="isReady"></textarea>
@@ -147,6 +146,7 @@ templ CodeEditor(language string) {
 						indentUnit: 4,
 
 		    });
+				editor.setValue({{ content }});
 				Alpine.data('initialized', () => ({isReady: false}))
 
 			});

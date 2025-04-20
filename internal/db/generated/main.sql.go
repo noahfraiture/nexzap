@@ -18,6 +18,7 @@ SELECT
   s.guide_content,
   s.exercise_content,
   s.page,
+  s.submission_content,
   (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
 FROM
   tutorials tu
@@ -32,12 +33,13 @@ LIMIT
 `
 
 type FindLastTutorialFirstSheetRow struct {
-	Title           string
-	ID              uuid.UUID
-	GuideContent    string
-	ExerciseContent string
-	Page            int32
-	TotalPages      int64
+	Title             string
+	ID                uuid.UUID
+	GuideContent      string
+	ExerciseContent   string
+	Page              int32
+	SubmissionContent string
+	TotalPages        int64
 }
 
 func (q *Queries) FindLastTutorialFirstSheet(ctx context.Context) (FindLastTutorialFirstSheetRow, error) {
@@ -49,6 +51,7 @@ func (q *Queries) FindLastTutorialFirstSheet(ctx context.Context) (FindLastTutor
 		&i.GuideContent,
 		&i.ExerciseContent,
 		&i.Page,
+		&i.SubmissionContent,
 		&i.TotalPages,
 	)
 	return i, err
@@ -61,6 +64,7 @@ SELECT
   s.guide_content,
   s.exercise_content,
   s.page,
+  s.submission_content,
   (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
 FROM
   tutorials tu
@@ -75,12 +79,13 @@ LIMIT
 `
 
 type FindLastTutorialSheetRow struct {
-	Title           string
-	ID              uuid.UUID
-	GuideContent    string
-	ExerciseContent string
-	Page            int32
-	TotalPages      int64
+	Title             string
+	ID                uuid.UUID
+	GuideContent      string
+	ExerciseContent   string
+	Page              int32
+	SubmissionContent string
+	TotalPages        int64
 }
 
 func (q *Queries) FindLastTutorialSheet(ctx context.Context, page int32) (FindLastTutorialSheetRow, error) {
@@ -92,6 +97,7 @@ func (q *Queries) FindLastTutorialSheet(ctx context.Context, page int32) (FindLa
 		&i.GuideContent,
 		&i.ExerciseContent,
 		&i.Page,
+		&i.SubmissionContent,
 		&i.TotalPages,
 	)
 	return i, err
@@ -101,7 +107,7 @@ const findSubmissionData = `-- name: FindSubmissionData :one
 SELECT
   s.docker_image,
   s.command,
-  s.submission_file,
+  s.submission_name,
   array_agg (f.name)::text[] AS files_name,
   array_agg (f.content)::text[] AS files_content
 FROM
@@ -114,7 +120,7 @@ WHERE
 type FindSubmissionDataRow struct {
 	DockerImage    string
 	Command        string
-	SubmissionFile string
+	SubmissionName string
 	FilesName      []string
 	FilesContent   []string
 }
@@ -125,7 +131,7 @@ func (q *Queries) FindSubmissionData(ctx context.Context, sheetID uuid.UUID) (Fi
 	err := row.Scan(
 		&i.DockerImage,
 		&i.Command,
-		&i.SubmissionFile,
+		&i.SubmissionName,
 		&i.FilesName,
 		&i.FilesContent,
 	)
@@ -154,7 +160,16 @@ WITH tutorial AS (
   VALUES ($1, $2, $3, $4)
   RETURNING id
 ), sheet AS (
-  INSERT INTO sheets (tutorial_id, page, guide_content, exercise_content, docker_image, command, submission_file)
+  INSERT INTO sheets (
+    tutorial_id,
+    page,
+    guide_content,
+    exercise_content,
+    submission_name,
+    submission_content,
+    docker_image,
+    command
+  )
   SELECT
     (SELECT id FROM tutorial),
     unnest($5::integer[]),
@@ -162,23 +177,25 @@ WITH tutorial AS (
     unnest($7::text[]),
     unnest($8::text[]),
     unnest($9::text[]),
-    unnest($10::text[])
+    unnest($10::text[]),
+    unnest($11::text[])
   RETURNING id
 )
 SELECT id FROM sheet
 `
 
 type InsertTutorialParams struct {
-	Title            string
-	Highlight        string
-	CodeEditor       string
-	Version          int32
-	Pages            []int32
-	GuidesContent    []string
-	ExercisesContent []string
-	DockerImages     []string
-	Commands         []string
-	SubmissionFile   []string
+	Title              string
+	Highlight          string
+	CodeEditor         string
+	Version            int32
+	Pages              []int32
+	GuidesContent      []string
+	ExercisesContent   []string
+	SubmissionsName    []string
+	SubmissionsContent []string
+	DockerImages       []string
+	Commands           []string
 }
 
 func (q *Queries) InsertTutorial(ctx context.Context, arg InsertTutorialParams) ([]uuid.UUID, error) {
@@ -190,9 +207,10 @@ func (q *Queries) InsertTutorial(ctx context.Context, arg InsertTutorialParams) 
 		arg.Pages,
 		arg.GuidesContent,
 		arg.ExercisesContent,
+		arg.SubmissionsName,
+		arg.SubmissionsContent,
 		arg.DockerImages,
 		arg.Commands,
-		arg.SubmissionFile,
 	)
 	if err != nil {
 		return nil, err
