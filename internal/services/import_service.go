@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"time"
 
 	"github.com/BurntSushi/toml"
 )
@@ -63,6 +64,7 @@ func RefreshTutorials() error {
 			Highlight:          meta.Highlight,
 			CodeEditor:         meta.CodeEditor,
 			Version:            int32(meta.Version),
+			Unlock:             meta.UnlockTime,
 			Pages:              pages,
 			GuidesContent:      guides,
 			ExercisesContent:   exercises,
@@ -104,10 +106,11 @@ func InsertTutorialAndFiles(tutorial InsertTutorialModelInsert, filesPerSheet []
 
 // tutorialMeta holds metadata for a programming language tutorial.
 type tutorialMeta struct {
-	Title      string `toml:"title"`
-	Highlight  string `toml:"highlight"`
-	CodeEditor string `toml:"codeEditor"`
-	Version    int    `toml:"version"`
+	Title      string    `toml:"title"`
+	Highlight  string    `toml:"highlight"`
+	CodeEditor string    `toml:"codeEditor"`
+	Version    int       `toml:"version"`
+	UnlockTime time.Time `toml:"unlock"`
 }
 
 // correctionFile represents a file with correction content for a tutorial sheet.

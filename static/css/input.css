@@ -1,4 +1,5 @@
 @import "tailwindcss" source(none);
+@plugin "@tailwindcss/typography";
 
 /* TODO : use cdn with minimum */ 
 @plugin "../js/daisyui.js" { 

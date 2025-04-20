@@ -7,6 +7,7 @@ import (
 	"nexzap/internal/db"
 	"nexzap/internal/services"
 	"nexzap/templates/partials"
+	"regexp"
 
 	"github.com/google/uuid"
 )
@@ -45,6 +46,14 @@ func SubmitHandler(s *services.Service) http.HandlerFunc {
 			http.Error(w, fmt.Sprintf("Failed to run test. Error: %s", err), http.StatusInternalServerError)
 		}
 
-		partials.Result(output, status).Render(r.Context(), w)
+		partials.Result(sanitize(output), status).Render(r.Context(), w)
 	}
+}
+
+// Define the regex pattern globally for efficiency
+var sanitizeRegex = regexp.MustCompile(`[^\x20-\x7E\n\t]`)
+
+// Function to sanitize the output
+func sanitize(output string) string {
+	return sanitizeRegex.ReplaceAllString(output, "")
 }

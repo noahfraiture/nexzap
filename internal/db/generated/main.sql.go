@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -27,6 +28,7 @@ FROM
   JOIN sheets s ON s.tutorial_id = tu.id
 WHERE
   s.page = 1
+  AND tu.unlock < NOW ()
 ORDER BY
   tu.updated_at DESC,
   tu.version DESC
@@ -79,6 +81,7 @@ FROM
   JOIN sheets s ON s.tutorial_id = tu.id
 WHERE
   s.page = $1
+  AND tu.unlock < NOW ()
 ORDER BY
   tu.updated_at DESC,
   tu.version DESC
@@ -170,8 +173,8 @@ func (q *Queries) InsertFiles(ctx context.Context, arg InsertFilesParams) error 
 
 const insertTutorial = `-- name: InsertTutorial :many
 WITH tutorial AS (
-  INSERT INTO tutorials (title, highlight, code_editor, version)
-  VALUES ($1, $2, $3, $4)
+  INSERT INTO tutorials (title, highlight, code_editor, version, unlock)
+  VALUES ($1, $2, $3, $4, $5)
   RETURNING id
 ), sheet AS (
   INSERT INTO sheets (
@@ -186,13 +189,13 @@ WITH tutorial AS (
   )
   SELECT
     (SELECT id FROM tutorial),
-    unnest($5::integer[]),
-    unnest($6::text[]),
+    unnest($6::integer[]),
     unnest($7::text[]),
     unnest($8::text[]),
     unnest($9::text[]),
     unnest($10::text[]),
-    unnest($11::text[])
+    unnest($11::text[]),
+    unnest($12::text[])
   RETURNING id
 )
 SELECT id FROM sheet
@@ -203,6 +206,7 @@ type InsertTutorialParams struct {
 	Highlight          string
 	CodeEditor         string
 	Version            int32
+	Unlock             time.Time
 	Pages              []int32
 	GuidesContent      []string
 	ExercisesContent   []string
@@ -218,6 +222,7 @@ func (q *Queries) InsertTutorial(ctx context.Context, arg InsertTutorialParams) 
 		arg.Highlight,
 		arg.CodeEditor,
 		arg.Version,
+		arg.Unlock,
 		arg.Pages,
 		arg.GuidesContent,
 		arg.ExercisesContent,

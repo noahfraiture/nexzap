@@ -5,6 +5,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -34,6 +36,7 @@ type Tutorial struct {
 	Highlight  string
 	CodeEditor string
 	Version    int32
+	Unlock     time.Time
 	CreatedAt  pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
 }

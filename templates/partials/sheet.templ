@@ -7,15 +7,15 @@ import (
 )
 
 templ GuideContent(sheet models.SheetTempl) {
-	<div class="min-h-0 overflow-y-scroll grow">
+	<div class="min-h-0 overflow-y-scroll grow prose">
 		@templ.Raw(sheet.SheetContent)
 	</div>
 	// must load here to reapply on change context (next page)
-	@Highlight()
+	@Prism()
 }
 
 templ Buttons(sheet models.SheetTempl) {
-	<div class="flex justify-center items-center gap-4">
+	<div class="flex justify-center items-center gap-4 mt-4">
 		if sheet.NbPage > 1 {
 			<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))) } hx-target="#sheet">Previous</button>
 		}
@@ -32,7 +32,7 @@ templ ExerciseContent(content string) {
 
 templ EditorPanel(sheet models.SheetTempl) {
 	<div class="card bg-base-200 shadow-lg">
-		<div class="card-body" x-data="{keymap: 'default', enabled: false, loading: false}">
+		<div class="card-body" x-data="{keymap: 'default', enabled: false}">
 			// Change the keymap
 			<div class="flex justify-between">
 				<h3 class="card-title">Your Solution</h3>
@@ -47,32 +47,9 @@ templ EditorPanel(sheet models.SheetTempl) {
 				</div>
 			</div>
 			// Editor itself
-			<div>
-				// FIX: real language code
-				@CodeEditor(sheet.CodeEditor, sheet.CorrectionContent)
-			</div>
-			<div class="card-actions flex flex-row justify-between mt-4">
-				<div x-show="!loading" id="response"></div>
-				<form
-					hx-post="/submit"
-					hx-target="#response"
-					hx-swap="innerHTML"
-					x-on:htmx:before-request="loading = true"
-					x-on:htmx:after-request="loading = false"
-				>
-					<input type="hidden" name="sheet" value={ sheet.Id }/>
-					<input type="hidden" name="payload" id="payload" value=""/>
-					<button
-						type="submit"
-						class="btn btn-primary"
-						x-on:click="document.getElementById('payload').value = editor.getValue();"
-						x-bind:disabled="loading"
-					>
-						<span x-show="!loading">Submit</span>
-						<span x-show="loading" class="loading loading-spinner text-primary"></span>
-					</button>
-				</form>
-			</div>
+			// FIX: real language code
+			@CodeEditor(sheet.CodeEditor, sheet.CorrectionContent)
+			@Submit(sheet.Id)
 		</div>
 	</div> // Tests Output
 }
@@ -183,83 +160,8 @@ templ CodeEditor(language string, content string) {
 	</style>
 }
 
-templ Highlight() {
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-	<script>hljs.highlightAll();</script>
-	<style>
-			/* Base styles */
-		.hljs {
-		  background-color: var(--color-base-100);
-		  color: var(--color-base-content);
-		  padding: 1em;
-		}
-
-		/* CodeMirror uses 300px height, but for highlight.js we'll let it be flexible */
-		.hljs pre {
-		  margin: 0;
-		}
-
-		/* Syntax highlighting matching CodeMirror */
-		.hljs-keyword {
-		  color: var(--color-secondary);
-		}
-
-		.hljs-string {
-		  color: var(--color-success);
-		}
-
-		.hljs-comment {
-		  color: var(--color-neutral-content);
-		  font-style: italic;
-		}
-
-		.hljs-number {
-		  color: var(--color-error);
-		}
-
-		/* Additional highlight.js classes mapped to DaisyUI colors */
-		.hljs-title,
-		.hljs-title.class,
-		.hljs-title.function {
-		  color: var(--color-primary);
-		}
-
-		.hljs-variable,
-		.hljs-attribute,
-		.hljs-tag {
-		  color: var(--color-info);
-		}
-
-		.hljs-operator,
-		.hljs-punctuation {
-		  color: var(--color-base-content);
-		}
-
-		.hljs-literal,
-		.hljs-built_in {
-		  color: var(--color-warning);
-		}
-
-		.hljs-meta {
-		  color: var(--color-accent);
-		}
-
-		/* Selection matching CodeMirror */
-		.hljs::selection {
-		  background: color-mix(in oklch, var(--color-primary) 30%, transparent);
-		}
-
-		/* Optional: Add some subtle styling for better readability */
-		.hljs code {
-		  background: transparent;
-		}
-
-		/* Match the gutter styling if needed */
-		.hljs-ln-numbers {
-		  background: var(--color-base-200);
-		  color: var(--color-neutral-content);
-		  border-right: 1px solid var(--color-base-300);
-		  padding-right: 0.5em;
-		}
-	</style>
+// TODO: autoloader is slow, change that
+templ Prism() {
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-core.min.js" integrity="sha512-Uw06iFFf9hwoN77+kPl/1DZL66tKsvZg6EWm7n6QxInyptVuycfrO52hATXDRozk7KWeXnrSueiglILct8IkkA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 }

@@ -1,12 +1,50 @@
 package partials
 
 import "nexzap/internal/services/container"
+import "strconv"
 
 templ Result(output string, status container.RunResponse) {
-	<div class="alert alert-warning shadow-lg">
-		<div>
-			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-			<span>Warning: This is a warning message!</span>
+	if status.StatusCode == 0 {
+		<div class="alert alert-success shadow-lg">
+			<div>
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+				<span>Success: Your submission was successful!</span>
+			</div>
 		</div>
+	} else {
+		<div class="alert alert-error shadow-lg flex flex-row min-h-0">
+			<div class="min-w-0">
+				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+				<span>Error: Your submission failed with status code { strconv.Itoa(int(status.StatusCode)) }.</span>
+			</div>
+			<div class="mt-2 min-w-0">
+				<pre class="p-2 rounded min-h-0 overflow-x-auto bg-red-800">{ output }</pre>
+			</div>
+		</div>
+	}
+}
+
+templ Submit(id string) {
+	<div class="card-actions flex flex-row justify-between items-center mt-4" x-data="{loading: false}">
+		<div x-bind:class="{'invisible': loading}" id="response"></div> // Here goes the Result
+		<form
+			hx-post="/submit"
+			hx-target="#response"
+			hx-swap="innerHTML"
+			x-on:htmx:before-request="loading = true"
+			x-on:htmx:after-request="loading = false"
+		>
+			<input type="hidden" name="sheet" value={ id }/>
+			<input type="hidden" name="payload" id="payload" value=""/>
+			<button
+				type="submit"
+				class="btn btn-primary"
+				x-on:click="document.getElementById('payload').value = editor.getValue();"
+				x-bind:disabled="loading"
+			>
+				<span x-show="!loading">Submit</span>
+				<span x-show="loading" class="loading loading-spinner text-primary"></span>
+			</button>
+		</form>
 	</div>
 }

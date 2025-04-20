@@ -1,7 +1,7 @@
 -- name: InsertTutorial :many
 WITH tutorial AS (
-  INSERT INTO tutorials (title, highlight, code_editor, version)
-  VALUES (@title, @highlight, @code_editor, @version)
+  INSERT INTO tutorials (title, highlight, code_editor, version, unlock)
+  VALUES (@title, @highlight, @code_editor, @version, @unlock)
   RETURNING id
 ), sheet AS (
   INSERT INTO sheets (
@@ -47,6 +47,7 @@ FROM
   JOIN sheets s ON s.tutorial_id = tu.id
 WHERE
   s.page = 1
+  AND tu.unlock < NOW ()
 ORDER BY
   tu.updated_at DESC,
   tu.version DESC
@@ -69,6 +70,7 @@ FROM
   JOIN sheets s ON s.tutorial_id = tu.id
 WHERE
   s.page = @page
+  AND tu.unlock < NOW ()
 ORDER BY
   tu.updated_at DESC,
   tu.version DESC

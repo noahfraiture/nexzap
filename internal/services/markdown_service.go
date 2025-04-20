@@ -40,19 +40,6 @@ func NewInlinePatterns() *InlinePatterns {
 	}
 }
 
-// getHeadingClass returns Tailwind CSS classes based on heading level
-func getHeadingClass(level int) string {
-	classes := map[int]string{
-		1: "text-4xl font-bold",
-		2: "text-3xl font-bold",
-		3: "text-2xl font-bold",
-		4: "text-xl font-bold",
-		5: "text-lg font-bold",
-		6: "text-base font-bold",
-	}
-	return classes[level]
-}
-
 // parseInline processes inline Markdown elements and applies Tailwind classes
 func (p *MarkdownParser) parseInline(text string, patterns *InlinePatterns) string {
 	result := text
@@ -89,18 +76,9 @@ func buildParagraphText(lines []string) string {
 	var paragraph strings.Builder
 	for i, line := range lines {
 		trimmed := strings.TrimRight(line, " ")
-		originalLen := len(line)
-		trimmedLen := len(trimmed)
+		paragraph.WriteString(trimmed)
 		if i < len(lines)-1 {
-			if originalLen-trimmedLen >= 2 {
-				paragraph.WriteString(trimmed)
-				paragraph.WriteString("<br>")
-			} else {
-				paragraph.WriteString(trimmed)
-				paragraph.WriteString(" ")
-			}
-		} else {
-			paragraph.WriteString(trimmed)
+			paragraph.WriteString("<br>")
 		}
 	}
 	return paragraph.String()
@@ -137,8 +115,7 @@ func (p *MarkdownParser) processHeading(line string, patterns *InlinePatterns) b
 	if level >= 1 && level <= 6 {
 		text := line[level+1:]
 		processed := p.parseInline(text, patterns)
-		class := getHeadingClass(level)
-		p.output.WriteString(fmt.Sprintf("<h%d class=\"%s\">%s</h%d>\n", level, class, processed, level))
+		p.output.WriteString(fmt.Sprintf("<h%d>%s</h%d>\n", level, processed, level))
 		return true
 	}
 	return false
@@ -196,8 +173,6 @@ func (p *MarkdownParser) ParseMarkdown(md string) string {
 		}
 
 		if strings.TrimSpace(line) == "" {
-			p.flushParagraph(patterns)
-			p.output.WriteString("<br>\n")
 			continue
 		}
 
