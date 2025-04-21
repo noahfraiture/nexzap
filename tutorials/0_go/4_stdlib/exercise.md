@@ -8,5 +8,3 @@ Write a function `ParseProfile(jsonStr string) (string, int, []string, error)` t
 
 #### Example:
 - For a JSON string like `{"person":{"name":"Bob","age":25},"hobbies":["Swimming","Cooking"]}`, the function should return: ("Bob", 25, []string{"Swimming", "Cooking"}, nil)
-
-> **Note**: Do not forget to declare the package with `package main` at the top of the file and import necessary packages.

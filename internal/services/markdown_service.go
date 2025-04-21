@@ -136,10 +136,11 @@ func (p *MarkdownParser) processCodeBlock(line string) bool {
 		p.inCodeBlock = false
 		code := strings.Join(p.codeLines, "\n")
 		escapedCode := html.EscapeString(code)
+		// TODO : use daisyUI theme
 		if p.language != "" {
-			p.output.WriteString(fmt.Sprintf("<pre><code class=\"language-%s\">%s</code></pre>\n", p.language, escapedCode))
+			p.output.WriteString(fmt.Sprintf(`<pre class="code cm-s-default">%s</pre>`, escapedCode))
 		} else {
-			p.output.WriteString(fmt.Sprintf("<pre><code>%s</code></pre>\n", escapedCode))
+			p.output.WriteString(fmt.Sprintf(`<pre class="code cm-s-default">%s</pre>`, escapedCode))
 		}
 		p.codeLines = nil
 		p.language = ""

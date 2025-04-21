@@ -10,8 +10,16 @@ templ GuideContent(sheet models.SheetTempl) {
 	<div class="min-h-0 overflow-y-scroll grow prose">
 		@templ.Raw(sheet.SheetContent)
 	</div>
-	// must load here to reapply on change context (next page)
-	@Prism()
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/runmode/colorize.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/runmode/runmode.min.js"></script>
+	<script>
+		(function() {
+			let codeSnippets = document.getElementsByClassName("code");
+			for (let i = 0; i < codeSnippets.length; i++) {
+				CodeMirror.runMode(codeSnippets[i].textContent, {{ sheet.CodeEditor }}, codeSnippets[i]);
+			}
+		})();
+	</script>
 }
 
 templ Buttons(sheet models.SheetTempl) {
@@ -27,7 +35,7 @@ templ Buttons(sheet models.SheetTempl) {
 }
 
 templ ExerciseContent(content string) {
-	<div class="min-h-0 overflow-y-scroll prose">
+	<div class="min-h-0 overflow-y-scroll grow prose">
 		@templ.Raw(content)
 	</div>
 }
@@ -57,11 +65,15 @@ templ EditorPanel(sheet models.SheetTempl) {
 }
 
 templ CodeEditor(language string, content string) {
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js"></script>
-	<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", language, language) }></script>
+	// require css in base.templ
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.js"></script>
+	// does not require css
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/anyword-hint.min.js"></script>
 	<script>
 		function initialized() {
 			return {
@@ -101,10 +113,22 @@ templ CodeEditor(language string, content string) {
 		        mode: {{ language }},
 		        lineNumbers: true,
 						lineSeparator: false,
-		        theme: "daisyui",
+		        theme: "daisyui", // FIX not complete enough
 						indentUnit: 4,
-
+						lineWrapping: true,
+						autoCloseBrackets: true,
+						matchBrackets: true,
+						extraKeys: {"Ctrl-K": "autocomplete"},
+						
 		    });
+
+				var arrows = [37, 38, 39, 40]
+
+				editor.on("keyup", function(cm, e) {
+				  if (arrows.indexOf(e.keyCode) < 0) {
+				    editor.execCommand("autocomplete")
+				  }
+				})
 				editor.setValue({{ content }});
 				Alpine.data('initialized', () => ({isReady: false}))
 
@@ -160,10 +184,4 @@ templ CodeEditor(language string, content string) {
 	    width: 100%;
 	  }
 	</style>
-}
-
-// TODO: autoloader is slow, change that
-templ Prism() {
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-core.min.js" integrity="sha512-Uw06iFFf9hwoN77+kPl/1DZL66tKsvZg6EWm7n6QxInyptVuycfrO52hATXDRozk7KWeXnrSueiglILct8IkkA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 }

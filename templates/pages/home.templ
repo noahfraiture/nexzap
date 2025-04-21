@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"nexzap/internal/models"
 	"nexzap/templates/layouts"
 	"nexzap/templates/partials"
@@ -24,7 +25,7 @@ templ leftPanel(sheet models.SheetTempl) {
 }
 
 templ rightPanel(sheet models.SheetTempl) {
-	<div class="flex flex-col gap-6 min-h-0">
+	<div class="flex flex-col gap-6 min-h-0 grow">
 		@partials.EditorPanel(sheet)
 		@exercisePanel(sheet)
 	</div>
@@ -32,7 +33,7 @@ templ rightPanel(sheet models.SheetTempl) {
 
 templ exercisePanel(sheet models.SheetTempl) {
 	<div class="card card-border card-body bg-base-200 shadow-lg min-h-0">
-		<h2 class="card-title">Tests</h2>
+		<h2 class="card-title">Instructions</h2>
 		<div id="test" class="flex min-h-0">
 			@partials.ExerciseContent(sheet.ExerciseContent)
 		</div>
@@ -48,6 +49,11 @@ templ NextContent(sheet models.SheetTempl) {
 }
 
 templ Home(fromHtmx bool, sheet models.SheetTempl) {
+	// core of codemirror
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
+	// languagss
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js"></script>
+	<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor) }></script>
 	if fromHtmx {
 		<title id="title" hx-swap-oob="#title">NexZap - Home</title>
 		@homeContent(sheet)
