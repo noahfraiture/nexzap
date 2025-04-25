@@ -3,3 +3,4 @@ tmp/
 start.sh
 .env
 .helix
+.task/checksum

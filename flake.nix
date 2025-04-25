@@ -18,10 +18,9 @@
         ];
 
         packages = with pkgs; [
-          air
+          go-task
           templ
           tailwindcss_4
-          watchman
           sqlc
         ];
 

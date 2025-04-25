@@ -1,0 +1,45 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  tailwind:
+    desc: Build the style.css from class found in templ files
+    cmd: tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify >/dev/null
+    sources:
+      - "./templates/**/*_templ.go"
+
+  templ:
+    desc: generate the templ file
+    cmd: templ generate >/dev/null
+    sources:
+      - "**/*.templ"
+
+  sqlc:
+    desc: Generate the sql command from raw SQL
+    cmd: sqlc generate >/dev/null
+    sources:
+      - "**/*.sql"
+
+  build:
+    desc: Build the go binary. Called by run
+    cmd: go build -o ./tmp/main ./cmd/nexzap/main.go >/dev/null
+    sources:
+      - ./go.mod
+      - ./go.sum
+      - '**/*.go'
+      - '**/*.go'
+
+  run:
+    deps: [ build ]
+    cmd: ./tmp/main >/dev/null
+
+  default:
+    deps:
+      - tailwind
+      - templ
+      - sqlc
+      - run
