@@ -1,31 +1,36 @@
 package partials
 
-import "nexzap/internal/services/container"
-import "strconv"
+import (
+	"fmt"
+	"nexzap/internal/services/container"
+	"strconv"
+	"strings"
+)
 
 templ Result(output string, status container.RunResponse) {
-	if status.StatusCode == 0 {
-		<div class="alert alert-success shadow-lg">
-			<div>
-				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-				</svg>
-				<span>Success: Your submission was successful!</span>
+	<div x-data={ fmt.Sprintf("{ fullOutput: `%s` , showFull: false }", strings.ReplaceAll(output, "`", "'")) }>
+		if status.StatusCode == 0 {
+			<div class="alert alert-success shadow-lg">
+				<div>
+					<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+					</svg>
+					<span class="text-error-content">Success: Your submission was successful!</span>
+				</div>
 			</div>
-		</div>
-	} else {
-		<div class="alert alert-error shadow-lg flex flex-row">
-			<div>
-				<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-				</svg>
-				<span>Error: Your submission failed with status code { strconv.Itoa(int(status.StatusCode)) }.</span>
+		} else {
+			<div class="alert alert-error shadow-lg flex flex-row">
+				<div>
+					<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+					</svg>
+					<span class="text-error-content">Error: Your submission failed with status code { strconv.Itoa(int(status.StatusCode)) }.</span>
+				</div>
+				<pre class="text-error-content" x-text="showFull ? fullOutput : (fullOutput.length > 30 ? fullOutput.substring(0, 30) + '...' : fullOutput)"></pre>
+				<button x-show="fullOutput.length > 30" x-on:click="showFull = !showFull" x-text="showFull ? 'Show less' : 'Show more'" class="btn btn-error-content mt-2"></button>
 			</div>
-			<div class="mt-2">
-				<pre class="p-2 rounded overflow-x-auto bg-error-800">{ output }</pre>
-			</div>
-		</div>
-	}
+		}
+	</div>
 }
 
 templ Submit(id string) {

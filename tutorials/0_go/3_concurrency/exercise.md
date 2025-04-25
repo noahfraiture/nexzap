@@ -1,7 +1,5 @@
 ## Task: Calculate Sum with Goroutines and Channels
 
-In this exercise, you will learn how to use goroutines and channels for concurrent programming in Go.
-
 ### Instructions
 
 Write a function `CalculateSum(numbers []int) int` that will:
@@ -20,6 +18,4 @@ A slice in Go is a flexible view of an array. Use `len()` to get its length and 
 #### Example:
 - `CalculateSum([]int{1, 2, 3, 4})` should return `10`.
 - `CalculateSum([]int{5})` should return `5`.
-- `CalculateSum([]int{}`) should return `0`.
-
-> **Note**: Do not forget to declare the package with `package main` at the top of the file.
+- `CalculateSum([]int{})` should return `0`.

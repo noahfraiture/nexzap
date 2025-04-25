@@ -1,9 +1,10 @@
 package main
 
-func AddMax(a, b int) int {
-	res := a + b
-	if res > 255 {
-		res = 255
-	}
-	return res
+import (
+	"errors"
+	// import library here
+)
+
+func ReadFileContent(filename string) (string, error) {
+	return "", errors.New("file cannot be empty")
 }

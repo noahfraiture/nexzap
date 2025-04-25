@@ -1,45 +1,55 @@
-# https://taskfile.dev
-
 version: "3"
-
-vars:
-  GREETING: Hello, World!
 
 tasks:
   tailwind:
-    desc: Build the style.css from class found in templ files
-    cmd: tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify >/dev/null
+    desc: Build the style.css from classes found in templ files
+    cmd: tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify
     sources:
-      - "./templates/**/*_templ.go"
+      - ./templates/**/*.templ
+    generates:
+      - ./static/css/style.css
 
   templ:
-    desc: generate the templ file
-    cmd: templ generate >/dev/null
+    desc: Generate the templ files
+    cmd: templ generate
     sources:
-      - "**/*.templ"
+      - ./templates/**/*.templ
+    generates:
+      - ./templates/**/*_templ.go
 
   sqlc:
-    desc: Generate the sql command from raw SQL
-    cmd: sqlc generate >/dev/null
+    desc: Generate Go code from raw SQL
+    cmd: sqlc generate
     sources:
-      - "**/*.sql"
+      - ./internal/db/queries/*.sql
+    generates:
+      - ./internal/db/generated/*.sql.go
 
   build:
-    desc: Build the go binary. Called by run
-    cmd: go build -o ./tmp/main ./cmd/nexzap/main.go >/dev/null
+    desc: Build the Go binary
+    cmd: go build -o ./tmp/main ./cmd/nexzap/main.go
+    deps:
+      - templ
+      - sqlc
+      - tailwind
     sources:
       - ./go.mod
       - ./go.sum
-      - '**/*.go'
-      - '**/*.go'
+      - ./cmd/**/*.go
+      - ./internal/**/*.go
+      - ./templates/**/*_templ.go
+      - ./static/css/style.css
+      - ./internal/db/migrations/*.sql
+    generates:
+      - ./tmp/main
 
   run:
-    deps: [ build ]
-    cmd: ./tmp/main >/dev/null
+    desc: Run the built binary
+    deps:
+      - build
+    cmd: ./tmp/main
 
   default:
+    desc: Run the full build and start the program
     deps:
-      - tailwind
-      - templ
-      - sqlc
       - run

@@ -8,8 +8,12 @@ package partials
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "nexzap/internal/services/container"
-import "strconv"
+import (
+	"fmt"
+	"nexzap/internal/services/container"
+	"strconv"
+	"strings"
+)
 
 func Result(output string, status container.RunResponse) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -32,42 +36,50 @@ func Result(output string, status container.RunResponse) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("{ fullOutput: `%s` , showFull: false }", strings.ReplaceAll(output, "`", "'")))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 11, Col: 106}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		if status.StatusCode == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"alert alert-success shadow-lg\"><div><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"stroke-current flex-shrink-0 h-6 w-6\" fill=\"none\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\"></path></svg> <span>Success: Your submission was successful!</span></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"alert alert-success shadow-lg\"><div><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"stroke-current flex-shrink-0 h-6 w-6\" fill=\"none\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\"></path></svg> <span class=\"text-error-content\">Success: Your submission was successful!</span></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"alert alert-error shadow-lg flex flex-row\"><div><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"stroke-current flex-shrink-0 h-6 w-6\" fill=\"none\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg> <span>Error: Your submission failed with status code ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(int(status.StatusCode)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 22, Col: 95}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ".</span></div><div class=\"mt-2\"><pre class=\"p-2 rounded overflow-x-auto bg-error-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"alert alert-error shadow-lg flex flex-row\"><div><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"stroke-current flex-shrink-0 h-6 w-6\" fill=\"none\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg> <span class=\"text-error-content\">Error: Your submission failed with status code ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(output)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(int(status.StatusCode)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 25, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 27, Col: 123}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</pre></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ".</span></div><pre class=\"text-error-content\" x-text=\"showFull ? fullOutput : (fullOutput.length &gt; 30 ? fullOutput.substring(0, 30) + &#39;...&#39; : fullOutput)\"></pre><button x-show=\"fullOutput.length &gt; 30\" x-on:click=\"showFull = !showFull\" x-text=\"showFull ? &#39;Show less&#39; : &#39;Show more&#39;\" class=\"btn btn-error-content mt-2\"></button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
 		return nil
 	})
@@ -94,20 +106,20 @@ func Submit(id string) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card-actions flex flex-row justify-between items-center mt-4\" x-data=\"{loading: false}\"><div x-bind:class=\"{&#39;invisible&#39;: loading}\" id=\"response\"></div><form hx-post=\"/submit\" hx-target=\"#response\" hx-swap=\"innerHTML\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false\"><input type=\"hidden\" name=\"sheet\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"card-actions flex flex-row justify-between items-center mt-4\" x-data=\"{loading: false}\"><div x-bind:class=\"{&#39;invisible&#39;: loading}\" id=\"response\"></div><form hx-post=\"/submit\" hx-target=\"#response\" hx-swap=\"innerHTML\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false\"><input type=\"hidden\" name=\"sheet\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 41, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 46, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"> <input type=\"hidden\" name=\"payload\" id=\"payload\" value=\"\"> <button type=\"submit\" class=\"btn btn-primary\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = editor.getValue();\" x-bind:disabled=\"loading\"><span x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"> <input type=\"hidden\" name=\"payload\" id=\"payload\" value=\"\"> <button type=\"submit\" class=\"btn btn-primary\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = editor.getValue();\" x-bind:disabled=\"loading\"><span x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

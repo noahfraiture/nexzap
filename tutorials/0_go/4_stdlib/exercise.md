@@ -1,7 +1,5 @@
 ## Task: Parse JSON Data with Composed Structs
 
-In this exercise, you will use Go's standard library to parse JSON data by decoding it into composed structs.
-
 ### Instructions
 
 Write a function `ParseProfile(jsonStr string) (string, int, []string, error)` that takes a JSON string as input and decodes it into a `Profile` struct with a nested `Person` struct (having `Name` string and `Age` int) and a `Hobbies` slice of strings as fields. The function should return the name, age, and hobbies from the JSON data, along with any error that occurs during decoding.

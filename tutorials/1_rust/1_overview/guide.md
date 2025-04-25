@@ -1,7 +1,6 @@
 # What is Rust?
 
 Rust is an empowering programming language designed to give you high performance and reliability through ironclad safety. You can build almost anything, from blazing-fast web servers to intricate system tools, with stellar performance. When your code finally compiles, it’s rock-solid. The catch? Getting it to compile can feel like wrestling a bear—it’s tough but rewarding.
-[Click me](https://google.com)
 
 ## Key Features
 

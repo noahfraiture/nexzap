@@ -1,9 +1,11 @@
 package main
 
-func AddMax(a, b int) int {
-	res := a + b
-	if res > 255 {
-		res = 255
-	}
-	return res
+import (
+	"errors"
+	// import library here
+)
+
+func ParseProfile(jsonStr string) (string, int, []string, error) {
+	return "", 0, []string{}, errors.New("player not found")
+
 }
