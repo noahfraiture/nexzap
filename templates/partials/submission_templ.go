@@ -51,14 +51,14 @@ func Result(output string, status container.RunResponse) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ".</span></div><div class=\"mt-2\"><pre class=\"p-2 rounded overflow-x-auto bg-red-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ".</span></div><div class=\"mt-2\"><pre class=\"p-2 rounded overflow-x-auto bg-error-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(output)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 25, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/submission.templ`, Line: 25, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {

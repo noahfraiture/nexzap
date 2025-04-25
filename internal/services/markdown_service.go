@@ -2,8 +2,8 @@ package services
 
 import (
 	"bufio"
-	"fmt"
-	"html"
+	"context"
+	"nexzap/templates/partials"
 	"regexp"
 	"strings"
 )
@@ -53,19 +53,25 @@ func (p *MarkdownParser) parseInline(text string, patterns *InlinePatterns) stri
 	// Process bold text
 	result = patterns.bold.ReplaceAllStringFunc(result, func(match string) string {
 		bold := patterns.bold.FindStringSubmatch(match)[1]
-		return `<strong class="font-bold">` + bold + `</strong>`
+		var res strings.Builder
+		partials.Bold(bold).Render(context.Background(), &res)
+		return res.String()
 	})
 
 	// Process italic text
 	result = patterns.italic.ReplaceAllStringFunc(result, func(match string) string {
 		italic := patterns.italic.FindStringSubmatch(match)[1]
-		return `<em class="italic">` + italic + `</em>`
+		var res strings.Builder
+		partials.Italic(italic).Render(context.Background(), &res)
+		return res.String()
 	})
 
 	// Process links
 	result = patterns.link.ReplaceAllStringFunc(result, func(match string) string {
 		parts := patterns.link.FindStringSubmatch(match)
-		return fmt.Sprintf(`<a href="%s" class="text-blue-500 hover:underline">%s</a>`, parts[2], parts[1])
+		var res strings.Builder
+		partials.Link(parts[1], parts[2]).Render(context.Background(), &res)
+		return res.String()
 	})
 
 	return result
@@ -115,7 +121,7 @@ func (p *MarkdownParser) processHeading(line string, patterns *InlinePatterns) b
 	if level >= 1 && level <= 6 {
 		text := line[level+1:]
 		processed := p.parseInline(text, patterns)
-		p.output.WriteString(fmt.Sprintf("<h%d>%s</h%d>\n", level, processed, level))
+		partials.Header(level, processed).Render(context.Background(), &p.output)
 		return true
 	}
 	return false
@@ -135,13 +141,8 @@ func (p *MarkdownParser) processCodeBlock(line string) bool {
 		// End code block
 		p.inCodeBlock = false
 		code := strings.Join(p.codeLines, "\n")
-		escapedCode := html.EscapeString(code)
-		// TODO : use daisyUI theme
-		if p.language != "" {
-			p.output.WriteString(fmt.Sprintf(`<pre class="code cm-s-default">%s</pre>`, escapedCode))
-		} else {
-			p.output.WriteString(fmt.Sprintf(`<pre class="code cm-s-default">%s</pre>`, escapedCode))
-		}
+		// TODO : use language
+		partials.Snippet(code).Render(context.Background(), &p.output)
 		p.codeLines = nil
 		p.language = ""
 	}

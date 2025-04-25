@@ -20,6 +20,7 @@ templ GuideContent(sheet models.SheetTempl) {
 			}
 		})();
 	</script>
+	<div class="code bg-info"></div> // must be same as in markdown_service.go so that tailwindcss can compile the css
 }
 
 templ Buttons(sheet models.SheetTempl) {
@@ -179,6 +180,88 @@ templ CodeEditor(language string, content string) {
 	    color: var(--color-error);
 	  }
 
+	  .cm-s-daisyui .cm-atom {
+	    color: var(--color-accent);
+	  }
+
+	  .cm-s-daisyui .cm-def {
+	    color: var(--color-accent);
+	  }
+
+	  .cm-s-daisyui .cm-variable {
+	    color: var(--color-primary);
+	  }
+
+	  .cm-s-daisyui .cm-variable-2,
+	  .cm-s-daisyui .cm-variable-3 {
+	    color: var(--color-info);
+	  }
+
+	  .cm-s-daisyui .cm-property {
+	    color: var(--color-primary);
+	  }
+
+	  .cm-s-daisyui .cm-operator {
+	    color: var(--color-warning);
+	  }
+
+	  .cm-s-daisyui .cm-string-2 {
+	    color: var(--color-success);
+	  }
+
+	  .cm-s-daisyui .cm-meta {
+	    color: var(--color-neutral-content);
+	  }
+
+	  .cm-s-daisyui .cm-qualifier {
+	    color: var(--color-secondary);
+	  }
+
+	  .cm-s-daisyui .cm-builtin {
+	    color: var(--color-info);
+	  }
+
+	  .cm-s-daisyui .cm-bracket {
+	    color: var(--color-base-content);
+	  }
+
+	  .cm-s-daisyui .cm-tag {
+	    color: var(--color-secondary);
+	  }
+
+	  .cm-s-daisyui .cm-attribute {
+	    color: var(--color-info);
+	  }
+
+	  .cm-s-daisyui .cm-header {
+	    color: var(--color-primary);
+	  }
+
+	  .cm-s-daisyui .cm-quote {
+	    color: var(--color-neutral-content);
+	  }
+
+	  .cm-s-daisyui .cm-hr {
+	    color: var(--color-base-300);
+	  }
+
+	  .cm-s-daisyui .cm-link {
+	    color: var(--color-info);
+	  }
+
+	  .cm-s-daisyui .cm-error {
+	    color: var(--color-error);
+	  }
+
+	  .cm-s-daisyui .CodeMirror-activeline-background {
+	    background: color-mix(in oklch, var(--color-base-200) 20%, transparent);
+	  }
+
+	  .cm-s-daisyui .CodeMirror-matchingbracket {
+	    border-bottom: 1px solid var(--color-success);
+	  }
+
+	  /* Optional: layout styles */
 	  .CodeMirror {
 	    height: 300px;
 	    width: 100%;

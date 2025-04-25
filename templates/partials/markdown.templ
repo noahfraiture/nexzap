@@ -1,0 +1,36 @@
+package partials
+
+templ Snippet(content string) {
+	<pre class="code bg-accent cm-s-daisyui">{ content }</pre>
+}
+
+templ Header(number int, content string) {
+	switch number {
+		case 1:
+			<h1>{ content }</h1>
+		case 2:
+			<h2>{ content }</h2>
+		case 3:
+			<h3>{ content }</h3>
+		case 4:
+			<h4>{ content }</h4>
+		case 5:
+			<h5>{ content }</h5>
+		case 6:
+			<h6>{ content }</h6>
+		default:
+			<p>{ content }</p>
+	}
+}
+
+templ Bold(content string) {
+	<strong class="font-bold">{ content }</strong>
+}
+
+templ Italic(content string) {
+	<em class="italic">{ content }</em>
+}
+
+templ Link(text, url string) {
+	<a href={ templ.URL(url) } class="link link-primary">{ text }</a>
+}

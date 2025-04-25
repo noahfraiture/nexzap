@@ -55,7 +55,7 @@ func GuideContent(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ", codeSnippets[i]);\n\t\t\t}\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ", codeSnippets[i]);\n\t\t\t}\n\t\t})();\n\t</script><div class=\"code bg-info\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,7 +96,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 28, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 29, Col: 122}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -114,7 +114,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(sheet.NbPage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 30, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 31, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -127,7 +127,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(sheet.MaxPage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 30, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 31, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -145,7 +145,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 32, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 33, Col: 122}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -269,7 +269,7 @@ func CodeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var11, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 113, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 114, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
@@ -281,13 +281,13 @@ func CodeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var12, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 132, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 133, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ");\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ");\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .cm-s-daisyui .cm-atom {\n\t    color: var(--color-accent);\n\t  }\n\n\t  .cm-s-daisyui .cm-def {\n\t    color: var(--color-accent);\n\t  }\n\n\t  .cm-s-daisyui .cm-variable {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-variable-2,\n\t  .cm-s-daisyui .cm-variable-3 {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-property {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-operator {\n\t    color: var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .cm-string-2 {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-meta {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-qualifier {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-builtin {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-bracket {\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-tag {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-attribute {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-header {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-quote {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-hr {\n\t    color: var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .cm-link {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-error {\n\t    color: var(--color-error);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-activeline-background {\n\t    background: color-mix(in oklch, var(--color-base-200) 20%, transparent);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-matchingbracket {\n\t    border-bottom: 1px solid var(--color-success);\n\t  }\n\n\t  /* Optional: layout styles */\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

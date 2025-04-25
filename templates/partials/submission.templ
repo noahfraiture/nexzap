@@ -22,7 +22,7 @@ templ Result(output string, status container.RunResponse) {
 				<span>Error: Your submission failed with status code { strconv.Itoa(int(status.StatusCode)) }.</span>
 			</div>
 			<div class="mt-2">
-				<pre class="p-2 rounded overflow-x-auto bg-red-800">{ output }</pre>
+				<pre class="p-2 rounded overflow-x-auto bg-error-800">{ output }</pre>
 			</div>
 		</div>
 	}
