@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"nexzap/internal/db"
 	"nexzap/internal/services"
-	"nexzap/templates/partials"
 	"regexp"
 
 	"github.com/google/uuid"
@@ -46,7 +46,18 @@ func SubmitHandler(s *services.Service) http.HandlerFunc {
 			http.Error(w, fmt.Sprintf("Failed to run test. Error: %s", err), http.StatusInternalServerError)
 		}
 
-		partials.Result(sanitize(output), status).Render(r.Context(), w)
+		// Respond with JSON containing the output and status code
+		w.Header().Set("Content-Type", "application/json")
+		response := struct {
+			Output string `json:"output"`
+			Code   int    `json:"code"`
+		}{
+			Output: sanitize(output),
+			Code:   int(status.StatusCode),
+		}
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 	}
 }
 

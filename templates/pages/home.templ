@@ -8,7 +8,8 @@ import (
 )
 
 templ homeContent(sheet models.SheetTempl) {
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+	@submitDataScript(sheet.Id, sheet.NbPage)
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full" x-data="submitData">
 		@leftPanel(sheet)
 		@rightPanel(sheet)
 	</div>
@@ -27,16 +28,7 @@ templ leftPanel(sheet models.SheetTempl) {
 templ rightPanel(sheet models.SheetTempl) {
 	<div class="flex flex-col gap-6 min-h-0 grow">
 		@partials.EditorPanel(sheet)
-		@exercisePanel(sheet)
-	</div>
-}
-
-templ exercisePanel(sheet models.SheetTempl) {
-	<div class="card card-border card-body bg-base-200 shadow-lg min-h-0">
-		<h2 class="card-title">Instructions</h2>
-		<div id="test" class="flex min-h-0">
-			@partials.ExerciseContent(sheet.ExerciseContent)
-		</div>
+		@partials.ExercisePanel(sheet)
 	</div>
 }
 
@@ -62,4 +54,39 @@ templ Home(fromHtmx bool, sheet models.SheetTempl) {
 			@homeContent(sheet)
 		}
 	}
+}
+
+templ submitDataScript(id string, page int) {
+	<script>
+		function submitData() {
+			return {
+				loading: false,
+				key: {{ fmt.Sprintf("%s:%d", id, page) }},
+				code: this.$persist({}).as("code"),
+				output: this.$persist({}).as("output"),
+				updateStatus(event) {
+					response = JSON.parse(event.detail.xhr.responseText)
+					this.code[this.key] = response.code
+					this.output[this.key] = response.output
+				},
+				updatePage(event) {
+					const sheetId = event.detail.xhr.getResponseHeader('X-Sheet-Id');
+					const page = event.detail.xhr.getResponseHeader('X-Page');
+					this.key = `${sheetId}:${page}`;
+				},
+				getCode() {
+					if (!(this.key in this.code)) {
+						this.code[this.key] = -1;
+					}
+					return this.code[this.key]
+				},
+				getOutput() {
+					if (!(this.key in this.output)) {
+						this.output[this.key] = "";
+					}
+					return this.output[this.key]
+				},
+			}
+		}
+	</script>
 }

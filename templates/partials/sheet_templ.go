@@ -35,7 +35,7 @@ func GuideContent(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-0 overflow-y-scroll grow prose\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-0 overflow-y-scroll grow prose max-w-none\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,13 +96,13 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 29, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 32, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hx-target=\"#sheet\">Previous</button> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hx-target=\"#sheet\" x-on:htmx:after-request=\"updatePage(event)\">Previous</button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -114,7 +114,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(sheet.NbPage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 31, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 37, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -127,7 +127,7 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(sheet.MaxPage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 31, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 37, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -145,18 +145,55 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 33, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 42, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" hx-target=\"#sheet\">Next</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" hx-target=\"#sheet\" x-on:htmx:after-request=\"updatePage(event)\">Next</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ExercisePanel(sheet models.SheetTempl) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1\"><h2 class=\"card-title\">Instructions</h2><div id=\"test\" class=\"flex min-h-0\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ExerciseContent(sheet.ExerciseContent).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -180,12 +217,12 @@ func ExerciseContent(content string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var8 == nil {
-			templ_7745c5c3_Var8 = templ.NopComponent
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"min-h-0 overflow-y-scroll grow prose\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"overflow-y-auto grow prose\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -193,7 +230,7 @@ func ExerciseContent(content string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -217,24 +254,32 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var9 == nil {
-			templ_7745c5c3_Var9 = templ.NopComponent
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"card bg-base-200 shadow-lg\"><div class=\"card-body\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3><div class=\"flex justify-center items-center gap-4\"><input type=\"checkbox\" class=\"toggle\" x-model=\"enabled\" @change=\"toggleKeymap()\"> <select class=\"select\" x-model=\"keymap\" @change=\"setKeymap(keymap)\"><option value=\"default\">Keymap</option> <option value=\"vim\">Vim</option> <option value=\"emacs\">Emacs</option> <option value=\"sublime\">Sublime</option></select></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"card card-body bg-base-200 shadow-lg flex-1 flex flex-col min-h-0\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CodeEditor(sheet.CodeEditor, sheet.CorrectionContent).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = keymap().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Submit(sheet.Id).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div>")
+		templ_7745c5c3_Err = codeEditor(sheet.CodeEditor, sheet.CorrectionContent).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = submit(sheet.Id).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -242,7 +287,7 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 	})
 }
 
-func CodeEditor(language string, content string) templ.Component {
+func keymap() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -258,36 +303,107 @@ func CodeEditor(language string, content string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var10 == nil {
-			templ_7745c5c3_Var10 = templ.NopComponent
+		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var11 == nil {
+			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/anyword-hint.min.js\"></script><script>\n\t\tfunction initialized() {\n\t\t\treturn {\n\t\t\t\tshow: false,\n\t\t\t\tready() { this.show = true },\n\t\t\t\tisReady() { return this.show === true },\n\t\t\t}\n\t\t}\n\t</script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div x-data=\"initialized\"><textarea id=\"code\" x-show=\"isReady\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tconsole.log(keymap, newKeymap, enable)\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tconsole.log(keymap, enable)\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"flex justify-center items-center gap-4\"><input type=\"checkbox\" class=\"toggle\" x-model=\"enabled\" @change=\"toggleKeymap()\"> <select class=\"select\" x-model=\"keymap\" @change=\"setKeymap(keymap)\"><option value=\"default\">Keymap</option> <option value=\"vim\">Vim</option> <option value=\"emacs\">Emacs</option> <option value=\"sublime\">Sublime</option></select></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var11, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 114, Col: 27}
+		return nil
+	})
+}
+
+func submit(id string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var12 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var12 == nil {
+			templ_7745c5c3_Var12 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"flex flex-row min-h-0\"><div class=\"alert shadow-lg overflow-y-scroll grow\" x-show=\"getCode() !== -1 &amp;&amp; !loading\" x-bind:class=\"getCode() === 0 ? &#39;alert-success&#39; : &#39;alert-error&#39;\"><span x-bind:class=\"getCode() === 0 ? &#39;text-success-content bg-success&#39; : &#39;text-error-content bg-error&#39;\" x-text=\"`${getCode()} : ${getOutput()}`\"></span></div><form hx-post=\"/submit\" hx-swap=\"none\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false; updateStatus(event)\"><input type=\"hidden\" name=\"sheet\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\", // FIX not complete enough\n\t\t\t\t\t\tindentUnit: 4,\n\t\t\t\t\t\tlineWrapping: true,\n\t\t\t\t\t\tautoCloseBrackets: true,\n\t\t\t\t\t\tmatchBrackets: true,\n\t\t\t\t\t\textraKeys: {\"Ctrl-K\": \"autocomplete\"},\n\t\t\t\t\t\t\n\t\t    });\n\n\t\t\t\tvar arrows = [37, 38, 39, 40]\n\n\t\t\t\teditor.on(\"keyup\", function(cm, e) {\n\t\t\t\t  if (arrows.indexOf(e.keyCode) < 0) {\n\t\t\t\t    editor.execCommand(\"autocomplete\")\n\t\t\t\t  }\n\t\t\t\t})\n\t\t\t\teditor.setValue(")
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(id)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 113, Col: 47}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var12, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 133, Col: 30}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"> <input type=\"hidden\" name=\"payload\" id=\"payload\" value=\"\"> <button type=\"submit\" class=\"btn btn-primary\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = editor.getValue();\" x-bind:disabled=\"loading\"><span class=\"card-actions\" x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ");\n\t\t\t\tAlpine.data('initialized', () => ({isReady: false}))\n\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .cm-s-daisyui .cm-atom {\n\t    color: var(--color-accent);\n\t  }\n\n\t  .cm-s-daisyui .cm-def {\n\t    color: var(--color-accent);\n\t  }\n\n\t  .cm-s-daisyui .cm-variable {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-variable-2,\n\t  .cm-s-daisyui .cm-variable-3 {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-property {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-operator {\n\t    color: var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .cm-string-2 {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-meta {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-qualifier {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-builtin {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-bracket {\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-tag {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-attribute {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-header {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-quote {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-hr {\n\t    color: var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .cm-link {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-error {\n\t    color: var(--color-error);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-activeline-background {\n\t    background: color-mix(in oklch, var(--color-base-200) 20%, transparent);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-matchingbracket {\n\t    border-bottom: 1px solid var(--color-success);\n\t  }\n\n\t  /* Optional: layout styles */\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
+		return nil
+	})
+}
+
+func codeEditor(language string, content string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var14 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var14 == nil {
+			templ_7745c5c3_Var14 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js\"></script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div><textarea id=\"code\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var15, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 163, Col: 27}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\", // FIX not complete enough\n\t\t\t\t\t\tindentUnit: 4,\n\t\t\t\t\t\tlineWrapping: true,\n\t\t\t\t\t\tautoCloseBrackets: true,\n\t\t\t\t\t\tmatchBrackets: true,\n\t\t\t\t\t\t// extraKeys: {\"Ctrl-K\": \"autocomplete\"},\n\t\t\t\t\t\t\n\t\t    });\n\n\t\t\t\tvar arrows = [37, 38, 39, 40]\n\n\t\t\t\teditor.on(\"keyup\", function(cm, e) {\n\t\t\t\t  if (arrows.indexOf(e.keyCode) < 0) {\n\t\t\t\t    editor.execCommand(\"autocomplete\")\n\t\t\t\t  }\n\t\t\t\t})\n\t\t\t\teditor.setValue(")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var16, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 182, Col: 30}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ");\n\t\t\t});\n\t  </script></div><style>\n\t  /* Custom CodeMirror theme: \"daisyui\" using CSS variables */\n\t  .cm-s-daisyui.CodeMirror {\n\t    background-color: var(--color-base-100);\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-gutters {\n\t    background: var(--color-base-200);\n\t    color: var(--color-neutral-content);\n\t    border-right: 1px solid var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-cursor {\n\t    border-left: 1px solid var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-linenumber {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-selected {\n\t    background: color-mix(in oklch, var(--color-primary) 30%, transparent);\n\t  }\n\n\t  /* Syntax highlighting using DaisyUI theme colors */\n\t  .cm-s-daisyui .cm-keyword {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-string {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-comment {\n\t    color: var(--color-neutral-content);\n\t    font-style: italic;\n\t  }\n\n\t  .cm-s-daisyui .cm-number {\n\t    color: var(--color-error);\n\t  }\n\n\t  .cm-s-daisyui .cm-atom {\n\t    color: var(--color-accent);\n\t  }\n\n\t  .cm-s-daisyui .cm-def {\n\t    color: var(--color-accent);\n\t  }\n\n\t  .cm-s-daisyui .cm-variable {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-variable-2,\n\t  .cm-s-daisyui .cm-variable-3 {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-property {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-operator {\n\t    color: var(--color-warning);\n\t  }\n\n\t  .cm-s-daisyui .cm-string-2 {\n\t    color: var(--color-success);\n\t  }\n\n\t  .cm-s-daisyui .cm-meta {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-qualifier {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-builtin {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-bracket {\n\t    color: var(--color-base-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-tag {\n\t    color: var(--color-secondary);\n\t  }\n\n\t  .cm-s-daisyui .cm-attribute {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-header {\n\t    color: var(--color-primary);\n\t  }\n\n\t  .cm-s-daisyui .cm-quote {\n\t    color: var(--color-neutral-content);\n\t  }\n\n\t  .cm-s-daisyui .cm-hr {\n\t    color: var(--color-base-300);\n\t  }\n\n\t  .cm-s-daisyui .cm-link {\n\t    color: var(--color-info);\n\t  }\n\n\t  .cm-s-daisyui .cm-error {\n\t    color: var(--color-error);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-activeline-background {\n\t    background: color-mix(in oklch, var(--color-base-200) 20%, transparent);\n\t  }\n\n\t  .cm-s-daisyui .CodeMirror-matchingbracket {\n\t    border-bottom: 1px solid var(--color-success);\n\t  }\n\n\t  /* Optional: layout styles */\n\t  .CodeMirror {\n\t    height: 300px;\n\t    width: 100%;\n\t  }\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

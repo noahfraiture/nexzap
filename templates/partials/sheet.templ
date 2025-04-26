@@ -7,7 +7,7 @@ import (
 )
 
 templ GuideContent(sheet models.SheetTempl) {
-	<div class="min-h-0 overflow-y-scroll grow prose">
+	<div class="min-h-0 overflow-y-scroll grow prose max-w-none">
 		@templ.Raw(sheet.SheetContent)
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/runmode/colorize.min.js"></script>
@@ -26,46 +26,106 @@ templ GuideContent(sheet models.SheetTempl) {
 templ Buttons(sheet models.SheetTempl) {
 	<div class="flex justify-center items-center gap-4 mt-4">
 		if sheet.NbPage > 1 {
-			<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))) } hx-target="#sheet">Previous</button>
+			<button
+				type="button"
+				class="btn btn-primary"
+				hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))) }
+				hx-target="#sheet"
+				x-on:htmx:after-request="updatePage(event)"
+			>Previous</button>
 		}
 		<span class="text-base">Page { strconv.Itoa(sheet.NbPage) } of { strconv.Itoa(sheet.MaxPage) }</span>
 		if sheet.NbPage < sheet.MaxPage {
-			<button type="button" class="btn btn-primary" hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))) } hx-target="#sheet">Next</button>
+			<button
+				type="button"
+				class="btn btn-primary"
+				hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))) }
+				hx-target="#sheet"
+				x-on:htmx:after-request="updatePage(event)"
+			>Next</button>
 		}
 	</div>
 }
 
+templ ExercisePanel(sheet models.SheetTempl) {
+	<div class="card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1">
+		<h2 class="card-title">Instructions</h2>
+		<div id="test" class="flex min-h-0">
+			@ExerciseContent(sheet.ExerciseContent)
+		</div>
+	</div>
+}
+
 templ ExerciseContent(content string) {
-	<div class="min-h-0 overflow-y-scroll grow prose">
+	<div class="overflow-y-auto grow prose">
 		@templ.Raw(content)
 	</div>
 }
 
 templ EditorPanel(sheet models.SheetTempl) {
-	<div class="card bg-base-200 shadow-lg">
-		<div class="card-body" x-data="{keymap: 'default', enabled: false}">
-			// Change the keymap
-			<div class="flex justify-between">
-				<h3 class="card-title">Your Solution</h3>
-				<div class="flex justify-center items-center gap-4">
-					<input type="checkbox" class="toggle" x-model="enabled" @change="toggleKeymap()"/>
-					<select class="select" x-model="keymap" @change="setKeymap(keymap)">
-						<option value="default">Keymap</option>
-						<option value="vim">Vim</option>
-						<option value="emacs">Emacs</option>
-						<option value="sublime">Sublime</option>
-					</select>
-				</div>
-			</div>
-			// Editor itself
-			// FIX: real language code
-			@CodeEditor(sheet.CodeEditor, sheet.CorrectionContent)
-			@Submit(sheet.Id)
+	<div
+		class="card card-body bg-base-200 shadow-lg flex-1 flex flex-col min-h-0"
+		x-data="{keymap: 'default', enabled: false}"
+	>
+		// Change the keymap
+		<div class="flex justify-between">
+			<h3 class="card-title">Your Solution</h3>
+			@keymap()
 		</div>
-	</div> // Tests Output
+		// Editor itself
+		@codeEditor(sheet.CodeEditor, sheet.CorrectionContent)
+		@submit(sheet.Id)
+	</div>
 }
 
-templ CodeEditor(language string, content string) {
+templ keymap() {
+	<div class="flex justify-center items-center gap-4">
+		<input type="checkbox" class="toggle" x-model="enabled" @change="toggleKeymap()"/>
+		<select class="select" x-model="keymap" @change="setKeymap(keymap)">
+			<option value="default">Keymap</option>
+			<option value="vim">Vim</option>
+			<option value="emacs">Emacs</option>
+			<option value="sublime">Sublime</option>
+		</select>
+	</div>
+}
+
+templ submit(id string) {
+	<div class="flex flex-row min-h-0">
+		// Result 
+		<div
+			class="alert shadow-lg overflow-y-scroll grow"
+			x-show="getCode() !== -1 && !loading"
+			x-bind:class="getCode() === 0 ? 'alert-success' : 'alert-error'"
+		>
+			<span
+				x-bind:class="getCode() === 0 ? 'text-success-content bg-success' : 'text-error-content bg-error'"
+				x-text="`${getCode()} : ${getOutput()}`"
+			></span>
+		</div>
+		// Button
+		<form
+			hx-post="/submit"
+			hx-swap="none"
+			x-on:htmx:before-request="loading = true"
+			x-on:htmx:after-request="loading = false; updateStatus(event)"
+		>
+			<input type="hidden" name="sheet" value={ id }/>
+			<input type="hidden" name="payload" id="payload" value=""/>
+			<button
+				type="submit"
+				class="btn btn-primary"
+				x-on:click="document.getElementById('payload').value = editor.getValue();"
+				x-bind:disabled="loading"
+			>
+				<span class="card-actions" x-show="!loading">Submit</span>
+				<span x-show="loading" class="loading loading-spinner text-primary"></span>
+			</button>
+		</form>
+	</div>
+}
+
+templ codeEditor(language string, content string) {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js"></script>
@@ -75,24 +135,14 @@ templ CodeEditor(language string, content string) {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/anyword-hint.min.js"></script>
-	<script>
-		function initialized() {
-			return {
-				show: false,
-				ready() { this.show = true },
-				isReady() { return this.show === true },
-			}
-		}
-	</script>
 	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
-	<div x-data="initialized">
-		<textarea id="code" x-show="isReady"></textarea>
+	<div>
+		<textarea id="code"></textarea>
 		<script>
 			let editor = undefined;
 			let enable = false;
 			let keymap = "default";
 			function setKeymap(newKeymap) {
-				console.log(keymap, newKeymap, enable)
 				keymap = newKeymap;
 				updateKeymap();
 			}
@@ -101,7 +151,6 @@ templ CodeEditor(language string, content string) {
 				updateKeymap();
 			}
 			function updateKeymap() {
-				console.log(keymap, enable)
 				if (enable) {
 					editor.setOption('keyMap', keymap)
 				} else {
@@ -131,8 +180,6 @@ templ CodeEditor(language string, content string) {
 				  }
 				})
 				editor.setValue({{ content }});
-				Alpine.data('initialized', () => ({isReady: false}))
-
 			});
 	  </script>
 	</div>
