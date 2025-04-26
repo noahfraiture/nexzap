@@ -130,11 +130,11 @@ templ codeEditor(language string, content string) {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js"></script>
 	// require css in base.templ
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.js"></script>
+	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.js"></script>
 	// does not require css
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/anyword-hint.min.js"></script>
+	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/anyword-hint.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 	<div>
 		<textarea id="code"></textarea>
@@ -168,7 +168,7 @@ templ codeEditor(language string, content string) {
 						lineWrapping: true,
 						autoCloseBrackets: true,
 						matchBrackets: true,
-						extraKeys: {"Ctrl-K": "autocomplete"},
+						// extraKeys: {"Ctrl-K": "autocomplete"},
 						
 		    });
 
