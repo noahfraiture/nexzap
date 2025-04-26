@@ -38,6 +38,9 @@ templ NextContent(sheet models.SheetTempl) {
 	<div id="test" hx-swap-oob="innerHTML">
 		@partials.ExerciseContent(sheet.ExerciseContent)
 	</div>
+	<script>
+		setContent({{sheet.SubmissionContent}})
+	</script>
 }
 
 templ Home(fromHtmx bool, sheet models.SheetTempl) {

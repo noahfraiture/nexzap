@@ -94,9 +94,9 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 32, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 32, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -143,9 +143,9 @@ func Buttons(sheet models.SheetTempl) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))))
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 42, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 42, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -185,7 +185,7 @@ func ExercisePanel(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1\"><h2 class=\"card-title\">Instructions</h2><div id=\"test\" class=\"flex min-h-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div id=\"test\" class=\"card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1 flex min-h-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -193,7 +193,7 @@ func ExercisePanel(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -271,7 +271,7 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = codeEditor(sheet.CodeEditor, sheet.CorrectionContent).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = codeEditor(sheet.CodeEditor, sheet.SubmissionContent).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -344,7 +344,7 @@ func submit(id string) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 103, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 100, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -379,7 +379,7 @@ func codeEditor(language string, content string) templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js\"></script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div><textarea id=\"code\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js\"></script><script src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js\"></script><div><textarea id=\"code\"></textarea><script>\n\t\t\tlet editor = undefined;\n\t\t\tlet enable = false;\n\t\t\tlet keymap = \"default\";\n\t\t\tfunction setKeymap(newKeymap) {\n\t\t\t\tkeymap = newKeymap;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction toggleKeymap() {\n\t\t\t\tenable = !enable;\n\t\t\t\tupdateKeymap();\n\t\t\t}\n\t\t\tfunction updateKeymap() {\n\t\t\t\tif (enable) {\n\t\t\t\t\teditor.setOption('keyMap', keymap)\n\t\t\t\t} else {\n\t\t\t\t\teditor.setOption('keyMap', \"default\")\n\t\t\t\t}\n\t\t\t}\n\t\t\tfunction setContent(content) {\n\t\t\t\teditor.setValue(content)\n\t\t\t}\n\n\t\t\tdocument.addEventListener('alpine:init', () => {\n\t\t    editor = CodeMirror.fromTextArea(document.getElementById(\"code\"), {\n\t\t        mode: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -391,13 +391,13 @@ func codeEditor(language string, content string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\", // FIX not complete enough\n\t\t\t\t\t\tindentUnit: 4,\n\t\t\t\t\t\tlineWrapping: true,\n\t\t\t\t\t\tautoCloseBrackets: true,\n\t\t\t\t\t\tmatchBrackets: true,\n\t\t\t\t\t\t// extraKeys: {\"Ctrl-K\": \"autocomplete\"},\n\t\t\t\t\t\t\n\t\t    });\n\n\t\t\t\tvar arrows = [37, 38, 39, 40]\n\n\t\t\t\teditor.on(\"keyup\", function(cm, e) {\n\t\t\t\t  if (arrows.indexOf(e.keyCode) < 0) {\n\t\t\t\t    editor.execCommand(\"autocomplete\")\n\t\t\t\t  }\n\t\t\t\t})\n\t\t\t\teditor.setValue(")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, ",\n\t\t        lineNumbers: true,\n\t\t\t\t\t\tlineSeparator: false,\n\t\t        theme: \"daisyui\", // FIX not complete enough\n\t\t\t\t\t\tindentUnit: 4,\n\t\t\t\t\t\tlineWrapping: true,\n\t\t\t\t\t\tautoCloseBrackets: true,\n\t\t\t\t\t\tmatchBrackets: true,\n\t\t\t\t\t\t// extraKeys: {\"Ctrl-K\": \"autocomplete\"},\n\t\t\t\t\t\t\n\t\t    });\n\n\t\t\t\tvar arrows = [37, 38, 39, 40]\n\n\t\t\t\teditor.on(\"keyup\", function(cm, e) {\n\t\t\t\t  if (arrows.indexOf(e.keyCode) < 0) {\n\t\t\t\t    editor.execCommand(\"autocomplete\")\n\t\t\t\t  }\n\t\t\t\t})\n\n\t\t\t\tsetContent(")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Var16, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 183, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 184, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {

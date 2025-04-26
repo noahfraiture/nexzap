@@ -192,7 +192,19 @@ func NextContent(sheet models.SheetTempl) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><script>\n\t\tsetContent(")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var6, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(sheet.SubmissionContent)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 42, Col: 38}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, ")\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -216,30 +228,30 @@ func Home(fromHtmx bool, sheet models.SheetTempl) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var6 == nil {
-			templ_7745c5c3_Var6 = templ.NopComponent
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js\"></script><script src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js\"></script><script src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor))
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 48, Col: 140}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 51, Col: 140}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"></script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if fromHtmx {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<title id=\"title\" hx-swap-oob=\"#title\">NexZap - Home</title>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<title id=\"title\" hx-swap-oob=\"#title\">NexZap - Home</title>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -248,7 +260,7 @@ func Home(fromHtmx bool, sheet models.SheetTempl) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Var8 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_Var9 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 				if !templ_7745c5c3_IsBuffer {
@@ -266,7 +278,7 @@ func Home(fromHtmx bool, sheet models.SheetTempl) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.Base("NexZap - Home").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.Base("NexZap - Home").Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -291,24 +303,24 @@ func submitDataScript(id string, page int) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var9 == nil {
-			templ_7745c5c3_Var9 = templ.NopComponent
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<script>\n\t\tfunction submitData() {\n\t\t\treturn {\n\t\t\t\tloading: false,\n\t\t\t\tkey: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<script>\n\t\tfunction submitData() {\n\t\t\treturn {\n\t\t\t\tloading: false,\n\t\t\t\tkey: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var10, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(fmt.Sprintf("%s:%d", id, page))
+		templ_7745c5c3_Var11, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(fmt.Sprintf("%s:%d", id, page))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 64, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 67, Col: 42}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, ",\n\t\t\t\tcode: this.$persist({}).as(\"code\"),\n\t\t\t\toutput: this.$persist({}).as(\"output\"),\n\t\t\t\tupdateStatus(event) {\n\t\t\t\t\tresponse = JSON.parse(event.detail.xhr.responseText)\n\t\t\t\t\tthis.code[this.key] = response.code\n\t\t\t\t\tthis.output[this.key] = response.output\n\t\t\t\t},\n\t\t\t\tupdatePage(event) {\n\t\t\t\t\tconst sheetId = event.detail.xhr.getResponseHeader('X-Sheet-Id');\n\t\t\t\t\tconst page = event.detail.xhr.getResponseHeader('X-Page');\n\t\t\t\t\tthis.key = `${sheetId}:${page}`;\n\t\t\t\t},\n\t\t\t\tgetCode() {\n\t\t\t\t\tif (!(this.key in this.code)) {\n\t\t\t\t\t\tthis.code[this.key] = -1;\n\t\t\t\t\t}\n\t\t\t\t\treturn this.code[this.key]\n\t\t\t\t},\n\t\t\t\tgetOutput() {\n\t\t\t\t\tif (!(this.key in this.output)) {\n\t\t\t\t\t\tthis.output[this.key] = \"\";\n\t\t\t\t\t}\n\t\t\t\t\treturn this.output[this.key]\n\t\t\t\t},\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, ",\n\t\t\t\tcode: this.$persist({}).as(\"code\"),\n\t\t\t\toutput: this.$persist({}).as(\"output\"),\n\t\t\t\tupdateStatus(event) {\n\t\t\t\t\tresponse = JSON.parse(event.detail.xhr.responseText)\n\t\t\t\t\tthis.code[this.key] = response.code\n\t\t\t\t\tthis.output[this.key] = response.output\n\t\t\t\t},\n\t\t\t\tupdatePage(event) {\n\t\t\t\t\tconst sheetId = event.detail.xhr.getResponseHeader('X-Sheet-Id');\n\t\t\t\t\tconst page = event.detail.xhr.getResponseHeader('X-Page');\n\t\t\t\t\tthis.key = `${sheetId}:${page}`;\n\t\t\t\t},\n\t\t\t\tgetCode() {\n\t\t\t\t\tif (!(this.key in this.code)) {\n\t\t\t\t\t\tthis.code[this.key] = -1;\n\t\t\t\t\t}\n\t\t\t\t\treturn this.code[this.key]\n\t\t\t\t},\n\t\t\t\tgetOutput() {\n\t\t\t\t\tif (!(this.key in this.output)) {\n\t\t\t\t\t\tthis.output[this.key] = \"\";\n\t\t\t\t\t}\n\t\t\t\t\treturn this.output[this.key]\n\t\t\t\t},\n\t\t\t}\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

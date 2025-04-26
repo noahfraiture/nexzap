@@ -29,7 +29,7 @@ templ Buttons(sheet models.SheetTempl) {
 			<button
 				type="button"
 				class="btn btn-primary"
-				hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1))) }
+				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1) }
 				hx-target="#sheet"
 				x-on:htmx:after-request="updatePage(event)"
 			>Previous</button>
@@ -39,7 +39,7 @@ templ Buttons(sheet models.SheetTempl) {
 			<button
 				type="button"
 				class="btn btn-primary"
-				hx-get={ string(templ.URL(fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1))) }
+				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1) }
 				hx-target="#sheet"
 				x-on:htmx:after-request="updatePage(event)"
 			>Next</button>
@@ -48,11 +48,8 @@ templ Buttons(sheet models.SheetTempl) {
 }
 
 templ ExercisePanel(sheet models.SheetTempl) {
-	<div class="card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1">
-		<h2 class="card-title">Instructions</h2>
-		<div id="test" class="flex min-h-0">
-			@ExerciseContent(sheet.ExerciseContent)
-		</div>
+	<div id="test" class="card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1 flex min-h-0">
+		@ExerciseContent(sheet.ExerciseContent)
 	</div>
 }
 
@@ -73,7 +70,7 @@ templ EditorPanel(sheet models.SheetTempl) {
 			@keymap()
 		</div>
 		// Editor itself
-		@codeEditor(sheet.CodeEditor, sheet.CorrectionContent)
+		@codeEditor(sheet.CodeEditor, sheet.SubmissionContent)
 		@submit(sheet.Id)
 	</div>
 }
@@ -158,6 +155,9 @@ templ codeEditor(language string, content string) {
 					editor.setOption('keyMap', "default")
 				}
 			}
+			function setContent(content) {
+				editor.setValue(content)
+			}
 
 			document.addEventListener('alpine:init', () => {
 		    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -180,7 +180,8 @@ templ codeEditor(language string, content string) {
 				    editor.execCommand("autocomplete")
 				  }
 				})
-				editor.setValue({{ content }});
+
+				setContent({{ content }});
 			});
 	  </script>
 	</div>
