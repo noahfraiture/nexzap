@@ -49,7 +49,7 @@ WHERE
   s.page = 1
   AND tu.unlock < NOW ()
 ORDER BY
-  tu.updated_at DESC,
+  tu.unlock DESC,
   tu.version DESC
 LIMIT
   1;
@@ -72,7 +72,7 @@ WHERE
   s.page = @page
   AND tu.unlock < NOW ()
 ORDER BY
-  tu.updated_at DESC,
+  tu.unlock DESC,
   tu.version DESC
 LIMIT
   1;
