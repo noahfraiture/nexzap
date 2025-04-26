@@ -34,3 +34,7 @@ templ Italic(content string) {
 templ Link(text, url string) {
 	<a href={ templ.URL(url) } class="link link-primary">{ text }</a>
 }
+
+templ Inline(content string) {
+	<code class="bg-gray-100 p-1 rounded">{ content } </code>
+}

@@ -7,7 +7,7 @@ type SheetTempl struct {
 	CodeEditor        string
 	SheetContent      string
 	ExerciseContent   string
-	CorrectionContent string
+	SubmissionContent string
 	NbPage            int
 	MaxPage           int
 }
@@ -19,7 +19,7 @@ func NewSheetTempl(
 	codeEditor string,
 	sheetContent string,
 	exerciseContent string,
-	correctionContent string,
+	submissionContent string,
 	nbPage, maxPage int,
 ) SheetTempl {
 	return SheetTempl{
@@ -29,7 +29,7 @@ func NewSheetTempl(
 		CodeEditor:        codeEditor,
 		SheetContent:      sheetContent,
 		ExerciseContent:   exerciseContent,
-		CorrectionContent: correctionContent,
+		SubmissionContent: submissionContent,
 		NbPage:            nbPage,
 		MaxPage:           maxPage,
 	}

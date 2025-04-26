@@ -40,6 +40,7 @@ tasks:
       - ./templates/**/*_templ.go
       - ./static/css/style.css
       - ./internal/db/migrations/*.sql
+      - ./tutorials/**/*
     generates:
       - ./tmp/main
 

@@ -2,12 +2,13 @@
 
 Go’s standard library is a compact toolkit for tasks like JSON data handling, keeping projects lean. Let’s explore `encoding/json` with an example, plus the library’s pros and cons.
 
-## JSON Encoding and Decoding with `encoding/json`
+## JSON Encoding and Decoding with encoding/json
 
 The `encoding/json` package provides functions for encoding Go structs to JSON and decoding JSON data back into structs.
 
 **Example**:
 
+```go
 package main
 
 import (
@@ -44,6 +45,7 @@ func main() {
     }
     fmt.Printf("Decoded Person - Name: %s, Age: %d\n", decodedPerson.Name, decodedPerson.Age)
 }
+```
 
 Run this to see output like:
 ```

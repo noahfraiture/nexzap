@@ -10,6 +10,7 @@ import (
 
 // MarkdownParser holds the state and configuration for parsing Markdown
 type MarkdownParser struct {
+	patterns       *InlinePatterns
 	output         strings.Builder
 	paragraphLines []string
 	codeLines      []string
@@ -41,34 +42,36 @@ func NewInlinePatterns() *InlinePatterns {
 }
 
 // parseInline processes inline Markdown elements and applies Tailwind classes
-func (p *MarkdownParser) parseInline(text string, patterns *InlinePatterns) string {
+func (p *MarkdownParser) parseInline(text string) string {
 	result := text
 
 	// Process code spans
-	result = patterns.code.ReplaceAllStringFunc(result, func(match string) string {
-		code := patterns.code.FindStringSubmatch(match)[1]
-		return `<code class="bg-gray-100 p-1 rounded">` + code + `</code>`
+	result = p.patterns.code.ReplaceAllStringFunc(result, func(match string) string {
+		code := p.patterns.code.FindStringSubmatch(match)[1]
+		var res strings.Builder
+		partials.Inline(code).Render(context.Background(), &res)
+		return res.String()
 	})
 
 	// Process bold text
-	result = patterns.bold.ReplaceAllStringFunc(result, func(match string) string {
-		bold := patterns.bold.FindStringSubmatch(match)[1]
+	result = p.patterns.bold.ReplaceAllStringFunc(result, func(match string) string {
+		bold := p.patterns.bold.FindStringSubmatch(match)[1]
 		var res strings.Builder
 		partials.Bold(bold).Render(context.Background(), &res)
 		return res.String()
 	})
 
 	// Process italic text
-	result = patterns.italic.ReplaceAllStringFunc(result, func(match string) string {
-		italic := patterns.italic.FindStringSubmatch(match)[1]
+	result = p.patterns.italic.ReplaceAllStringFunc(result, func(match string) string {
+		italic := p.patterns.italic.FindStringSubmatch(match)[1]
 		var res strings.Builder
 		partials.Italic(italic).Render(context.Background(), &res)
 		return res.String()
 	})
 
 	// Process links
-	result = patterns.link.ReplaceAllStringFunc(result, func(match string) string {
-		parts := patterns.link.FindStringSubmatch(match)
+	result = p.patterns.link.ReplaceAllStringFunc(result, func(match string) string {
+		parts := p.patterns.link.FindStringSubmatch(match)
 		var res strings.Builder
 		partials.Link(parts[1], parts[2]).Render(context.Background(), &res)
 		return res.String()
@@ -91,21 +94,22 @@ func buildParagraphText(lines []string) string {
 }
 
 // flushParagraph writes accumulated paragraph lines to output
-func (p *MarkdownParser) flushParagraph(patterns *InlinePatterns) {
+func (p *MarkdownParser) flushParagraph() {
 	if len(p.paragraphLines) == 0 {
 		return
 	}
 	paragraphText := buildParagraphText(p.paragraphLines)
-	processed := p.parseInline(paragraphText, patterns)
-	p.output.WriteString("<p>" + processed + "</p>\n")
+	processed := p.parseInline(paragraphText)
+	p.output.WriteString("<p>" + processed + "</p>")
 	p.paragraphLines = nil
 }
 
 // processHeading handles Markdown heading lines
-func (p *MarkdownParser) processHeading(line string, patterns *InlinePatterns) bool {
+func (p *MarkdownParser) processHeading(line string) bool {
 	if !strings.HasPrefix(line, "#") {
 		return false
 	}
+	p.flushParagraph()
 
 	level := 0
 	for i, char := range line {
@@ -120,7 +124,7 @@ func (p *MarkdownParser) processHeading(line string, patterns *InlinePatterns) b
 
 	if level >= 1 && level <= 6 {
 		text := line[level+1:]
-		processed := p.parseInline(text, patterns)
+		processed := p.parseInline(text)
 		partials.Header(level, processed).Render(context.Background(), &p.output)
 		return true
 	}
@@ -139,6 +143,7 @@ func (p *MarkdownParser) processCodeBlock(line string) bool {
 		p.language = strings.TrimSpace(strings.TrimLeft(line, "`"))
 	} else {
 		// End code block
+		p.flushParagraph()
 		p.inCodeBlock = false
 		code := strings.Join(p.codeLines, "\n")
 		// TODO : use language
@@ -152,7 +157,7 @@ func (p *MarkdownParser) processCodeBlock(line string) bool {
 // ParseMarkdown converts Markdown text to HTML with Tailwind CSS classes
 func (p *MarkdownParser) ParseMarkdown(md string) string {
 	scanner := bufio.NewScanner(strings.NewReader(md))
-	patterns := NewInlinePatterns()
+	p.patterns = NewInlinePatterns()
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -169,8 +174,7 @@ func (p *MarkdownParser) ParseMarkdown(md string) string {
 			continue
 		}
 
-		if p.processHeading(line, patterns) {
-			p.flushParagraph(patterns)
+		if p.processHeading(line) {
 			continue
 		}
 
@@ -181,6 +185,7 @@ func (p *MarkdownParser) ParseMarkdown(md string) string {
 		p.paragraphLines = append(p.paragraphLines, line)
 	}
 
+	p.flushParagraph()
 	result := p.output.String()
 	*p = *NewMarkdownParser()
 

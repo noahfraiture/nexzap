@@ -8,6 +8,7 @@ In Go, functions that can fail often return an `error` as the last return value.
 
 **Example**:
 
+```go
 package main
 
 import (
@@ -40,6 +41,7 @@ func main() {
     }
     fmt.Println("File content:", string(content))
 }
+```
 
 Run this to see output like:
 ```
