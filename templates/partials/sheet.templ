@@ -91,20 +91,10 @@ templ keymap() {
 }
 
 templ submit(id string) {
-	<div class="flex flex-row min-h-0">
-		// Result 
-		<div
-			class="alert shadow-lg overflow-y-scroll grow"
-			x-show="getCode() !== -1 && !loading"
-			x-bind:class="getCode() === 0 ? 'alert-success' : 'alert-error'"
-		>
-			<span
-				x-bind:class="getCode() === 0 ? 'text-success-content bg-success' : 'text-error-content bg-error'"
-				x-text="`${getCode()} : ${getOutput()}`"
-			></span>
-		</div>
+	<div class="flex flex-col gap-4 min-h-0">
 		// Button
 		<form
+			class="flex justify-center"
 			hx-post="/submit"
 			hx-swap="none"
 			x-on:htmx:before-request="loading = true"
@@ -114,7 +104,7 @@ templ submit(id string) {
 			<input type="hidden" name="payload" id="payload" value=""/>
 			<button
 				type="submit"
-				class="btn btn-primary"
+				class="btn btn-primary w-32"
 				x-on:click="document.getElementById('payload').value = editor.getValue();"
 				x-bind:disabled="loading"
 			>
@@ -122,6 +112,17 @@ templ submit(id string) {
 				<span x-show="loading" class="loading loading-spinner text-primary"></span>
 			</button>
 		</form>
+		// Result
+		<div
+			class="alert shadow-lg overflow-y-scroll grow w-full p-4"
+			x-show="getCode() !== -1 && !loading"
+			x-bind:class="getCode() === 0 ? 'alert-success' : 'alert-error'"
+		>
+			<span
+				x-bind:class="getCode() === 0 ? 'text-success-content bg-success' : 'text-error-content bg-error'"
+				x-text="`${getCode()} : ${getOutput()}`"
+			></span>
+		</div>
 	</div>
 }
 
