@@ -7,7 +7,7 @@ import (
 )
 
 templ GuideContent(sheet models.SheetTempl) {
-	<div class="min-h-0 overflow-y-scroll grow prose max-w-none">
+	<div class="md:min-h-0 md:overflow-y-scroll md:grow prose max-w-none">
 		@templ.Raw(sheet.SheetContent)
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/runmode/colorize.min.js"></script>
@@ -48,20 +48,20 @@ templ Buttons(sheet models.SheetTempl) {
 }
 
 templ ExercisePanel(sheet models.SheetTempl) {
-	<div id="test" class="card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1 flex min-h-0">
+	<div id="test" class="card card-border card-body bg-base-200 shadow-lg flex md:flex-1 md:min-h-0">
 		@ExerciseContent(sheet.ExerciseContent)
 	</div>
 }
 
 templ ExerciseContent(content string) {
-	<div class="overflow-y-auto grow prose">
+	<div class="md:overflow-y-auto md:grow prose">
 		@templ.Raw(content)
 	</div>
 }
 
 templ EditorPanel(sheet models.SheetTempl) {
 	<div
-		class="card card-body bg-base-200 shadow-lg flex-1 flex flex-col min-h-0"
+		class="card card-body bg-base-200 shadow-lg flex flex-col md:flex-1 md:min-h-0"
 		x-data="{keymap: 'default', enabled: false}"
 	>
 		// Change the keymap
@@ -88,7 +88,7 @@ templ keymap() {
 }
 
 templ submit(id string) {
-	<div class="flex flex-col gap-4 min-h-0">
+	<div class="flex flex-col gap-4 md:min-h-0">
 		// Button
 		<form
 			class="flex justify-center"

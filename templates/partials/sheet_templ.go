@@ -35,7 +35,7 @@ func GuideContent(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-0 overflow-y-scroll grow prose max-w-none\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"md:min-h-0 md:overflow-y-scroll md:grow prose max-w-none\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -185,7 +185,7 @@ func ExercisePanel(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div id=\"test\" class=\"card card-border card-body bg-base-200 shadow-lg min-h-0 flex-1 flex min-h-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div id=\"test\" class=\"card card-border card-body bg-base-200 shadow-lg flex md:flex-1 md:min-h-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -222,7 +222,7 @@ func ExerciseContent(content string) templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"overflow-y-auto grow prose\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"md:overflow-y-auto md:grow prose\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -259,7 +259,7 @@ func EditorPanel(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"card card-body bg-base-200 shadow-lg flex-1 flex flex-col min-h-0\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"card card-body bg-base-200 shadow-lg flex flex-col md:flex-1 md:min-h-0\" x-data=\"{keymap: &#39;default&#39;, enabled: false}\"><div class=\"flex justify-between\"><h3 class=\"card-title\">Your Solution</h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -337,7 +337,7 @@ func submit(id string) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"flex flex-col gap-4 min-h-0\"><form class=\"flex justify-center\" hx-post=\"/submit\" hx-swap=\"none\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false; updateStatus(event)\"><input type=\"hidden\" name=\"sheet\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"flex flex-col gap-4 md:min-h-0\"><form class=\"flex justify-center\" hx-post=\"/submit\" hx-swap=\"none\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false; updateStatus(event)\"><input type=\"hidden\" name=\"sheet\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

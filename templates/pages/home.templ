@@ -16,9 +16,9 @@ templ homeContent(sheet models.SheetTempl) {
 }
 
 templ leftPanel(sheet models.SheetTempl) {
-	<div class="card card-border card-body bg-base-200 shadow-lg flex flex-col min-h-0">
+	<div class="card card-border card-body bg-base-200 shadow-lg flex flex-col md:min-h-0">
 		<h2 class="card-title">{ sheet.Title }</h2>
-		<div id="sheet" class="flex flex-col min-h-0 grow">
+		<div id="sheet" class="flex flex-col md:min-h-0 md:grow">
 			@partials.GuideContent(sheet)
 			@partials.Buttons(sheet)
 		</div>
@@ -26,7 +26,7 @@ templ leftPanel(sheet models.SheetTempl) {
 }
 
 templ rightPanel(sheet models.SheetTempl) {
-	<div class="flex flex-col gap-6 min-h-0 grow">
+	<div class="flex flex-col-reverse md:flex-col gap-6 md:min-h-0 grow">
 		@partials.EditorPanel(sheet)
 		@partials.ExercisePanel(sheet)
 	</div>
