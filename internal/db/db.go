@@ -32,19 +32,20 @@ type Database struct {
 
 // NewDatabase initializes the Database struct with connection pooling and retries
 func NewDatabase() (*Database, error) {
+	var err error
 	creds := getCredentials()
 	connStr := fmt.Sprintf(
-		"user=%s password=%s host=%s port=%s dbname=%s",
+		"user=%s password=%s host=%s port=%s dbname=%s host=%s",
 		creds.user,
 		creds.password,
 		creds.host,
 		creds.port,
 		creds.database,
+		creds.host,
 	)
 
 	// Simple retry mechanism with exponential backoff
 	var pool *pgxpool.Pool
-	var err error
 	for attempt := range 5 {
 		pool, err = pgxpool.New(context.Background(), connStr)
 		if err == nil {
@@ -78,9 +79,6 @@ func (d *Database) Close() {
 }
 
 func (d *Database) Populate() error {
-	if os.Getenv("APP_ENV") != "dev" {
-		return fmt.Errorf("Populate can only be run in development environment")
-	}
 	creds := getCredentials()
 	connStrMigration := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%s/%s?sslmode=disable&search_path=public",
@@ -90,7 +88,7 @@ func (d *Database) Populate() error {
 		creds.port,
 		creds.database,
 	)
-	m, err := migrate.New("file://internal/db/migrations", connStrMigration)
+	m, err := migrate.New(os.Getenv("MIGRATIONS_PATH"), connStrMigration)
 	if err != nil {
 		return fmt.Errorf("failed to create migration instance: %v", err)
 	}
@@ -101,7 +99,7 @@ func (d *Database) Populate() error {
 }
 
 func (d *Database) NukeDatabase() error {
-	if os.Getenv("APP_ENV") != "dev" {
+	if os.Getenv("ENV") != "dev" {
 		return fmt.Errorf("NukeDatabase can only be run in development environment")
 	}
 	_, err := d.pool.Exec(context.Background(), "DROP SCHEMA IF EXISTS public CASCADE")

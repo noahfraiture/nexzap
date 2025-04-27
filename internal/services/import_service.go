@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"nexzap/internal/db"
-	generated "nexzap/internal/db/generated"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"time"
+
+	"nexzap/internal/db"
+	generated "nexzap/internal/db/generated"
 
 	"github.com/BurntSushi/toml"
 )
@@ -27,9 +28,12 @@ func NewImportService(db *db.Database) *ImportService {
 	}
 }
 
-// RefreshTutorials read the tutorials in the current directory and insert them
+// RefreshTutorials reads all tutorial directories in "tutorials/" and inserts them into the database.
 func (s *ImportService) RefreshTutorials() error {
-	tutorials, err := os.ReadDir("tutorials/")
+	if os.Getenv("ENV") != "dev" {
+		return fmt.Errorf("RefreshTutorials can only be run in development environment")
+	}
+	tutorials, err := os.ReadDir(os.Getenv("TUTORIALS_PATH"))
 	if err != nil {
 		return fmt.Errorf("Failed to read tutorials directory: %v", err)
 	}
@@ -39,62 +43,71 @@ func (s *ImportService) RefreshTutorials() error {
 			return fmt.Errorf("Invalid entry in tutorials directory: %s", tutorialDir.Name())
 		}
 		path := filepath.Join("tutorials", tutorialDir.Name())
-		meta, sheets, err := s.readDirectory(path)
-		if err != nil {
-			return fmt.Errorf("Failed to read tutorial directory: %s. Error: %v", path, err)
+		if err := s.ImportTutorialFromDir(path); err != nil {
+			return err
 		}
+	}
 
-		// Construct tutorial and files per sheet
-		pages := []int32{}
-		guides := []string{}
-		exercises := []string{}
-		images := []string{}
-		commands := []string{}
-		submissionName := []string{}
-		submissionContent := []string{}
-		correctionContent := []string{}
-		var filesPerSheet []FilesPerSheet
-		for i, sheet := range *sheets {
-			pages = append(pages, int32(i+1))
-			guides = append(guides, sheet.guide)
-			exercises = append(exercises, sheet.exercise)
-			images = append(images, sheet.Image)
-			commands = append(commands, sheet.Command)
-			submissionName = append(submissionName, sheet.SubmissionName)
-			submissionContent = append(submissionContent, sheet.submissionContent)
-			correctionContent = append(correctionContent, sheet.correctionContent)
+	return nil
+}
 
-			filesName := []string{}
-			filesContent := []string{}
-			for _, f := range sheet.files {
-				filesName = append(filesName, f.Name)
-				filesContent = append(filesContent, f.Content)
-			}
-			filesPerSheet = append(filesPerSheet, FilesPerSheet{
-				Names:    filesName,
-				Contents: filesContent,
-			})
+// ImportTutorialFromDir reads a single tutorial directory and inserts it into the database.
+func (s *ImportService) ImportTutorialFromDir(path string) error {
+	meta, sheets, err := s.readDirectory(path)
+	if err != nil {
+		return fmt.Errorf("Failed to read tutorial directory: %s. Error: %v", path, err)
+	}
+
+	// Construct tutorial and files per sheet
+	pages := []int32{}
+	guides := []string{}
+	exercises := []string{}
+	images := []string{}
+	commands := []string{}
+	submissionName := []string{}
+	submissionContent := []string{}
+	correctionContent := []string{}
+	var filesPerSheet []FilesPerSheet
+	for i, sheet := range *sheets {
+		pages = append(pages, int32(i+1))
+		guides = append(guides, sheet.guide)
+		exercises = append(exercises, sheet.exercise)
+		images = append(images, sheet.Image)
+		commands = append(commands, sheet.Command)
+		submissionName = append(submissionName, sheet.SubmissionName)
+		submissionContent = append(submissionContent, sheet.submissionContent)
+		correctionContent = append(correctionContent, sheet.correctionContent)
+
+		filesName := []string{}
+		filesContent := []string{}
+		for _, f := range sheet.files {
+			filesName = append(filesName, f.Name)
+			filesContent = append(filesContent, f.Content)
 		}
+		filesPerSheet = append(filesPerSheet, FilesPerSheet{
+			Names:    filesName,
+			Contents: filesContent,
+		})
+	}
 
-		tutorial := generated.InsertTutorialParams{
-			Title:              meta.Title,
-			Highlight:          meta.Highlight,
-			CodeEditor:         meta.CodeEditor,
-			Version:            int32(meta.Version),
-			Unlock:             meta.UnlockTime,
-			Pages:              pages,
-			GuidesContent:      guides,
-			ExercisesContent:   exercises,
-			DockerImages:       images,
-			Commands:           commands,
-			SubmissionsName:    submissionName,
-			SubmissionsContent: submissionContent,
-			CorrectionContent:  correctionContent,
-		}
+	tutorial := generated.InsertTutorialParams{
+		Title:              meta.Title,
+		Highlight:          meta.Highlight,
+		CodeEditor:         meta.CodeEditor,
+		Version:            int32(meta.Version),
+		Unlock:             meta.UnlockTime,
+		Pages:              pages,
+		GuidesContent:      guides,
+		ExercisesContent:   exercises,
+		DockerImages:       images,
+		Commands:           commands,
+		SubmissionsName:    submissionName,
+		SubmissionsContent: submissionContent,
+		CorrectionContent:  correctionContent,
+	}
 
-		if err := s.insertTutorialAndFiles(tutorial, filesPerSheet); err != nil {
-			return fmt.Errorf("Failed to insert tutorial %s: %v", meta.Title, err)
-		}
+	if err := s.insertTutorialAndFiles(tutorial, filesPerSheet); err != nil {
+		return fmt.Errorf("Failed to insert tutorial %s: %v", meta.Title, err)
 	}
 
 	return nil

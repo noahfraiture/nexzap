@@ -8,10 +8,12 @@ import (
 	"nexzap/internal/handlers"
 	"nexzap/internal/services"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	os.Setenv("APP_ENV", "dev")
+	_ = godotenv.Load(".env")
 
 	database, err := db.NewDatabase()
 	if err != nil {
@@ -42,14 +44,18 @@ func main() {
 	}
 
 	// Nuke and populate the database (only in development)
-	if err := database.NukeDatabase(); err != nil {
-		log.Fatalf("Failed to nuke database: %v", err)
+	if os.Getenv("ENV") == "dev" {
+		if err := database.NukeDatabase(); err != nil {
+			log.Fatalf("Failed to nuke database: %v", err)
+		}
 	}
 	if err := database.Populate(); err != nil {
 		log.Fatalf("Failed to populate database: %v", err)
 	}
-	if err := importService.RefreshTutorials(); err != nil {
-		log.Fatalf("Failed to refresh tutorials: %v", err)
+	if os.Getenv("ENV") == "dev" {
+		if err := importService.RefreshTutorials(); err != nil {
+			log.Fatalf("Failed to refresh tutorials: %v", err)
+		}
 	}
 
 	// Set up the router

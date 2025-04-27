@@ -4,3 +4,4 @@ start.sh
 .env
 .helix
 .task/checksum
+result

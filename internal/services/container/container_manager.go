@@ -73,6 +73,8 @@ func Run(
 }
 
 // createContainer Creates a new container. If the WarmupDir is not empty, runs a warmup phase.
+// TODO : manage the network to limit access of spawned container to avoid them
+// accessing the db or other
 func createContainer(
 	ctx context.Context,
 	cli *client.Client,
