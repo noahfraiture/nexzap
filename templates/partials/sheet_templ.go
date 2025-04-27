@@ -350,7 +350,7 @@ func submit(id string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"> <input type=\"hidden\" name=\"payload\" id=\"payload\" value=\"\"> <button type=\"submit\" class=\"btn btn-primary w-32\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = editor.getValue();\" x-bind:disabled=\"loading\"><span class=\"card-actions\" x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form><div class=\"alert shadow-lg overflow-y-scroll grow w-full p-4\" x-show=\"getCode() !== -1 &amp;&amp; !loading\" x-bind:class=\"getCode() === 0 ? &#39;alert-success&#39; : &#39;alert-error&#39;\"><span x-bind:class=\"getCode() === 0 ? &#39;text-success-content bg-success&#39; : &#39;text-error-content bg-error&#39;\" x-text=\"`${getCode()} : ${getOutput()}`\"></span></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"> <input type=\"hidden\" name=\"payload\" id=\"payload\" value=\"\"> <button type=\"submit\" class=\"btn btn-primary w-32\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = editor.getValue();\" x-bind:disabled=\"loading\"><span class=\"card-actions\" x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form><div class=\"alert shadow-lg overflow-y-scroll grow w-full p-4\" x-show=\"getCode() !== -1 &amp;&amp; !loading\" x-bind:class=\"getCode() === 0 ? &#39;alert-success&#39; : &#39;alert-error&#39;\"><span x-bind:class=\"getCode() === 0 ? &#39;text-success-content bg-success&#39; : &#39;text-error-content bg-error&#39;\" x-text=\"`${getCode()} : ${getOutput()}`\" class=\"prose\"></span></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -385,7 +385,7 @@ func codeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var15, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 164, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 165, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 		if templ_7745c5c3_Err != nil {
@@ -397,7 +397,7 @@ func codeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var16, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 184, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 185, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {

@@ -1,8 +1,11 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"nexzap/internal/db"
+	generated "nexzap/internal/db/generated"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -12,8 +15,20 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+type ImportService struct {
+	numberRegex *regexp.Regexp
+	db          *db.Database
+}
+
+func NewImportService(db *db.Database) *ImportService {
+	return &ImportService{
+		numberRegex: regexp.MustCompile(`^\d+`),
+		db:          db,
+	}
+}
+
 // RefreshTutorials read the tutorials in the current directory and insert them
-func RefreshTutorials() error {
+func (s *ImportService) RefreshTutorials() error {
 	tutorials, err := os.ReadDir("tutorials/")
 	if err != nil {
 		return fmt.Errorf("Failed to read tutorials directory: %v", err)
@@ -24,7 +39,7 @@ func RefreshTutorials() error {
 			return fmt.Errorf("Invalid entry in tutorials directory: %s", tutorialDir.Name())
 		}
 		path := filepath.Join("tutorials", tutorialDir.Name())
-		meta, sheets, err := readDirectory(path)
+		meta, sheets, err := s.readDirectory(path)
 		if err != nil {
 			return fmt.Errorf("Failed to read tutorial directory: %s. Error: %v", path, err)
 		}
@@ -37,19 +52,21 @@ func RefreshTutorials() error {
 		commands := []string{}
 		submissionName := []string{}
 		submissionContent := []string{}
+		correctionContent := []string{}
 		var filesPerSheet []FilesPerSheet
 		for i, sheet := range *sheets {
 			pages = append(pages, int32(i+1))
-			guides = append(guides, sheet.Guide)
-			exercises = append(exercises, sheet.Exercise)
+			guides = append(guides, sheet.guide)
+			exercises = append(exercises, sheet.exercise)
 			images = append(images, sheet.Image)
 			commands = append(commands, sheet.Command)
 			submissionName = append(submissionName, sheet.SubmissionName)
-			submissionContent = append(submissionContent, sheet.SubmissionContent)
+			submissionContent = append(submissionContent, sheet.submissionContent)
+			correctionContent = append(correctionContent, sheet.correctionContent)
 
 			filesName := []string{}
 			filesContent := []string{}
-			for _, f := range sheet.Files {
+			for _, f := range sheet.files {
 				filesName = append(filesName, f.Name)
 				filesContent = append(filesContent, f.Content)
 			}
@@ -59,7 +76,7 @@ func RefreshTutorials() error {
 			})
 		}
 
-		tutorial := InsertTutorialModelInsert{
+		tutorial := generated.InsertTutorialParams{
 			Title:              meta.Title,
 			Highlight:          meta.Highlight,
 			CodeEditor:         meta.CodeEditor,
@@ -72,9 +89,10 @@ func RefreshTutorials() error {
 			Commands:           commands,
 			SubmissionsName:    submissionName,
 			SubmissionsContent: submissionContent,
+			CorrectionContent:  correctionContent,
 		}
 
-		if err := InsertTutorialAndFiles(tutorial, filesPerSheet); err != nil {
+		if err := s.insertTutorialAndFiles(tutorial, filesPerSheet); err != nil {
 			return fmt.Errorf("Failed to insert tutorial %s: %v", meta.Title, err)
 		}
 	}
@@ -82,22 +100,29 @@ func RefreshTutorials() error {
 	return nil
 }
 
-// InsertTutorialAndFiles inserts a tutorial and its associated files per sheet
-func InsertTutorialAndFiles(tutorial InsertTutorialModelInsert, filesPerSheet []FilesPerSheet) error {
-	sheetsID, err := InsertTutorial(tutorial)
+// insertTutorialAndFiles inserts a tutorial and its associated files per sheet
+func (s *ImportService) insertTutorialAndFiles(
+	tutorial generated.InsertTutorialParams,
+	filesPerSheet []FilesPerSheet,
+) error {
+	sheetsID, err := s.db.GetRepository().InsertTutorial(context.Background(), tutorial)
 	if err != nil {
 		return err
 	}
 	if len(sheetsID) != len(filesPerSheet) {
-		return fmt.Errorf("number of sheets (%d) does not match number of files data (%d)", len(sheetsID), len(filesPerSheet))
+		return fmt.Errorf(
+			"number of sheets (%d) does not match number of files data (%d)",
+			len(sheetsID),
+			len(filesPerSheet),
+		)
 	}
 	for i, sheetID := range sheetsID {
-		fileInsert := InsertFilesModelInsert{
+		fileInsert := generated.InsertFilesParams{
 			Names:    filesPerSheet[i].Names,
 			Contents: filesPerSheet[i].Contents,
 			SheetID:  sheetID,
 		}
-		if err := InsertFile(fileInsert); err != nil {
+		if err := s.db.GetRepository().InsertFiles(context.Background(), fileInsert); err != nil {
 			return err
 		}
 	}
@@ -113,32 +138,33 @@ type tutorialMeta struct {
 	UnlockTime time.Time `toml:"unlock"`
 }
 
-// correctionFile represents a file with correction content for a tutorial sheet.
-type correctionFile struct {
+// file represents a file with correction content for a tutorial sheet.
+type file struct {
 	Name    string
 	Content string
 }
 
-// sheet represents a tutorial sheet with guide, exercise, and correction content.
+// toml key must be exported
 type sheet struct {
-	Guide             string
-	Exercise          string
-	SubmissionContent string
+	guide             string
+	exercise          string
+	submissionContent string
+	correctionContent string
 	SubmissionName    string `toml:"submission"`
 	Image             string `toml:"image"`
 	Command           string `toml:"command"`
-	Files             []correctionFile
+	files             []file
 }
 
 // readDirectory reads a tutorial directory, returning metadata and sheets.
 // Errors if directory unreadable or files missing.
-func readDirectory(path string) (*tutorialMeta, *[]sheet, error) {
+func (s *ImportService) readDirectory(path string) (*tutorialMeta, *[]sheet, error) {
 	dir, err := os.ReadDir(path)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	meta, err := extractMeta(dir, path)
+	meta, err := s.extractMeta(dir, path)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -147,18 +173,14 @@ func readDirectory(path string) (*tutorialMeta, *[]sheet, error) {
 	guides := []os.DirEntry{}
 	for _, guide := range dir {
 		// Check if guide name starts with a number using regex
-		matched, err := regexp.MatchString(`^\d+`, guide.Name())
-		if err != nil {
-			return nil, nil, err
-		}
-		if matched {
+		if s.numberRegex.MatchString(guide.Name()) {
 			guides = append(guides, guide)
 		}
 	}
 	sort.Slice(guides, func(i, j int) bool { return guides[i].Name() < guides[j].Name() })
 	sheets := []sheet{}
 	for _, guide := range guides {
-		sheet, err := readGuide(guide, path)
+		sheet, err := s.readGuide(guide, path)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -167,9 +189,9 @@ func readDirectory(path string) (*tutorialMeta, *[]sheet, error) {
 	return meta, &sheets, nil
 }
 
-// extractMeta extracts metadata from meta.toml in the directory.
+// extractMeta extracts metadata from meta.toml in the sheet directory.
 // Errors if file missing, unreadable, or fields unset.
-func extractMeta(dir []os.DirEntry, path string) (*tutorialMeta, error) {
+func (s *ImportService) extractMeta(dir []os.DirEntry, path string) (*tutorialMeta, error) {
 	var metaFile *os.DirEntry
 	for _, f := range dir {
 		if f.Name() == "meta.toml" {
@@ -206,117 +228,127 @@ func extractMeta(dir []os.DirEntry, path string) (*tutorialMeta, error) {
 
 // readGuide processes a guide directory to create a Sheet.
 // Errors if required files missing or unreadable.
-func readGuide(dir os.DirEntry, basePath string) (sheet, error) {
+func (s *ImportService) readGuide(dir os.DirEntry, basePath string) (sheet, error) {
 	dirPath := filepath.Join(basePath, dir.Name())
-	entries, err := os.ReadDir(dirPath)
-	if err != nil {
-		return sheet{}, err
-	}
 
 	// Read metadata from meta.toml in the guide directory
 	var sheetMeta sheet
 	metaPath := filepath.Join(dirPath, "meta.toml")
 	metaContent, err := os.ReadFile(metaPath)
-	if err == nil {
-		if err := toml.Unmarshal(metaContent, &sheetMeta); err != nil {
-			return sheet{}, err
-		}
-	} else {
-		// If meta.toml is not found, initialize with empty values
-		sheetMeta = sheet{}
+	if err != nil {
+		return sheet{}, err
 	}
-
-	var guideFile, exerciseFile, submissionFile string
-	var correctionFiles []correctionFile
-
-	// get the markdown content exercise.md and guide.md
-	submissionFileName := filepath.Base(sheetMeta.SubmissionName)
-	guideFile, exerciseFile, submissionFile = findFiles(entries, dirPath, submissionFileName)
-	if guideFile == "" || exerciseFile == "" {
-		return sheet{}, errors.New("guide.md or exercise.md not found in directory")
-	}
-
-	// Find each file in the correction/ that will be run
-	correctionFiles, err = readCorrectionFiles(entries, dirPath)
+	err = toml.Unmarshal(metaContent, &sheetMeta)
 	if err != nil {
 		return sheet{}, err
 	}
 
-	guideContent, err := os.ReadFile(guideFile)
+	var correctionFiles []file
+
+	paths, err := s.findFiles(dirPath, sheetMeta.SubmissionName)
 	if err != nil {
 		return sheet{}, err
 	}
 
-	exerciseContent, err := os.ReadFile(exerciseFile)
+	// Find each file in the correction/ directory that will be run
+	correctionFiles, err = s.readCorrectionFiles(dirPath)
 	if err != nil {
 		return sheet{}, err
 	}
 
-	submissionContent, err := os.ReadFile(submissionFile)
+	guideContent, err := os.ReadFile(paths.Guide)
+	if err != nil {
+		return sheet{}, err
+	}
+
+	exerciseContent, err := os.ReadFile(paths.Exercise)
+	if err != nil {
+		return sheet{}, err
+	}
+
+	submissionContent, err := os.ReadFile(paths.Submission)
+	if err != nil {
+		return sheet{}, err
+	}
+
+	correctionContent, err := os.ReadFile(paths.Correction)
 	if err != nil {
 		return sheet{}, err
 	}
 
 	sheet := sheet{
-		Guide:             string(guideContent),
-		Exercise:          string(exerciseContent),
+		guide:             string(guideContent),
+		exercise:          string(exerciseContent),
 		Image:             sheetMeta.Image,
 		Command:           sheetMeta.Command,
 		SubmissionName:    sheetMeta.SubmissionName,
-		SubmissionContent: string(submissionContent),
-		Files:             correctionFiles,
+		submissionContent: string(submissionContent),
+		correctionContent: string(correctionContent),
+		files:             correctionFiles,
 	}
 
 	return sheet, nil
 }
 
-// findGuideAndExerciseFiles finds paths to guide.md and exercise.md files.
-func findFiles(entries []os.DirEntry, dirPath string, submissionName string) (string, string, string) {
-	var guideFile, exerciseFile, submissionFile string
-	for _, entry := range entries {
-		switch entry.Name() {
-		case "guide.md":
-			guideFile = filepath.Join(dirPath, entry.Name())
-		case "exercise.md":
-			exerciseFile = filepath.Join(dirPath, entry.Name())
-		case submissionName:
-			submissionFile = filepath.Join(dirPath, entry.Name())
-		}
+// FilePaths holds the paths to various files in a tutorial sheet.
+type FilePaths struct {
+	Guide      string
+	Exercise   string
+	Submission string
+	Correction string
+}
+
+// findFiles finds paths to guide.md, exercise.md, submission, and correction files.
+func (s *ImportService) findFiles(dirPath string, submissionName string) (FilePaths, error) {
+	var paths FilePaths
+	paths.Guide = filepath.Join(dirPath, "guide.md")
+	paths.Exercise = filepath.Join(dirPath, "exercise.md")
+	paths.Submission = filepath.Join(dirPath, filepath.Base(submissionName))
+	paths.Correction = filepath.Join(dirPath, "correction", submissionName)
+
+	if _, err := os.Stat(paths.Guide); os.IsNotExist(err) {
+		return paths, errors.New("guide.md not found at " + paths.Guide)
 	}
-	return guideFile, exerciseFile, submissionFile
+	if _, err := os.Stat(paths.Exercise); os.IsNotExist(err) {
+		return paths, errors.New("exercise.md not found at " + paths.Exercise)
+	}
+	if _, err := os.Stat(paths.Submission); os.IsNotExist(err) {
+		return paths, errors.New("submission file not found at " + paths.Submission)
+	}
+	if _, err := os.Stat(paths.Correction); os.IsNotExist(err) {
+		return paths, errors.New("correction file not found at " + paths.Correction)
+	}
+
+	return paths, nil
 }
 
 // readCorrectionFiles reads correction files from a subdirectory.
 // Errors if directory unreadable.
-func readCorrectionFiles(entries []os.DirEntry, dirPath string) ([]correctionFile, error) {
-	var correctionFiles []correctionFile
-	var correctionDir string
-
-	for _, entry := range entries {
-		if entry.Name() == "correction" && entry.IsDir() {
-			correctionDir = filepath.Join(dirPath, entry.Name())
-			break
-		}
+func (s *ImportService) readCorrectionFiles(dirPath string) ([]file, error) {
+	var correctionFiles []file
+	correctionDir := filepath.Join(dirPath, "correction")
+	if _, err := os.Stat(correctionDir); os.IsNotExist(err) {
+		return correctionFiles, errors.New("correction dir not found at " + correctionDir)
 	}
 
 	if correctionDir == "" {
 		return nil, errors.New("correction directory not found")
 	}
-	err := readCodeFiles(correctionDir, "", &correctionFiles)
+	err := s.readCodeFiles(correctionDir, "", &correctionFiles)
 	return correctionFiles, err
 }
 
 // readCodeFiles recursively reads code files from a directory and its subdirectories.
 // It appends the file information to the provided files slice.
 // Errors if directory is unreadable or file operations fail.
-func readCodeFiles(dirPath, subDir string, files *[]correctionFile) error {
+func (s *ImportService) readCodeFiles(dirPath, subDir string, files *[]file) error {
 	dir, err := os.ReadDir(dirPath)
 	if err != nil {
 		return err
 	}
 	for _, entry := range dir {
 		if entry.IsDir() {
-			err = readCodeFiles(
+			err = s.readCodeFiles(
 				filepath.Join(dirPath, entry.Name()),
 				filepath.Join(subDir, entry.Name()),
 				files,
@@ -329,7 +361,7 @@ func readCodeFiles(dirPath, subDir string, files *[]correctionFile) error {
 			if err != nil {
 				return err
 			}
-			*files = append(*files, correctionFile{
+			*files = append(*files, file{
 				Name:    filepath.Join(subDir, entry.Name()),
 				Content: string(content),
 			})

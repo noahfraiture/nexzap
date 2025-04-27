@@ -8,7 +8,6 @@ import (
 type Timeout struct {
 	timer    *time.Timer
 	duration time.Duration
-	stop     chan any
 	action   func()
 }
 
@@ -17,7 +16,6 @@ func NewTimeout(duration time.Duration, action func()) *Timeout {
 	t := &Timeout{
 		timer:    time.NewTimer(duration),
 		duration: duration,
-		stop:     make(chan any),
 		action:   action,
 	}
 	t.StartTimer()
@@ -34,12 +32,9 @@ func (t *Timeout) StartTimer() {
 	t.timer.Reset(t.duration)
 
 	go func() {
-		select {
-		case <-t.timer.C:
-			if t.action != nil {
-				t.action()
-			}
-		case <-t.stop:
+		<-t.timer.C
+		if t.action != nil {
+			t.action()
 		}
 	}()
 }

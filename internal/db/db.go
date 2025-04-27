@@ -4,94 +4,147 @@ import (
 	"context"
 	"fmt"
 	"log"
-	db "nexzap/internal/db/generated"
 	"os"
 	"strings"
+	"time"
+
+	generated "nexzap/internal/db/generated"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 )
 
-var dbPool *pgxpool.Pool
-var repo *db.Queries
+const (
+	DEFAULT_USER     = "nexzap"
+	DEFAULT_HOST     = "localhost"
+	DEFAULT_PORT     = "5432"
+	DEFAULT_DATABASE = "nexzap"
+	DEFAULT_PASSWORD = "nexzap"
+)
 
-func GetPool() *pgxpool.Pool {
-	if dbPool == nil {
-		log.Fatal(fmt.Errorf("DB not initialized"))
-	}
-	return dbPool
+// Database struct to encapsulate the connection pool and repository
+type Database struct {
+	pool *pgxpool.Pool
+	repo *generated.Queries
 }
 
-func GetRepository() *db.Queries {
-	if repo == nil {
-		log.Fatal(fmt.Errorf("DB not initialized"))
-	}
-	return repo
-}
-
-func Init() error {
-	// Load environment variables from .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Warning: Error loading .env file: %v", err)
-	}
-
-	password, err := getPassword()
-	if err != nil {
-		return err
-	}
-	connStrPgx := fmt.Sprintf(
+// NewDatabase initializes the Database struct with connection pooling and retries
+func NewDatabase() (*Database, error) {
+	creds := getCredentials()
+	connStr := fmt.Sprintf(
 		"user=%s password=%s host=%s port=%s dbname=%s",
-		os.Getenv("POSTGRES_USER"),
-		password,
-		os.Getenv("POSTGRES_HOST"),
-		"5432",
-		os.Getenv("POSTGRES_DB"),
+		creds.user,
+		creds.password,
+		creds.host,
+		creds.port,
+		creds.database,
 	)
 
-	dbPool, err = pgxpool.New(context.Background(), connStrPgx)
-	if err != nil {
-		return err
+	// Simple retry mechanism with exponential backoff
+	var pool *pgxpool.Pool
+	var err error
+	for attempt := range 5 {
+		pool, err = pgxpool.New(context.Background(), connStr)
+		if err == nil {
+			break
+		}
+		wait := time.Duration(1<<attempt) * time.Second
+		log.Printf("Failed to connect to database: %v. Retrying in %v...", err, wait)
+		time.Sleep(wait)
 	}
-	repo = db.New(dbPool)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database after retries: %v", err)
+	}
 
-	return nil
+	poolConfig, _ := pgxpool.ParseConfig(connStr)
+	poolConfig.MaxConns = 20
+	pool, err = pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create connection pool: %v", err)
+	}
+
+	repository := generated.New(pool)
+	return &Database{pool: pool, repo: repository}, nil
 }
 
-func Populate() error {
-	password, err := getPassword()
-	if err != nil {
-		return err
-	}
-	if err := buildDatabase(password); err != nil && err != migrate.ErrNoChange {
-		fmt.Println("error during building of database")
-		return err
-	}
-	return nil
-
+func (d *Database) GetRepository() *generated.Queries {
+	return d.repo
 }
 
-func buildDatabase(password string) error {
-	// Build the database from the migrations files
+func (d *Database) Close() {
+	d.pool.Close()
+}
+
+func (d *Database) Populate() error {
+	if os.Getenv("APP_ENV") != "dev" {
+		return fmt.Errorf("Populate can only be run in development environment")
+	}
+	creds := getCredentials()
 	connStrMigration := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%s/%s?sslmode=disable&search_path=public",
-		os.Getenv("POSTGRES_USER"),
-		password,
-		os.Getenv("POSTGRES_HOST"),
-		"5432",
-		os.Getenv("POSTGRES_DB"),
+		creds.user,
+		creds.password,
+		creds.host,
+		creds.port,
+		creds.database,
 	)
-	m, err := migrate.New(
-		"file://internal/db/migrations",
-		connStrMigration,
-	)
+	m, err := migrate.New("file://internal/db/migrations", connStrMigration)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create migration instance: %v", err)
 	}
-	return m.Up()
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to apply migrations: %v", err)
+	}
+	return nil
+}
+
+func (d *Database) NukeDatabase() error {
+	if os.Getenv("APP_ENV") != "dev" {
+		return fmt.Errorf("NukeDatabase can only be run in development environment")
+	}
+	_, err := d.pool.Exec(context.Background(), "DROP SCHEMA IF EXISTS public CASCADE")
+	if err != nil {
+		return fmt.Errorf("failed to drop public schema: %v", err)
+	}
+	_, err = d.pool.Exec(context.Background(), "CREATE SCHEMA public")
+	if err != nil {
+		return fmt.Errorf("failed to recreate public schema: %v", err)
+	}
+	return nil
+}
+
+func (d *Database) HealthCheck() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	return d.pool.Ping(ctx)
+}
+
+func getCredentials() credentials {
+	creds := credentials{
+		user:     DEFAULT_USER,
+		host:     DEFAULT_HOST,
+		port:     DEFAULT_PORT,
+		database: DEFAULT_DATABASE,
+		password: DEFAULT_PASSWORD,
+	}
+	if user := os.Getenv("POSTGRES_USER"); user != "" {
+		creds.user = user
+	}
+	if host := os.Getenv("POSTGRES_HOST"); host != "" {
+		creds.host = host
+	}
+	if port := os.Getenv("POSTGRES_PORT"); port != "" {
+		creds.port = port
+	}
+	if db := os.Getenv("POSTGRES_DB"); db != "" {
+		creds.database = db
+	}
+	if password, err := getPassword(); err == nil {
+		creds.password = password
+	}
+	return creds
 }
 
 func getPassword() (string, error) {
@@ -110,22 +163,10 @@ func getPassword() (string, error) {
 	return password, nil
 }
 
-// NukeDatabase drops the public schema and all its contents from the database.
-// WARNING: This is a destructive operation and will delete all data in the public schema.
-func NukeDatabase() error {
-	if dbPool == nil {
-		return fmt.Errorf("DB not initialized")
-	}
-
-	_, err := dbPool.Exec(context.Background(), "DROP SCHEMA IF EXISTS public CASCADE")
-	if err != nil {
-		return fmt.Errorf("failed to drop public schema: %v", err)
-	}
-
-	_, err = dbPool.Exec(context.Background(), "CREATE SCHEMA public")
-	if err != nil {
-		return fmt.Errorf("failed to recreate public schema: %v", err)
-	}
-
-	return nil
+type credentials struct {
+	user     string
+	host     string
+	port     string
+	database string
+	password string
 }

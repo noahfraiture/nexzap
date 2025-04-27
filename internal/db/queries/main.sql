@@ -11,6 +11,7 @@ WITH tutorial AS (
     exercise_content,
     submission_name,
     submission_content,
+    correction_content,
     docker_image,
     command
   )
@@ -21,6 +22,7 @@ WITH tutorial AS (
     unnest(@exercises_content::text[]),
     unnest(@submissions_name::text[]),
     unnest(@submissions_content::text[]),
+    unnest(@correction_content::text[]),
     unnest(@docker_images::text[]),
     unnest(@commands::text[])
   RETURNING id
@@ -30,29 +32,6 @@ SELECT id FROM sheet;
 -- name: InsertFiles :exec
 INSERT INTO files (name, content, sheet_id)
 SELECT unnest(@names::text[]), unnest(@contents::text[]), @sheet_id;
-
--- name: FindLastTutorialFirstSheet :one
-SELECT
-  tu.title,
-  tu.highlight,
-  tu.code_editor,
-  s.id,
-  s.guide_content,
-  s.exercise_content,
-  s.page,
-  s.submission_content,
-  (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
-FROM
-  tutorials tu
-  JOIN sheets s ON s.tutorial_id = tu.id
-WHERE
-  s.page = 1
-  AND tu.unlock < NOW ()
-ORDER BY
-  tu.unlock DESC,
-  tu.version DESC
-LIMIT
-  1;
 
 -- name: FindLastTutorialSheet :one
 SELECT
@@ -91,3 +70,39 @@ WHERE
   s.id = @sheet_id
 GROUP BY
   s.id, s.docker_image, s.command, s.submission_name;
+
+
+-- name: FindCorrectionSheet :many
+SELECT
+  tu.title, -- debug log
+  s.page, -- debug log
+  s.submission_name,
+  s.correction_content,
+  s.docker_image,
+  s.command,
+  array_agg(f.name)::text[] AS files_name,
+  array_agg(f.content)::text[] AS files_content
+FROM
+  sheets s
+  JOIN files f ON f.sheet_id = s.id
+  JOIN tutorials tu ON tu.id = s.tutorial_id
+GROUP BY
+  tu.title, s.id, s.docker_image, s.command, s.submission_name, s.correction_content;
+
+-- name: FindSpecificCorrectionSheet :one
+SELECT
+  s.submission_name,
+  s.correction_content,
+  s.docker_image,
+  s.command,
+  array_agg(f.name)::text[] AS files_name,
+  array_agg(f.content)::text[] AS files_content
+FROM
+  sheets s
+  JOIN files f ON f.sheet_id = s.id
+  JOIN tutorials tu ON tu.id = s.tutorial_id
+WHERE
+  tu.title = @title AND s.page = @page
+GROUP BY
+  tu.title, s.id, s.docker_image, s.command, s.submission_name, s.correction_content;
+

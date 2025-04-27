@@ -7,50 +7,58 @@ import (
 	"nexzap/internal/db"
 	"nexzap/internal/handlers"
 	"nexzap/internal/services"
+	"os"
 )
 
-func router(s *services.Service) {
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/images/favicon.ico")
-	})
-
-	http.HandleFunc("/", handlers.HomeHandler())
-	http.HandleFunc("GET /sheet", handlers.SheetHandler())
-	http.HandleFunc("POST /submit", handlers.SubmitHandler(s))
-	http.HandleFunc("POST /import", handlers.ImportHandler())
-	http.HandleFunc("GET /refresh", handlers.RefreshHandler())
-}
-
 func main() {
-	services.InitMarkdown()
-	exerciseService, err := services.NewService()
+	os.Setenv("APP_ENV", "dev")
+
+	database, err := db.NewDatabase()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer database.Close()
+
+	// Check database health
+	if err := database.HealthCheck(); err != nil {
+		log.Fatalf("Database health check failed: %v", err)
 	}
 
-	err = db.Init()
+	// Initialize services
+	exerciseService, err := services.NewExerciseService()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to initialize exercise service: %v", err)
 	}
-	err = db.NukeDatabase()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = db.Populate()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = services.RefreshTutorials()
-	if err != nil {
-		log.Fatal(err)
+	sheetService := services.NewSheetService(database)
+	markdownService := services.NewMarkdownParser()
+	importService := services.NewImportService(database)
+
+	app := &handlers.App{
+		Database:        database,
+		ExerciseService: exerciseService,
+		MarkdownService: markdownService,
+		SheetService:    sheetService,
+		ImportService:   importService,
 	}
 
-	router(exerciseService)
+	// Nuke and populate the database (only in development)
+	if err := database.NukeDatabase(); err != nil {
+		log.Fatalf("Failed to nuke database: %v", err)
+	}
+	if err := database.Populate(); err != nil {
+		log.Fatalf("Failed to populate database: %v", err)
+	}
+	if err := importService.RefreshTutorials(); err != nil {
+		log.Fatalf("Failed to refresh tutorials: %v", err)
+	}
+
+	// Set up the router
+	handlers.SetupRouter(app)
+
+	// Start the server
 	port := "8080"
 	fmt.Println("Server running on port " + port)
-	err = http.ListenAndServe(":"+port, nil)
-	if err != nil {
-		log.Fatal(err)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
 	}
 }

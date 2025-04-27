@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -20,21 +21,25 @@ func Run(
 	ctn string,
 	files []File,
 ) (string, RunResponse, error) {
+	log.Println("Running container", ctn, "with provided files")
+	var err error
+	defer func() {
+		if err != nil {
+			StopAndRemove(ctx, cli, ctn)
+		}
+	}()
 	archive, err := createTarArchive(files)
 	if err != nil {
-		StopAndRemove(ctx, cli, ctn)
 		return "", RunResponse{}, err
 	}
 
 	err = cli.CopyToContainer(ctx, ctn, "/", archive, container.CopyToContainerOptions{})
 	if err != nil {
-		StopAndRemove(ctx, cli, ctn)
 		return "", RunResponse{}, err
 	}
 
 	startTime := time.Now()
 	if err := cli.ContainerStart(ctx, ctn, container.StartOptions{}); err != nil {
-		StopAndRemove(ctx, cli, ctn)
 		return "", RunResponse{}, err
 	}
 
@@ -43,7 +48,6 @@ func Run(
 	select {
 	case err := <-errCh:
 		if err != nil {
-			StopAndRemove(ctx, cli, ctn)
 			return "", RunResponse{}, err
 		}
 	case status = <-statusCh:
@@ -55,7 +59,6 @@ func Run(
 		Since:      startTime.Format(time.RFC3339),
 	})
 	if err != nil {
-		StopAndRemove(ctx, cli, ctn)
 		return "", RunResponse{}, err
 	}
 	defer logs.Close()
@@ -63,7 +66,6 @@ func Run(
 	var logBytes bytes.Buffer
 	_, err = io.Copy(&logBytes, logs)
 	if err != nil {
-		StopAndRemove(ctx, cli, ctn)
 		return "", RunResponse{}, err
 	}
 
@@ -76,6 +78,7 @@ func createContainer(
 	cli *client.Client,
 	lang Tutorial,
 ) (container.CreateResponse, error) {
+	log.Println("Creating container for image", lang.Image)
 	var emptyResp container.CreateResponse
 
 	// Create container
@@ -86,6 +89,7 @@ func createContainer(
 		Tty:        false,
 	}, nil, nil, nil, "")
 	if err != nil {
+		StopAndRemove(ctx, cli, resp.ID) // in case the error still creates the container
 		return emptyResp, err
 	}
 
@@ -94,22 +98,17 @@ func createContainer(
 
 // StopAndRemove stops and removes a container.
 func StopAndRemove(ctx context.Context, cli *client.Client, id string) {
-	// Stop the container with a timeout of 10 seconds
+	log.Println("Stopping and removing container", id)
 	timeout := 10
 	if err := cli.ContainerStop(ctx, id, container.StopOptions{Timeout: &timeout}); err != nil {
-		// If the container is already stopped or not found, proceed to remove it
 		if !client.IsErrNotFound(err) {
-			// TODO : change that
-			panic(err)
-			// Don't panic, just log the error and attempt removal
+			log.Println(err)
 		}
 	}
 
-	// Remove the container
 	if err := cli.ContainerRemove(ctx, id, container.RemoveOptions{}); err != nil {
 		if !client.IsErrNotFound(err) {
-			panic(err)
-			// Don't panic, just log the error
+			log.Println(err)
 		}
 	}
 }
@@ -121,6 +120,7 @@ type File struct {
 
 // createTarArchive creates a tar archive from the provided files.
 func createTarArchive(files []File) (*bytes.Buffer, error) {
+	log.Println("Creating tar archive from provided files")
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
 	defer tw.Close()

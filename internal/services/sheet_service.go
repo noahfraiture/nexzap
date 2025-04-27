@@ -4,51 +4,37 @@ import (
 	"context"
 	"nexzap/internal/db"
 	generated "nexzap/internal/db/generated"
-
-	"github.com/google/uuid"
 )
 
-var md *MarkdownParser
-
-func InitMarkdown() {
-	md = NewMarkdownParser()
+// SheetService handles operations related to tutorial sheets
+type SheetService struct {
+	db       *db.Database
+	markdown *MarkdownParser
 }
 
-type FindTutorialFirstSheetModelSelect = generated.FindLastTutorialFirstSheetRow
+// NewSheetService creates a new SheetService with the given database
+func NewSheetService(database *db.Database) *SheetService {
+	return &SheetService{
+		db:       database,
+		markdown: NewMarkdownParser(),
+	}
+}
+
+// FindTutorialSheetModelSelect is an alias for the generated type
 type FindTutorialSheetModelSelect = generated.FindLastTutorialSheetRow
 
-// LastTutorialFirstPage get the last tutorial and parse the content of sheets and tests
-func LastTutorialFirstPage() (*FindTutorialFirstSheetModelSelect, error) {
-	tutorial, err := db.GetRepository().FindLastTutorialFirstSheet(context.Background())
+// LastTutorialFirstPage gets the last tutorial for page 1 and parses content
+func (s *SheetService) LastTutorialFirstPage() (*FindTutorialSheetModelSelect, error) {
+	return s.LastTutorialPage(1)
+}
+
+// LastTutorialPage gets the last tutorial for the specified page and parses content
+func (s *SheetService) LastTutorialPage(page int) (*FindTutorialSheetModelSelect, error) {
+	tutorial, err := s.db.GetRepository().FindLastTutorialSheet(context.Background(), int32(page))
 	if err != nil {
 		return nil, err
 	}
-	tutorial.GuideContent = markdownToHtml(tutorial.GuideContent)
-	tutorial.ExerciseContent = markdownToHtml(tutorial.ExerciseContent)
+	tutorial.GuideContent = s.markdown.ParseMarkdown(tutorial.GuideContent)
+	tutorial.ExerciseContent = s.markdown.ParseMarkdown(tutorial.ExerciseContent)
 	return &tutorial, nil
-}
-
-func LastTutorialPage(page int) (*FindTutorialSheetModelSelect, error) {
-	tutorial, err := db.GetRepository().FindLastTutorialSheet(context.Background(), int32(page))
-	if err != nil {
-		return nil, err
-	}
-	tutorial.GuideContent = markdownToHtml(tutorial.GuideContent)
-	tutorial.ExerciseContent = markdownToHtml(tutorial.ExerciseContent)
-	return &tutorial, nil
-}
-
-func markdownToHtml(content string) string {
-	return md.ParseMarkdown(content)
-}
-
-type InsertTutorialModelInsert = generated.InsertTutorialParams
-type InsertFilesModelInsert = generated.InsertFilesParams
-
-func InsertTutorial(args InsertTutorialModelInsert) ([]uuid.UUID, error) {
-	return db.GetRepository().InsertTutorial(context.Background(), generated.InsertTutorialParams(args))
-}
-
-func InsertFile(args InsertFilesModelInsert) error {
-	return db.GetRepository().InsertFiles(context.Background(), generated.InsertFilesParams(args))
 }

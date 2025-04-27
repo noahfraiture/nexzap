@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -35,19 +36,22 @@ type Pool struct {
 }
 
 func NewPool() Pool {
+	log.Println("Creating a new container pool")
 	return Pool{pool: make(map[string]ImagePool)}
 }
 
-// GetLanguagePool creates a pool for a given language if it doesn't exist, then returns it.
+// GetImagePool creates a pool for a given language if it doesn't exist, then returns it.
 // Synchronized method to avoid duplicate language pool.
-func (p *Pool) GetLanguagePool(ctx context.Context, cli *client.Client, language Tutorial) ImagePool {
+func (p *Pool) GetImagePool(ctx context.Context, cli *client.Client, tutorial Tutorial) ImagePool {
 	p.Lock()
 	defer p.Unlock()
-	if lp, ok := p.pool[language.Image]; ok {
+	if lp, ok := p.pool[tutorial.Image]; ok {
+		log.Println("Returning existing image pool for", tutorial.Image)
 		return lp
 	}
-	p.newImage(ctx, cli, language)
-	return p.pool[language.Image]
+	log.Println("Creating new image pool for", tutorial.Image)
+	p.newImage(ctx, cli, tutorial)
+	return p.pool[tutorial.Image]
 }
 
 // newImage adds a pool for a language in the main pool.
@@ -57,36 +61,25 @@ func (p *Pool) newImage(
 	cli *client.Client,
 	lang Tutorial,
 ) {
+	log.Println("Initializing new image pool for", lang.Image)
 	// Create the language
 	language := ImagePool{
 		MinPool:         make(chan string, MIN_CTN),
 		ExtendedPool:    make(chan string, MAX_CTN),
-		available:       make(chan any, MAX_CTN),
+		extensionSlots:  make(chan any, MAX_CTN),
 		language:        lang,
 		languageTimeout: *NewTimeout(LANGUAGE_TIMEOUT, nil),
 		extendTimeout:   *NewTimeout(CONTAINER_TIMEOUT, nil),
 	}
 
-	for range MAX_CTN {
-		language.available <- struct{}{}
-	}
-
 	language.languageTimeout.action = func() {
-		p.cleanLanguage(ctx, cli, lang.Image) // FIX: clean can try to remove self?
+		p.cleanImage(ctx, cli, lang.Image)
 	}
 
 	language.extendTimeout.action = func() {
-		var wg sync.WaitGroup
 		for c := range language.ExtendedPool {
-			wg.Add(1)
-			go func(containerID string) {
-				defer wg.Done()
-				StopAndRemove(ctx, cli, containerID)
-			}(c)
-		}
-		wg.Wait()
-		for range MAX_CTN - len(language.available) {
-			language.available <- struct{}{}
+			StopAndRemove(ctx, cli, c)
+			<-language.extensionSlots
 		}
 	}
 
@@ -110,10 +103,14 @@ func (p *Pool) newImage(
 
 // ImagePool represents a pool of containers for a specific language.
 type ImagePool struct {
-	language        Tutorial
-	MinPool         chan string // pool of containers that should always be running
-	ExtendedPool    chan string // pool of containers that can shrink or expand
-	available       chan any    // quantity of containers still possible to deploy
+	language Tutorial
+	// pool of containers that should always be running
+	MinPool chan string
+	// pool of containers that can shrink or expand
+	ExtendedPool chan string
+	// Quantity of containers still possible to deploy.
+	// Needed to take place before instanciating the container in ExtendedPool
+	extensionSlots  chan any
 	languageTimeout Timeout
 	extendTimeout   Timeout
 }
@@ -122,78 +119,113 @@ type ImagePool struct {
 // The language pool can create new containers to keep a margin.
 // You must free it after usage.
 func (lp *ImagePool) GetContainer(ctx context.Context, cli *client.Client) (string, error) {
+	log.Println("Getting container from pool for image", lp.language.Image)
+	// Check if container in MinPool
 	select {
 	case c := <-lp.MinPool:
 		lp.languageTimeout.StartTimer()
-		extendContainer(ctx, cli, lp)
+		return c, nil
+	default:
+	}
+
+	// Check if container in ExtendedPool
+	select {
+	case c := <-lp.ExtendedPool:
+		lp.languageTimeout.StartTimer()
+		lp.extendTimeout.StartTimer()
+		return c, nil
+	default:
+	}
+
+	// NOTE : the container hitting the limit of available container will always
+	// have to wait for a new one. This slows down the system with burst of
+	// submission. However we can consider this as acceptable for simplicity
+
+	// Else has too wait and get first free container
+	extendContainer(ctx, cli, lp)
+	select {
+	case c := <-lp.MinPool:
+		lp.languageTimeout.StartTimer()
 		return c, nil
 	case c := <-lp.ExtendedPool:
 		lp.languageTimeout.StartTimer()
 		lp.extendTimeout.StartTimer()
-		extendContainer(ctx, cli, lp)
 		return c, nil
 	case <-time.After(WAIT_TIMEOUT):
 		return "", fmt.Errorf("timeout waiting for container")
 	}
+
 }
 
 // FreeContainer returns a container to the pool after usage.
+// WARNING : it does not stop or remove the container
 func (lp *ImagePool) FreeContainer(
 	ctx context.Context,
 	cli *client.Client,
 	ctn string,
 ) {
+	log.Println("Returning container", ctn, "to pool for image", lp.language.Image)
+	// First try to give it to MinPool
+	select {
+	case lp.MinPool <- ctn:
+		return
+	default:
+	}
+
+	// Else give where there's space left
 	select {
 	case lp.MinPool <- ctn:
 	case lp.ExtendedPool <- ctn:
 	default:
-		StopAndRemove(ctx, cli, ctn)
+		log.Fatalf("Container that shouldn't have been up")
 	}
 }
 
-// extendContainer extends the container pool if necessary to maintain a margin.
+// extendContainer extends the container pool if there's still slot available
 func extendContainer(ctx context.Context, cli *client.Client, lp *ImagePool) {
-	nbFree := len(lp.ExtendedPool) + len(lp.MinPool)
-	if nbFree < CONTAINER_MARGIN {
-		select {
-		case <-lp.available:
-			go createAndAddContainer(ctx, cli, lp)
-		default:
-		}
+	log.Println("Attempting to extend container pool for image", lp.language.Image)
+	select {
+	case lp.extensionSlots <- struct{}{}:
+		go createAndAddContainer(ctx, cli, lp)
+	default:
 	}
 }
 
 // createAndAddContainer creates a new container and adds it to the extended pool.
 func createAndAddContainer(ctx context.Context, cli *client.Client, lp *ImagePool) {
+	log.Println("Creating and adding new container for image", lp.language.Image)
 	resp, err := createContainer(ctx, cli, lp.language)
 	if err != nil {
-		lp.available <- struct{}{}
-		return
+		<-lp.extensionSlots
+	} else {
+		lp.ExtendedPool <- resp.ID
 	}
-	lp.ExtendedPool <- resp.ID
 }
 
-// cleanLanguage removes a language from the main pool and cleans the minPool.
+// cleanImage removes a language from the main pool and cleans the minPool.
 // extendedPool will automatically be cleaned with a proper timeout.
-func (p *Pool) cleanLanguage(ctx context.Context, cli *client.Client, name string) {
-	// TODO: fix that?
+func (p *Pool) cleanImage(ctx context.Context, cli *client.Client, name string) {
+	p.Lock()
+	defer p.Unlock()
 	language, ok := p.pool[name]
 	if !ok {
+		log.Println("Image", name, "not found in pool for cleaning")
 		return
 	}
+	log.Println("Cleaning image pool for", name)
 	close(language.MinPool)
 	close(language.ExtendedPool)
 	for ctn := range language.MinPool {
 		StopAndRemove(ctx, cli, ctn)
 	}
+	delete(p.pool, name)
 }
 
+// CleanAll is not concurrent safe !
 func (p *Pool) CleanAll(ctx context.Context, cli *client.Client) {
-	p.Lock()
-	defer p.Unlock()
-
+	log.Println("Cleaning all image pools")
 	for imageName := range p.pool {
-		p.cleanLanguage(ctx, cli, imageName)
+		p.cleanImage(ctx, cli, imageName)
 		delete(p.pool, imageName)
 	}
 }

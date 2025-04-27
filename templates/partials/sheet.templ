@@ -118,6 +118,7 @@ templ submit(id string) {
 			<span
 				x-bind:class="getCode() === 0 ? 'text-success-content bg-success' : 'text-error-content bg-error'"
 				x-text="`${getCode()} : ${getOutput()}`"
+				class="prose"
 			></span>
 		</div>
 	</div>

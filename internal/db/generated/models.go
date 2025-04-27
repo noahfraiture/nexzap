@@ -26,6 +26,7 @@ type Sheet struct {
 	ExerciseContent   string
 	SubmissionName    string
 	SubmissionContent string
+	CorrectionContent string
 	DockerImage       string
 	Command           string
 }

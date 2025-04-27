@@ -11,17 +11,17 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// Service encapsulates the state and operations for language testing services.
-type Service struct {
+// ExerciseService encapsulates the state and operations for language testing services.
+type ExerciseService struct {
 	pool        container.Pool
 	ctx         context.Context
 	cli         *client.Client
 	initialized bool
 }
 
-// NewService creates and initializes a new Service instance.
-func NewService() (*Service, error) {
-	svc := &Service{}
+// NewExerciseService creates and initializes a new Service instance.
+func NewExerciseService() (*ExerciseService, error) {
+	svc := &ExerciseService{}
 	if err := svc.init(); err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func NewService() (*Service, error) {
 }
 
 // init initializes the service, setting up the container pool and Docker client.
-func (s *Service) init() error {
+func (s *ExerciseService) init() error {
 	s.pool = container.NewPool()
 	s.ctx = context.Background()
 	var err error
@@ -44,7 +44,7 @@ func (s *Service) init() error {
 type Correction = generated.FindSubmissionDataRow
 
 // RunTest executes the provided files in test mode for a given language.
-func (s *Service) RunTest(correction Correction, payload string) (string, container.RunResponse, error) {
+func (s *ExerciseService) RunTest(correction Correction, payload string) (string, container.RunResponse, error) {
 	if !s.initialized {
 		return "", container.RunResponse{}, fmt.Errorf("not initialized")
 	}
@@ -52,7 +52,7 @@ func (s *Service) RunTest(correction Correction, payload string) (string, contai
 		Image:   correction.DockerImage,
 		Command: strings.Split(correction.Command, " "),
 	}
-	languagePool := s.pool.GetLanguagePool(s.ctx, s.cli, tutorial)
+	languagePool := s.pool.GetImagePool(s.ctx, s.cli, tutorial)
 	ctn, err := languagePool.GetContainer(s.ctx, s.cli)
 	if err != nil {
 		return "", container.RunResponse{}, err
@@ -75,7 +75,7 @@ func (s *Service) RunTest(correction Correction, payload string) (string, contai
 }
 
 // Cleanup stops and removes all containers in the pool.
-func (s *Service) Cleanup() error {
+func (s *ExerciseService) Cleanup() error {
 	if !s.initialized {
 		return fmt.Errorf("not initialized")
 	}
