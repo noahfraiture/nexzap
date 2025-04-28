@@ -16,8 +16,8 @@ templ homeContent(sheet models.SheetTempl) {
 }
 
 templ leftPanel(sheet models.SheetTempl) {
-	<div class="card card-border card-body bg-base-200 shadow-lg flex flex-col md:min-h-0">
-		<h2 class="card-title">{ sheet.Title }</h2>
+	<div id="left-panel" class="card card-border card-body bg-base-200 shadow-lg flex flex-col md:min-h-0">
+		<h2 class="card-title text-primary">{ sheet.Title }</h2>
 		<div id="sheet" class="flex flex-col md:min-h-0 md:grow">
 			@partials.GuideContent(sheet)
 			@partials.Buttons(sheet)
