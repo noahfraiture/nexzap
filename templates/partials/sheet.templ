@@ -31,6 +31,7 @@ templ Buttons(sheet models.SheetTempl) {
 				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1) }
 				hx-target="#sheet"
 				hx-swap="innerHTML show:#left-panel:top"
+				hx-push-url="true"
 				x-on:htmx:after-request="updateSheet(event)"
 			>Previous</button>
 		}
@@ -42,6 +43,7 @@ templ Buttons(sheet models.SheetTempl) {
 				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1) }
 				hx-target="#sheet"
 				hx-swap="innerHTML show:#left-panel:top"
+				hx-push-url="true"
 				x-on:htmx:after-request="updateSheet(event)"
 			>Next</button>
 		}

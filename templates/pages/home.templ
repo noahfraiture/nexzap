@@ -32,15 +32,19 @@ templ rightPanel(sheet models.SheetTempl) {
 	</div>
 }
 
-templ NextContent(sheet models.SheetTempl) {
-	@partials.GuideContent(sheet)
-	@partials.Buttons(sheet)
-	<div id="test" hx-swap-oob="innerHTML">
-		@partials.ExerciseContent(sheet.ExerciseContent)
-	</div>
-	<script>
-		editor.setValue({{ sheet.SubmissionContent }})
-	</script>
+templ NextContent(fromHtmx bool, sheet models.SheetTempl) {
+	if fromHtmx {
+		@partials.GuideContent(sheet)
+		@partials.Buttons(sheet)
+		<div id="test" hx-swap-oob="innerHTML">
+			@partials.ExerciseContent(sheet.ExerciseContent)
+		</div>
+		<script>
+			editor.setValue({{ sheet.SubmissionContent }})
+		</script>
+	} else {
+		@Home(fromHtmx, sheet)
+	}
 }
 
 templ Home(fromHtmx bool, sheet models.SheetTempl) {

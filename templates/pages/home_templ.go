@@ -155,7 +155,7 @@ func rightPanel(sheet models.SheetTempl) templ.Component {
 	})
 }
 
-func NextContent(sheet models.SheetTempl) templ.Component {
+func NextContent(fromHtmx bool, sheet models.SheetTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -176,37 +176,48 @@ func NextContent(sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = partials.GuideContent(sheet).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = partials.Buttons(sheet).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div id=\"test\" hx-swap-oob=\"innerHTML\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = partials.ExerciseContent(sheet.ExerciseContent).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><script>\n\t\teditor.setValue(")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Var6, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(sheet.SubmissionContent)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 42, Col: 44}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, ")\n\t</script>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if fromHtmx {
+			templ_7745c5c3_Err = partials.GuideContent(sheet).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = partials.Buttons(sheet).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " <div id=\"test\" hx-swap-oob=\"innerHTML\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = partials.ExerciseContent(sheet.ExerciseContent).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><script>\n\t\t\teditor.setValue(")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var6, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(sheet.SubmissionContent)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 43, Col: 45}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, ")\n\t\t</script>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = Home(fromHtmx, sheet).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return nil
 	})
@@ -233,25 +244,25 @@ func Home(fromHtmx bool, sheet models.SheetTempl) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js\"></script><script src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js\"></script><script src=\"https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js\"></script><script src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 51, Col: 141}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 55, Col: 141}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"></script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if fromHtmx {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<title id=\"title\" hx-swap-oob=\"#title\">NexZap - Home</title>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<title id=\"title\" hx-swap-oob=\"#title\">NexZap - Home</title>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -310,19 +321,19 @@ func submitDataScript(id string) templ.Component {
 			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<script>\n\t\tdocument.addEventListener('alpine:init', () => {\n\t    Alpine.data('submitData', () => ({\n\t\t\t\tloading: false,\n\t\t\t\tkey: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<script>\n\t\tdocument.addEventListener('alpine:init', () => {\n\t    Alpine.data('submitData', () => ({\n\t\t\t\tloading: false,\n\t\t\t\tkey: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Var11, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(id)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 69, Col: 14}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/home.templ`, Line: 73, Col: 14}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, ",\n\t\t\t\tstatusCode: Alpine.$persist({}).as(\"statusCode\"),\n\t\t\t\toutput: Alpine.$persist({}).as(\"output\"),\n\t\t\t\tcode: Alpine.$persist({}).as(\"code\"),\n\t\t\t\tupdateStatus(event) {\n\t\t\t\t\tresponse = JSON.parse(event.detail.xhr.responseText)\n\t\t\t\t\tthis.statusCode[this.key] = response.statusCode\n\t\t\t\t\tthis.output[this.key] = response.output\n\t\t\t\t},\n\t\t\t\tupdateSheet(event) {\n\t\t\t\t\tthis.key = event.detail.xhr.getResponseHeader('X-Sheet-Id')\n\t\t\t\t\tif (this.key in this.code && this.code[this.key] !== \"\") {\n\t\t\t\t\t\teditor.setValue(this.code[this.key])\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tgetStatusCode() {\n\t\t\t\t\tif (!(this.key in this.statusCode)) {\n\t\t\t\t\t\tthis.statusCode[this.key] = -1\n\t\t\t\t\t}\n\t\t\t\t\treturn this.statusCode[this.key]\n\t\t\t\t},\n\t\t\t\tgetOutput() {\n\t\t\t\t\tif (!(this.key in this.output)) {\n\t\t\t\t\t\tthis.output[this.key] = \"\"\n\t\t\t\t\t}\n\t\t\t\t\treturn this.output[this.key]\n\t\t\t\t},\n\t\t\t\tgetCode() {\n\t\t\t\t\tif (!(this.key in this.code)) {\n\t\t\t\t\t\tthis.code[this.key] = \"\"\n\t\t\t\t\t}\n\t\t\t\t\treturn this.code[this.key]\n\t\t\t\t},\n\t\t\t\tsaveCode(content) {\n\t\t\t\t\tthis.code[this.key] = content\n\t\t\t\t}\n\t\t\t}))\n\t\t})\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, ",\n\t\t\t\tstatusCode: Alpine.$persist({}).as(\"statusCode\"),\n\t\t\t\toutput: Alpine.$persist({}).as(\"output\"),\n\t\t\t\tcode: Alpine.$persist({}).as(\"code\"),\n\t\t\t\tupdateStatus(event) {\n\t\t\t\t\tresponse = JSON.parse(event.detail.xhr.responseText)\n\t\t\t\t\tthis.statusCode[this.key] = response.statusCode\n\t\t\t\t\tthis.output[this.key] = response.output\n\t\t\t\t},\n\t\t\t\tupdateSheet(event) {\n\t\t\t\t\tthis.key = event.detail.xhr.getResponseHeader('X-Sheet-Id')\n\t\t\t\t\tif (this.key in this.code && this.code[this.key] !== \"\") {\n\t\t\t\t\t\teditor.setValue(this.code[this.key])\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tgetStatusCode() {\n\t\t\t\t\tif (!(this.key in this.statusCode)) {\n\t\t\t\t\t\tthis.statusCode[this.key] = -1\n\t\t\t\t\t}\n\t\t\t\t\treturn this.statusCode[this.key]\n\t\t\t\t},\n\t\t\t\tgetOutput() {\n\t\t\t\t\tif (!(this.key in this.output)) {\n\t\t\t\t\t\tthis.output[this.key] = \"\"\n\t\t\t\t\t}\n\t\t\t\t\treturn this.output[this.key]\n\t\t\t\t},\n\t\t\t\tgetCode() {\n\t\t\t\t\tif (!(this.key in this.code)) {\n\t\t\t\t\t\tthis.code[this.key] = \"\"\n\t\t\t\t\t}\n\t\t\t\t\treturn this.code[this.key]\n\t\t\t\t},\n\t\t\t\tsaveCode(content) {\n\t\t\t\t\tthis.code[this.key] = content\n\t\t\t\t}\n\t\t\t}))\n\t\t})\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
