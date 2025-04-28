@@ -39,6 +39,5 @@ func (app *App) SheetHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Set headers for sheet ID and page number
 	w.Header().Set("X-Sheet-ID", sheet.Id)
-	w.Header().Set("X-Page", strconv.Itoa(pageIndex))
 	pages.NextContent(sheet).Render(r.Context(), w)
 }

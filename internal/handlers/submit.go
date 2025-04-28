@@ -45,11 +45,11 @@ func (app *App) SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	// Respond with JSON containing the output and status code
 	w.Header().Set("Content-Type", "application/json")
 	response := struct {
-		Output string `json:"output"`
-		Code   int    `json:"code"`
+		Output     string `json:"output"`
+		StatusCode int    `json:"statusCode"`
 	}{
-		Output: sanitize(output),
-		Code:   int(status.StatusCode),
+		Output:     sanitize(output),
+		StatusCode: int(status.StatusCode),
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)

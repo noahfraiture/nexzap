@@ -10,17 +10,16 @@ templ GuideContent(sheet models.SheetTempl) {
 	<div class="md:min-h-0 md:overflow-y-scroll md:grow prose max-w-none">
 		@templ.Raw(sheet.SheetContent)
 	</div>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/runmode/colorize.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/runmode/runmode.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/runmode/colorize.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/runmode/runmode.min.js"></script>
 	<script>
 		(function() {
-			let codeSnippets = document.getElementsByClassName("code");
+			let codeSnippets = document.getElementsByClassName("codeSnippet")
 			for (let i = 0; i < codeSnippets.length; i++) {
-				CodeMirror.runMode(codeSnippets[i].textContent, {{ sheet.CodeEditor }}, codeSnippets[i]);
+				CodeMirror.runMode(codeSnippets[i].textContent, {{ sheet.CodeEditor }}, codeSnippets[i])
 			}
-		})();
+		})()
 	</script>
-	<div class="code bg-info"></div> // must be same as in markdown_service.go so that tailwindcss can compile the css
 }
 
 templ Buttons(sheet models.SheetTempl) {
@@ -31,7 +30,7 @@ templ Buttons(sheet models.SheetTempl) {
 				class="btn btn-primary"
 				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1) }
 				hx-target="#sheet"
-				x-on:htmx:after-request="updatePage(event)"
+				x-on:htmx:after-request="updateSheet(event)"
 			>Previous</button>
 		}
 		<span class="text-base">Page { strconv.Itoa(sheet.NbPage) } of { strconv.Itoa(sheet.MaxPage) }</span>
@@ -41,7 +40,7 @@ templ Buttons(sheet models.SheetTempl) {
 				class="btn btn-primary"
 				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1) }
 				hx-target="#sheet"
-				x-on:htmx:after-request="updatePage(event)"
+				x-on:htmx:after-request="updateSheet(event)"
 			>Next</button>
 		}
 	</div>
@@ -112,12 +111,12 @@ templ submit(id string) {
 		// Result
 		<div
 			class="alert shadow-lg overflow-y-scroll grow w-full p-4"
-			x-show="getCode() !== -1 && !loading"
-			x-bind:class="getCode() === 0 ? 'alert-success' : 'alert-error'"
+			x-show="getStatusCode() !== -1 && !loading"
+			x-bind:class="getStatusCode() === 0 ? 'alert-success' : 'alert-error'"
 		>
 			<span
-				x-bind:class="getCode() === 0 ? 'text-success-content bg-success' : 'text-error-content bg-error'"
-				x-text="`${getCode()} : ${getOutput()}`"
+				x-bind:class="getStatusCode() === 0 ? 'text-success-content bg-success' : 'text-error-content bg-error'"
+				x-text="`${getStatusCode()} : ${getOutput()}`"
 				class="prose"
 			></span>
 		</div>
@@ -125,29 +124,29 @@ templ submit(id string) {
 }
 
 templ codeEditor(language string, content string) {
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/emacs.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/sublime.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/vim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/emacs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/sublime.min.js"></script>
 	// require css in base.templ
-	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.js"></script>
+	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.js"></script>
 	// does not require css
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js"></script>
-	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/anyword-hint.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchbrackets.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/closebrackets.min.js"></script>
+	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/anyword-hint.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 	<div>
-		<textarea id="code"></textarea>
+		<textarea id="codemirror"></textarea>
 		<script>
-			let editor = undefined;
-			let enable = false;
-			let keymap = "default";
+			let editor = undefined
+			let enable = false
+			let keymap = "default"
 			function setKeymap(newKeymap) {
-				keymap = newKeymap;
-				updateKeymap();
+				keymap = newKeymap
+				updateKeymap()
 			}
 			function toggleKeymap() {
-				enable = !enable;
-				updateKeymap();
+				enable = !enable
+				updateKeymap()
 			}
 			function updateKeymap() {
 				if (enable) {
@@ -156,12 +155,16 @@ templ codeEditor(language string, content string) {
 					editor.setOption('keyMap', "default")
 				}
 			}
-			function setContent(content) {
-				editor.setValue(content)
+			function debounce(fn, delay) {
+				let timeout
+				return function(...args) {
+					clearTimeout(timeout)
+					timeout = setTimeout(() => fn(...args), delay)
+				}
 			}
 
 			document.addEventListener('alpine:init', () => {
-		    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+		    editor = CodeMirror.fromTextArea(document.getElementById("codemirror"), {
 		        mode: {{ language }},
 		        lineNumbers: true,
 						lineSeparator: false,
@@ -171,19 +174,31 @@ templ codeEditor(language string, content string) {
 						autoCloseBrackets: true,
 						matchBrackets: true,
 						// extraKeys: {"Ctrl-K": "autocomplete"},
-						
-		    });
+		    })
 
-				var arrows = [37, 38, 39, 40]
+				// var arrows = [37, 38, 39, 40]
 
-				editor.on("keyup", function(cm, e) {
-				  if (arrows.indexOf(e.keyCode) < 0) {
-				    editor.execCommand("autocomplete")
-				  }
-				})
+				// editor.on("keyup", function(cm, e) {
+				//   if (arrows.indexOf(e.keyCode) < 0) {
+				//     editor.execCommand("autocomplete")
+				//   }
+				// })
 
-				setContent({{ content }});
-			});
+				let data = Alpine.$data(document.getElementById("submitData"))
+		    const saveToLocalStorage = debounce((cm) => {
+					data.saveCode(cm.getValue())
+		    }, 1000)
+
+		    editor.on("change", (cm) => {
+					saveToLocalStorage(cm)
+		    })
+
+				if (Alpine.$data(document.getElementById("submitData")).getCode() !== "") {
+					editor.setValue(Alpine.$data(document.getElementById("submitData")).getCode())
+				} else {
+					editor.setValue({{ content }})
+				}
+			})
 	  </script>
 	</div>
 	// Custom theme based on daisy

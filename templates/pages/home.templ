@@ -8,8 +8,8 @@ import (
 )
 
 templ homeContent(sheet models.SheetTempl) {
-	@submitDataScript(sheet.Id, sheet.NbPage)
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full" x-data="submitData">
+	@submitDataScript(sheet.Id)
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full" id="submitData" x-data="submitData">
 		@leftPanel(sheet)
 		@rightPanel(sheet)
 	</div>
@@ -39,16 +39,16 @@ templ NextContent(sheet models.SheetTempl) {
 		@partials.ExerciseContent(sheet.ExerciseContent)
 	</div>
 	<script>
-		setContent({{sheet.SubmissionContent}})
+		editor.setValue({{ sheet.SubmissionContent }})
 	</script>
 }
 
 templ Home(fromHtmx bool, sheet models.SheetTempl) {
 	// core of codemirror
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
 	// languagss
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js"></script>
-	<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor) }></script>
+	<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor) }></script>
 	if fromHtmx {
 		<title id="title" hx-swap-oob="#title">NexZap - Home</title>
 		@homeContent(sheet)
@@ -60,37 +60,49 @@ templ Home(fromHtmx bool, sheet models.SheetTempl) {
 }
 
 // TODO : put the code inside
-templ submitDataScript(id string, page int) {
+// TODO : remove page as id is unique per sheet ?
+templ submitDataScript(id string) {
 	<script>
-		function submitData() {
-			return {
+		document.addEventListener('alpine:init', () => {
+	    Alpine.data('submitData', () => ({
 				loading: false,
-				key: {{ fmt.Sprintf("%s:%d", id, page) }},
-				code: this.$persist({}).as("code"),
-				output: this.$persist({}).as("output"),
+				key: {{ id }},
+				statusCode: Alpine.$persist({}).as("statusCode"),
+				output: Alpine.$persist({}).as("output"),
+				code: Alpine.$persist({}).as("code"),
 				updateStatus(event) {
 					response = JSON.parse(event.detail.xhr.responseText)
-					this.code[this.key] = response.code
+					this.statusCode[this.key] = response.statusCode
 					this.output[this.key] = response.output
 				},
-				updatePage(event) {
-					const sheetId = event.detail.xhr.getResponseHeader('X-Sheet-Id');
-					const page = event.detail.xhr.getResponseHeader('X-Page');
-					this.key = `${sheetId}:${page}`;
-				},
-				getCode() {
-					if (!(this.key in this.code)) {
-						this.code[this.key] = -1;
+				updateSheet(event) {
+					this.key = event.detail.xhr.getResponseHeader('X-Sheet-Id')
+					if (this.key in this.code && this.code[this.key] !== "") {
+						editor.setValue(this.code[this.key])
 					}
-					return this.code[this.key]
+				},
+				getStatusCode() {
+					if (!(this.key in this.statusCode)) {
+						this.statusCode[this.key] = -1
+					}
+					return this.statusCode[this.key]
 				},
 				getOutput() {
 					if (!(this.key in this.output)) {
-						this.output[this.key] = "";
+						this.output[this.key] = ""
 					}
 					return this.output[this.key]
 				},
-			}
-		}
+				getCode() {
+					if (!(this.key in this.code)) {
+						this.code[this.key] = ""
+					}
+					return this.code[this.key]
+				},
+				saveCode(content) {
+					this.code[this.key] = content
+				}
+			}))
+		})
 	</script>
 }
