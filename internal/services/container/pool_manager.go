@@ -21,8 +21,6 @@ const (
 	CONTAINER_TIMEOUT = 15 * time.Second
 	// time before we signal there's no container available
 	WAIT_TIMEOUT = 10 * time.Second
-	// number of container of margin
-	CONTAINER_MARGIN = 2
 )
 
 type Tutorial struct {
@@ -36,7 +34,6 @@ type Pool struct {
 }
 
 func NewPool() Pool {
-	log.Println("Creating a new container pool")
 	return Pool{pool: make(map[string]ImagePool)}
 }
 
@@ -46,10 +43,8 @@ func (p *Pool) GetImagePool(ctx context.Context, cli *client.Client, tutorial Tu
 	p.Lock()
 	defer p.Unlock()
 	if lp, ok := p.pool[tutorial.Image]; ok {
-		log.Println("Returning existing image pool for", tutorial.Image)
 		return lp
 	}
-	log.Println("Creating new image pool for", tutorial.Image)
 	p.newImage(ctx, cli, tutorial)
 	return p.pool[tutorial.Image]
 }
@@ -61,7 +56,6 @@ func (p *Pool) newImage(
 	cli *client.Client,
 	lang Tutorial,
 ) {
-	log.Println("Initializing new image pool for", lang.Image)
 	// Create the language
 	language := ImagePool{
 		MinPool:         make(chan string, MIN_CTN),
@@ -119,7 +113,6 @@ type ImagePool struct {
 // The language pool can create new containers to keep a margin.
 // You must free it after usage.
 func (lp *ImagePool) GetContainer(ctx context.Context, cli *client.Client) (string, error) {
-	log.Println("Getting container from pool for image", lp.language.Image)
 	// Check if container in MinPool
 	select {
 	case c := <-lp.MinPool:
@@ -164,7 +157,6 @@ func (lp *ImagePool) FreeContainer(
 	cli *client.Client,
 	ctn string,
 ) {
-	log.Println("Returning container", ctn, "to pool for image", lp.language.Image)
 	// First try to give it to MinPool
 	select {
 	case lp.MinPool <- ctn:
@@ -183,7 +175,6 @@ func (lp *ImagePool) FreeContainer(
 
 // extendContainer extends the container pool if there's still slot available
 func extendContainer(ctx context.Context, cli *client.Client, lp *ImagePool) {
-	log.Println("Attempting to extend container pool for image", lp.language.Image)
 	select {
 	case lp.extensionSlots <- struct{}{}:
 		go createAndAddContainer(ctx, cli, lp)
@@ -193,7 +184,6 @@ func extendContainer(ctx context.Context, cli *client.Client, lp *ImagePool) {
 
 // createAndAddContainer creates a new container and adds it to the extended pool.
 func createAndAddContainer(ctx context.Context, cli *client.Client, lp *ImagePool) {
-	log.Println("Creating and adding new container for image", lp.language.Image)
 	resp, err := createContainer(ctx, cli, lp.language)
 	if err != nil {
 		<-lp.extensionSlots
@@ -209,10 +199,8 @@ func (p *Pool) cleanImage(ctx context.Context, cli *client.Client, name string) 
 	defer p.Unlock()
 	language, ok := p.pool[name]
 	if !ok {
-		log.Println("Image", name, "not found in pool for cleaning")
 		return
 	}
-	log.Println("Cleaning image pool for", name)
 	close(language.MinPool)
 	close(language.ExtendedPool)
 	for ctn := range language.MinPool {
@@ -223,7 +211,6 @@ func (p *Pool) cleanImage(ctx context.Context, cli *client.Client, name string) 
 
 // CleanAll is not concurrent safe !
 func (p *Pool) CleanAll(ctx context.Context, cli *client.Client) {
-	log.Println("Cleaning all image pools")
 	for imageName := range p.pool {
 		p.cleanImage(ctx, cli, imageName)
 		delete(p.pool, imageName)

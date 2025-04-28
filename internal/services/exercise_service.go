@@ -52,11 +52,6 @@ func (s *ExerciseService) RunTest(correction Correction, payload string) (string
 		Image:   correction.DockerImage,
 		Command: strings.Split(correction.Command, " "),
 	}
-	languagePool := s.pool.GetImagePool(s.ctx, s.cli, tutorial)
-	ctn, err := languagePool.GetContainer(s.ctx, s.cli)
-	if err != nil {
-		return "", container.RunResponse{}, err
-	}
 
 	files := []container.File{}
 	for i := range correction.FilesName {
@@ -69,9 +64,25 @@ func (s *ExerciseService) RunTest(correction Correction, payload string) (string
 		Name:    correction.SubmissionName,
 		Content: payload,
 	})
-	output, status, err := container.Run(s.ctx, s.cli, ctn, files)
-	languagePool.FreeContainer(s.ctx, s.cli, ctn)
-	return output, status, err
+
+	languagePool := s.pool.GetImagePool(s.ctx, s.cli, tutorial)
+	ctn, err := languagePool.GetContainer(s.ctx, s.cli)
+	if err != nil {
+		return "", container.RunResponse{}, err
+	}
+	for range 3 {
+		output, status, err := container.Run(s.ctx, s.cli, ctn, files)
+		languagePool.FreeContainer(s.ctx, s.cli, ctn)
+		if err == nil {
+			return output, status, nil
+		}
+		fmt.Println(err)
+		ctn, err = languagePool.GetContainer(s.ctx, s.cli)
+		if err != nil {
+			return "", container.RunResponse{}, err
+		}
+	}
+	return "", container.RunResponse{}, fmt.Errorf("unexpected error in retry loop")
 }
 
 // Cleanup stops and removes all containers in the pool.

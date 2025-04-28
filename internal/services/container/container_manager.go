@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"time"
@@ -21,7 +22,6 @@ func Run(
 	ctn string,
 	files []File,
 ) (string, RunResponse, error) {
-	log.Println("Running container", ctn, "with provided files")
 	var err error
 	defer func() {
 		if err != nil {
@@ -73,24 +73,33 @@ func Run(
 }
 
 // createContainer Creates a new container. If the WarmupDir is not empty, runs a warmup phase.
-// TODO : manage the network to limit access of spawned container to avoid them
-// accessing the db or other
 func createContainer(
 	ctx context.Context,
 	cli *client.Client,
 	lang Tutorial,
 ) (container.CreateResponse, error) {
-	log.Println("Creating container for image", lang.Image)
 	var emptyResp container.CreateResponse
 
-	// Create container
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image:      lang.Image,
 		Cmd:        lang.Command,
 		WorkingDir: "/workspace",
 		Tty:        false,
-	}, nil, nil, nil, "")
+	}, &container.HostConfig{
+		CapDrop: []string{"ALL"},
+		CapAdd:  []string{},
+		// Prevent mounting the Docker socket or other sensitive paths
+		Binds: nil,
+		Resources: container.Resources{
+			Memory:    512 * 1024 * 1024,
+			CPUQuota:  100000,
+			CPUPeriod: 100000,
+		},
+		// Isolate from host network for additional security
+		NetworkMode: "none",
+	}, nil, nil, "")
 	if err != nil {
+		fmt.Println(err)
 		StopAndRemove(ctx, cli, resp.ID) // in case the error still creates the container
 		return emptyResp, err
 	}
@@ -100,7 +109,6 @@ func createContainer(
 
 // StopAndRemove stops and removes a container.
 func StopAndRemove(ctx context.Context, cli *client.Client, id string) {
-	log.Println("Stopping and removing container", id)
 	timeout := 10
 	if err := cli.ContainerStop(ctx, id, container.StopOptions{Timeout: &timeout}); err != nil {
 		if !client.IsErrNotFound(err) {
@@ -122,7 +130,6 @@ type File struct {
 
 // createTarArchive creates a tar archive from the provided files.
 func createTarArchive(files []File) (*bytes.Buffer, error) {
-	log.Println("Creating tar archive from provided files")
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
 	defer tw.Close()
