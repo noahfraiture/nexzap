@@ -2,6 +2,7 @@
 WITH tutorial AS (
   INSERT INTO tutorials (title, highlight, code_editor, version, unlock)
   VALUES (@title, @highlight, @code_editor, @version, @unlock)
+  ON CONFLICT (title, version) DO NOTHING -- TODO: check that
   RETURNING id
 ), sheet AS (
   INSERT INTO sheets (

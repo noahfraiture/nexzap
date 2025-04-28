@@ -226,6 +226,7 @@ const insertTutorial = `-- name: InsertTutorial :many
 WITH tutorial AS (
   INSERT INTO tutorials (title, highlight, code_editor, version, unlock)
   VALUES ($1, $2, $3, $4, $5)
+  ON CONFLICT (title, version) DO NOTHING -- TODO: check that
   RETURNING id
 ), sheet AS (
   INSERT INTO sheets (

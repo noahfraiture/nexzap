@@ -1,6 +1,6 @@
 # What is Go?
 
-Go is a compiled programming language that produces a single binary, making deployment a breeze. It comes with the `go` tool to build projects, manage packages, or scaffold new ones. Go tries to be a new C++ like a lot of langauges.
+Go is a compiled programming language that produces a single binary, making deployment a breeze. It comes with the `go` tool to build projects, manage packages, or create new ones. Go tries to be a new C++ like a lot of languages.
 
 ```go
 package main
@@ -19,7 +19,7 @@ func Divide(a int, b int) int {
 - **Statically Typed with Type Inference**: Variables need a type at compile time, but Go’s compiler can infer them. Strict type checking catches errors before runtime.
 - **Minimalist Syntax**: With ~25 keywords, Go avoids complex abstractions like classes, using structs and interfaces instead.
 - **Concurrency with Goroutines**: Go’s goroutines—lightweight threads managed by the Go runtime—make concurrent programming simple. Channels help goroutines communicate safely.
-- **Standard Library**: A robust set of packages for HTTP, file handling, and JSON parsing lets you build apps without reaching for external libraries.
+- **Standard Library**: A robust set of packages for HTTP, file handling, JSON parsing and many others lets you build apps without reaching for external libraries.
 - **Explicit Design**: No built-in `map`, `filter`, or `reduce`. You’ll write your own loops, keeping code clear but sometimes verbose.
 
 ## Pros
