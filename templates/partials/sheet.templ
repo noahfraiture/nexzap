@@ -57,7 +57,7 @@ templ ExercisePanel(sheet models.SheetTempl) {
 }
 
 templ ExerciseContent(content string) {
-	<div class="md:overflow-y-auto md:grow prose">
+	<div class="md:overflow-y-auto md:grow prose max-w-none">
 		@templ.Raw(content)
 	</div>
 }
