@@ -18,7 +18,6 @@ func (app *App) HomeHandler(w http.ResponseWriter, r *http.Request) {
 	sheet := models.NewSheetTempl(
 		tutorial.ID.String(),
 		tutorial.Title,
-		tutorial.Highlight,
 		tutorial.CodeEditor,
 		tutorial.GuideContent,
 		tutorial.ExerciseContent,

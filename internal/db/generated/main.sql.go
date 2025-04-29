@@ -73,7 +73,6 @@ func (q *Queries) FindCorrectionSheet(ctx context.Context) ([]FindCorrectionShee
 const findLastTutorialSheet = `-- name: FindLastTutorialSheet :one
 SELECT
   tu.title,
-  tu.highlight,
   tu.code_editor,
   s.id,
   s.guide_content,
@@ -96,7 +95,6 @@ LIMIT
 
 type FindLastTutorialSheetRow struct {
 	Title             string
-	Highlight         string
 	CodeEditor        string
 	ID                uuid.UUID
 	GuideContent      string
@@ -111,7 +109,6 @@ func (q *Queries) FindLastTutorialSheet(ctx context.Context, page int32) (FindLa
 	var i FindLastTutorialSheetRow
 	err := row.Scan(
 		&i.Title,
-		&i.Highlight,
 		&i.CodeEditor,
 		&i.ID,
 		&i.GuideContent,
@@ -224,8 +221,8 @@ func (q *Queries) InsertFiles(ctx context.Context, arg InsertFilesParams) error 
 
 const insertTutorial = `-- name: InsertTutorial :many
 WITH tutorial AS (
-  INSERT INTO tutorials (title, highlight, code_editor, version, unlock)
-  VALUES ($1, $2, $3, $4, $5)
+  INSERT INTO tutorials (title, code_editor, version, unlock)
+  VALUES ($1, $2, $3, $4)
   ON CONFLICT (title, version) DO NOTHING -- TODO: check that
   RETURNING id
 ), sheet AS (
@@ -242,14 +239,14 @@ WITH tutorial AS (
   )
   SELECT
     (SELECT id FROM tutorial),
-    unnest($6::integer[]),
+    unnest($5::integer[]),
+    unnest($6::text[]),
     unnest($7::text[]),
     unnest($8::text[]),
     unnest($9::text[]),
     unnest($10::text[]),
     unnest($11::text[]),
-    unnest($12::text[]),
-    unnest($13::text[])
+    unnest($12::text[])
   RETURNING id
 )
 SELECT id FROM sheet
@@ -257,7 +254,6 @@ SELECT id FROM sheet
 
 type InsertTutorialParams struct {
 	Title              string
-	Highlight          string
 	CodeEditor         string
 	Version            int32
 	Unlock             time.Time
@@ -274,7 +270,6 @@ type InsertTutorialParams struct {
 func (q *Queries) InsertTutorial(ctx context.Context, arg InsertTutorialParams) ([]uuid.UUID, error) {
 	rows, err := q.db.Query(ctx, insertTutorial,
 		arg.Title,
-		arg.Highlight,
 		arg.CodeEditor,
 		arg.Version,
 		arg.Unlock,

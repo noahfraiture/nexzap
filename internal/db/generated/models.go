@@ -34,7 +34,6 @@ type Sheet struct {
 type Tutorial struct {
 	ID         uuid.UUID
 	Title      string
-	Highlight  string
 	CodeEditor string
 	Version    int32
 	Unlock     time.Time

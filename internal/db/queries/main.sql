@@ -1,7 +1,7 @@
 -- name: InsertTutorial :many
 WITH tutorial AS (
-  INSERT INTO tutorials (title, highlight, code_editor, version, unlock)
-  VALUES (@title, @highlight, @code_editor, @version, @unlock)
+  INSERT INTO tutorials (title, code_editor, version, unlock)
+  VALUES (@title, @code_editor, @version, @unlock)
   ON CONFLICT (title, version) DO NOTHING -- TODO: check that
   RETURNING id
 ), sheet AS (
@@ -37,7 +37,6 @@ SELECT unnest(@names::text[]), unnest(@contents::text[]), @sheet_id;
 -- name: FindLastTutorialSheet :one
 SELECT
   tu.title,
-  tu.highlight,
   tu.code_editor,
   s.id,
   s.guide_content,

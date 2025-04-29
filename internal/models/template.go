@@ -3,7 +3,6 @@ package models
 type SheetTempl struct {
 	Id                string
 	Title             string
-	Highlight         string
 	CodeEditor        string
 	SheetContent      string
 	ExerciseContent   string
@@ -15,7 +14,6 @@ type SheetTempl struct {
 func NewSheetTempl(
 	id string,
 	title string,
-	highlight string,
 	codeEditor string,
 	sheetContent string,
 	exerciseContent string,
@@ -25,7 +23,6 @@ func NewSheetTempl(
 	return SheetTempl{
 		Id:                id,
 		Title:             title,
-		Highlight:         highlight,
 		CodeEditor:        codeEditor,
 		SheetContent:      sheetContent,
 		ExerciseContent:   exerciseContent,

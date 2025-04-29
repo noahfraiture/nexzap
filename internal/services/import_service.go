@@ -92,7 +92,6 @@ func (s *ImportService) ImportTutorialFromDir(path string) error {
 
 	tutorial := generated.InsertTutorialParams{
 		Title:              meta.Title,
-		Highlight:          meta.Highlight,
 		CodeEditor:         meta.CodeEditor,
 		Version:            int32(meta.Version),
 		Unlock:             meta.UnlockTime,
@@ -145,7 +144,6 @@ func (s *ImportService) insertTutorialAndFiles(
 // tutorialMeta holds metadata for a programming language tutorial.
 type tutorialMeta struct {
 	Title      string    `toml:"title"`
-	Highlight  string    `toml:"highlight"`
 	CodeEditor string    `toml:"codeEditor"`
 	Version    int       `toml:"version"`
 	UnlockTime time.Time `toml:"unlock"`

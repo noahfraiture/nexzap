@@ -4,8 +4,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE tutorials (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
   title TEXT NOT NULL,
-  highlight TEXT NOT NULL, -- TODO : useless, can remove
-  code_editor TEXT NOT NULL, -- TODO : remove if can or give methodo to have it in contributing.md
+  code_editor TEXT NOT NULL,
   version INTEGER NOT NULL DEFAULT 1,
   unlock TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW (),
