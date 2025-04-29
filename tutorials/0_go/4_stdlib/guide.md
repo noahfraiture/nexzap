@@ -1,6 +1,7 @@
 # The Go Standard Library
 
-Go’s standard library is a compact toolkit for tasks like JSON data handling, keeping projects lean. Let’s explore `encoding/json` with an example, plus the library’s pros and cons.
+Go's standard library stands out for its extensive, high-quality collection of packages, surpassing many other languages in scope and reliability. You can often solely rely on the standard library for complex project, without any external dependency.
+Go's standard library stands out for its comprehensive and high-quality collection of packages, surpassing many other languages in both scope and reliability. You can often rely solely on the standard library for complex projects without needing external dependencies.
 
 ## JSON Encoding and Decoding with encoding/json
 

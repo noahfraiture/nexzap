@@ -1,6 +1,6 @@
 # Concurrency in Go
 
-Go’s concurrency is a dream compared to C++’s threading nightmares, where you’re one mutex shy of chaos. With **goroutines** and **channels**, Go handles parallel tasks—like web requests or data crunching—smoothly. Let’s dive in.
+Go’s concurrency is a dream With **goroutines** and **channels**, Go handles parallel tasks—like web requests or data crunching—smoothly. Let’s dive in.
 
 ## Goroutines: Lightweight Threads
 
@@ -13,7 +13,7 @@ func worker(id int) {
     println("Worker", id, "done")
 }
 
-for i := 0; i < 1000; i++ {
+for range 1000 {
     go worker(i)
 }
 ```
@@ -22,25 +22,26 @@ This spawns 1000 goroutines, each printing a message, showing how Go scales effo
 
 ## Channels: Coordinating Work
 
-**Channels** enable safe data sharing between goroutines, preventing race conditions. Create with `make(chan Type)`, send with `<-`, and receive with `<-`.
+**Channels** enable safe data sharing between goroutines, preventing race conditions. Create with `make(chan Type)`, send with `ch<-`, and receive with `<-ch`.
 
 **Example**:
 
 ```go
 ch := make(chan int)
 sum := 0
-for i := 1; i <= 3; i++ {
+for i := range 3 {
     go func(n int) {
         ch <- n * n
     }(i)
 }
-for i := 0; i < 3; i++ {
+for range 3 {
     sum += <-ch
 }
 println("Sum of squares:", sum)
 ```
 
 This calculates squares concurrently, with channels collecting results safely. Getting the value from the channel is a blocking operation, so our main thread will wait on the line `sum += <-ch` until data have been pushed in the channel ch.
+It is possible to make buffered channel `make(chan int, 3)` that will block a send only when the channel is full.
 
 ## Why Use Them?
 

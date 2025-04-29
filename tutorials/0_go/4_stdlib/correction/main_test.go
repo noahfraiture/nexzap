@@ -43,9 +43,14 @@ func TestParseProfile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			name, age, hobbies, err := ParseProfile(tt.jsonStr)
-			if (err != nil) != tt.expectError {
-				t.Errorf("ParseProfile() error = %v, expectError %v", err, tt.expectError)
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("ParseProfile() except error but didn't find")
+				}
 				return
+			}
+			if err != nil {
+				t.Errorf("ParseProfile() receive unexpected err %v", err)
 			}
 			if name != tt.expectedName {
 				t.Errorf("ParseProfile() name = %v, expected %v", name, tt.expectedName)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	// import library here
+	// import library here and remove unused library to compile
 )
 
 func ReadFileContent(filename string) (string, error) {
