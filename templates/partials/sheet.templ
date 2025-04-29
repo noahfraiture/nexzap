@@ -7,7 +7,7 @@ import (
 )
 
 templ GuideContent(sheet models.SheetTempl) {
-	<div class="md:min-h-0 md:overflow-y-scroll md:grow prose max-w-none">
+	<div class="md:min-h-0 md:overflow-y-auto md:grow prose max-w-none">
 		@templ.Raw(sheet.SheetContent)
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/runmode/colorize.min.js"></script>
@@ -64,7 +64,7 @@ templ ExerciseContent(content string) {
 
 templ EditorPanel(sheet models.SheetTempl) {
 	<div
-		class="card card-body bg-base-200 shadow-lg flex flex-col md:flex-1 md:min-h-0"
+		class="card card-body bg-base-200 shadow-lg flex flex-col md:flex-1 md:min-h-0 md:overflow-y-auto"
 		x-data="{keymap: 'default', enabled: false}"
 	>
 		// Change the keymap
@@ -114,7 +114,7 @@ templ submit(id string) {
 		</form>
 		// Result
 		<div
-			class="alert shadow-lg overflow-y-scroll grow w-full p-4"
+			class="alert shadow-lg overflow-y-auto grow w-full p-4"
 			x-show="getStatusCode() !== -1 && !loading"
 			x-bind:class="getStatusCode() === 0 ? 'alert-success' : 'alert-error'"
 		>

@@ -63,8 +63,6 @@ templ Home(fromHtmx bool, sheet models.SheetTempl) {
 	}
 }
 
-// TODO : put the code inside
-// TODO : remove page as id is unique per sheet ?
 templ submitDataScript(id string) {
 	<script>
 		document.addEventListener('alpine:init', () => {
