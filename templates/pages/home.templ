@@ -95,7 +95,7 @@ templ submitDataScript(id string) {
 					}
 					return this.output[this.key]
 				},
-				getCode() {
+				getSavedCode() {
 					if (!(this.key in this.code)) {
 						this.code[this.key] = ""
 					}
@@ -103,6 +103,9 @@ templ submitDataScript(id string) {
 				},
 				saveCode(content) {
 					this.code[this.key] = content
+				},
+				getKey() {
+					return this.key
 				}
 			}))
 		})

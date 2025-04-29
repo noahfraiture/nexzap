@@ -100,19 +100,21 @@ templ submit(id string) {
 			x-on:htmx:before-request="loading = true"
 			x-on:htmx:after-request="loading = false; updateStatus(event)"
 		>
-			<input type="hidden" name="sheet" value={ id }/>
-			<input type="hidden" name="payload" id="payload" value=""/>
+			// NOTE : keep these as hidden, else the value loose \n and is invalid
+			<input type="hidden" name="sheet" x-model="getKey()"/>
+			<input type="hidden" name="payload" id="payload"/>
 			<button
 				type="submit"
 				class="btn btn-primary w-32"
-				x-on:click="document.getElementById('payload').value = editor.getValue();"
 				x-bind:disabled="loading"
+				x-on:click="document.getElementById('payload').value = getEditorCode();"
 			>
 				<span class="card-actions" x-show="!loading">Submit</span>
 				<span x-show="loading" class="loading loading-spinner text-primary"></span>
 			</button>
 		</form>
 		// Result
+		// TODO : output on multiple line
 		<div
 			class="alert shadow-lg overflow-y-auto grow w-full p-4"
 			x-show="getStatusCode() !== -1 && !loading"
@@ -166,13 +168,20 @@ templ codeEditor(language string, content string) {
 					timeout = setTimeout(() => fn(...args), delay)
 				}
 			}
+			function getEditorCode() {
+				if (editor === undefined) {
+					return ""
+				} else {
+					return editor.getValue()
+				}
+			}
 
 			document.addEventListener('alpine:init', () => {
 		    editor = CodeMirror.fromTextArea(document.getElementById("codemirror"), {
 		        mode: {{ language }},
 		        lineNumbers: true,
 						lineSeparator: false,
-		        theme: "daisyui", // FIX not complete enough
+		        theme: "daisyui",
 						indentUnit: 4,
 						lineWrapping: true,
 						autoCloseBrackets: true,
@@ -197,8 +206,8 @@ templ codeEditor(language string, content string) {
 					saveToLocalStorage(cm)
 		    })
 
-				if (Alpine.$data(document.getElementById("submitData")).getCode() !== "") {
-					editor.setValue(Alpine.$data(document.getElementById("submitData")).getCode())
+				if (data.getSavedCode() !== "") {
+					editor.setValue(data.getSavedCode())
 				} else {
 					editor.setValue({{ content }})
 				}

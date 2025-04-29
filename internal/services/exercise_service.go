@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"nexzap/internal/services/container"
 	"strings"
+	"time"
 
 	generated "nexzap/internal/db/generated"
 
@@ -43,6 +44,7 @@ func (s *ExerciseService) init() error {
 
 type Correction = generated.FindSubmissionDataRow
 
+// TODO : message clietn side on error in running
 // RunTest executes the provided files in test mode for a given language.
 func (s *ExerciseService) RunTest(correction Correction, payload string) (string, container.RunResponse, error) {
 	if !s.initialized {
@@ -54,11 +56,13 @@ func (s *ExerciseService) RunTest(correction Correction, payload string) (string
 	}
 
 	files := []container.File{}
-	for i := range correction.FilesName {
-		files = append(files, container.File{
-			Name:    correction.FilesName[i],
-			Content: correction.FilesContent[i],
-		})
+	for i, name := range correction.FilesName {
+		if name != correction.SubmissionName {
+			files = append(files, container.File{
+				Name:    correction.FilesName[i],
+				Content: correction.FilesContent[i],
+			})
+		}
 	}
 	files = append(files, container.File{
 		Name:    correction.SubmissionName,
@@ -70,16 +74,23 @@ func (s *ExerciseService) RunTest(correction Correction, payload string) (string
 	if err != nil {
 		return "", container.RunResponse{}, err
 	}
-	for range 3 {
-		output, status, err := container.Run(s.ctx, s.cli, ctn, files)
+	for attempt := range 3 {
+		timeoutCtx, cancel := context.WithTimeout(s.ctx, 30*time.Second)
+		defer cancel()
+
+		output, status, err := container.Run(timeoutCtx, s.cli, ctn, files)
 		languagePool.FreeContainer(s.ctx, s.cli, ctn)
 		if err == nil {
 			return output, status, nil
 		}
-		fmt.Println(err)
+		fmt.Printf("Attempt %d failed: %v\n", attempt, err)
 		ctn, err = languagePool.GetContainer(s.ctx, s.cli)
 		if err != nil {
 			return "", container.RunResponse{}, err
+		}
+		// Wait before retrying, but only if this isn't the last attempt
+		if attempt < 3 {
+			time.Sleep(3 * time.Second)
 		}
 	}
 	return "", container.RunResponse{}, fmt.Errorf("unexpected error in retry loop")

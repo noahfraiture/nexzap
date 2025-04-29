@@ -1,6 +1,7 @@
 package container
 
 import (
+	"log"
 	"time"
 )
 
@@ -18,17 +19,18 @@ func NewTimeout(duration time.Duration, action func()) *Timeout {
 		duration: duration,
 		action:   action,
 	}
-	t.StartTimer()
 	return t
 }
 
 // StartTimer starts or resets the timer for the Timeout.
 func (t *Timeout) StartTimer() {
-	// Stop the timer if it's already running
 	if !t.timer.Stop() {
-		<-t.timer.C
+		select {
+		case <-t.timer.C:
+			log.Fatalf("Timer should already been drained")
+		default:
+		}
 	}
-	// Reset the timer to start fresh
 	t.timer.Reset(t.duration)
 
 	go func() {

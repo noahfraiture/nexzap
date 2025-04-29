@@ -55,7 +55,7 @@ func Run(
 
 	logs, err := cli.ContainerLogs(ctx, ctn, container.LogsOptions{
 		ShowStdout: true,
-		ShowStderr: false,
+		ShowStderr: true,
 		Since:      startTime.Format(time.RFC3339),
 	})
 	if err != nil {

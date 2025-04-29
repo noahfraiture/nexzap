@@ -74,19 +74,35 @@ func (app *App) ImportHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process each directory as a tutorial
+	sucess := []string{}
+	errs := []string{}
 	for _, entry := range entries {
 		if entry.IsDir() {
 			tutorialPath := filepath.Join(tempDir, entry.Name())
 			err = app.ImportService.ImportTutorialFromDir(tutorialPath)
 			if err != nil {
-				http.Error(w, fmt.Sprintf("Failed to import tutorial %s: %v", entry.Name(), err), http.StatusInternalServerError)
-				return
+				errs = append(errs, fmt.Sprintf("%s: %v", entry.Name(), err))
+			} else {
+				sucess = append(sucess, entry.Name())
 			}
 		}
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Tutorials uploaded successfully"))
+	response := "Tutorials uploaded successfully:\n"
+	if len(sucess) > 0 {
+		response += "Success:\n"
+		for _, s := range sucess {
+			response += fmt.Sprintf("- %s\n", s)
+		}
+	}
+	if len(errs) > 0 {
+		response += "Errors:\n"
+		for _, e := range errs {
+			response += fmt.Sprintf("- %s\n", e)
+		}
+	}
+	w.Write([]byte(response))
 }
 
 // extractZip extracts a zip file to the specified destination, preventing ZipSlip.
