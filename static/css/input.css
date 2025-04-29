@@ -1,10 +1,46 @@
 @import "tailwindcss" source(none);
-@plugin "@tailwindcss/typography";
-
-/* TODO : use cdn with minimum */ 
-@plugin "../js/daisyui.js" { 
-  themes: dracula --default;
-}
-
+/* File use for watch */
 @source "../../templates";
 @source "./input.css";
+
+@plugin "@tailwindcss/typography";
+
+@plugin "daisyui" { 
+  themes: pastelHard --default, dracula --prefersdark;
+}
+
+@plugin "daisyui/theme" {
+  name: "pastelHard";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(98.462% 0.001 247.838);
+  --color-base-300: oklch(92.462% 0.001 247.838);
+  --color-base-content: oklch(20% 0 0);
+  --color-primary: oklch(71% 0.203 305.504);
+  --color-primary-content: oklch(38% 0.176 304.987);
+  --color-secondary: oklch(71% 0.194 13.428);
+  --color-secondary-content: oklch(41% 0.159 10.272);
+  --color-accent: oklch(76% 0.177 163.223);
+  --color-accent-content: oklch(37% 0.077 168.94);
+  --color-neutral: oklch(37% 0.044 257.287);
+  --color-neutral-content: oklch(92% 0.013 255.508);
+  --color-info: oklch(78% 0.154 211.53);
+  --color-info-content: oklch(45% 0.085 224.283);
+  --color-success: oklch(79% 0.209 151.711);
+  --color-success-content: oklch(44% 0.119 151.328);
+  --color-warning: oklch(75% 0.183 55.934);
+  --color-warning-content: oklch(47% 0.157 37.304);
+  --color-error: oklch(70% 0.191 22.216);
+  --color-error-content: oklch(44% 0.177 26.899);
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 2px;
+  --depth: 0;
+  --noise: 0;
+}
+

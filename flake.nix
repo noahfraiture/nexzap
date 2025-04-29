@@ -47,7 +47,7 @@
     {
       devShells."x86_64-linux".default = pkgs.mkShell {
 
-        buildInputs = with pkgs; [
+        buildInputs = [
         ];
 
         packages = with pkgs; [
@@ -55,6 +55,7 @@
           templ
           tailwindcss_4
           sqlc
+          nodejs
         ];
 
         DIRENV = "NexZap";
@@ -63,7 +64,7 @@
       packages.${system} = {
         nexzap = pkgs.dockerTools.buildImage {
           name = "nexzap";
-          tag = "latest";
+          tag = "prod";
           created = "now";
           copyToRoot = pkgs.buildEnv {
             name = "image-root";

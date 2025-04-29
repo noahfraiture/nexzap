@@ -5,3 +5,4 @@ start.sh
 .helix
 .task/checksum
 result
+node_modules
