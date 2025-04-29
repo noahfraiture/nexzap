@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 
 	"github.com/google/uuid"
 )
@@ -48,19 +47,10 @@ func (app *App) SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		Output     string `json:"output"`
 		StatusCode int    `json:"statusCode"`
 	}{
-		Output:     sanitize(output),
+		Output:     app.SheetService.Sanitize(output),
 		StatusCode: int(status.StatusCode),
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
-}
-
-// TODO : move that shit
-// Define the regex pattern globally for efficiency
-var sanitizeRegex = regexp.MustCompile(`[^\x20-\x7E\n\t]`)
-
-// Function to sanitize the output
-func sanitize(output string) string {
-	return sanitizeRegex.ReplaceAllString(output, "")
 }

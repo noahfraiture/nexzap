@@ -146,7 +146,6 @@ func (p *MarkdownParser) processCodeBlock(line string) bool {
 		p.flushParagraph()
 		p.inCodeBlock = false
 		code := strings.Join(p.codeLines, "\n")
-		// TODO : use language
 		partials.Snippet(code).Render(context.Background(), &p.output)
 		p.codeLines = nil
 		p.language = ""

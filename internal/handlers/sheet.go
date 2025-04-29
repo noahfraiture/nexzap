@@ -9,7 +9,6 @@ import (
 )
 
 // TODO : cache the tutorial
-// TODO : limit page and return error if not present
 func (app *App) SheetHandler(w http.ResponseWriter, r *http.Request) {
 	pageParam := r.URL.Query().Get("page")
 	pageIndex := 1

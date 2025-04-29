@@ -4,19 +4,22 @@ import (
 	"context"
 	"nexzap/internal/db"
 	generated "nexzap/internal/db/generated"
+	"regexp"
 )
 
 // SheetService handles operations related to tutorial sheets
 type SheetService struct {
-	db       *db.Database
-	markdown *MarkdownParser
+	db          *db.Database
+	markdown    *MarkdownParser
+	sanitizeReg *regexp.Regexp
 }
 
 // NewSheetService creates a new SheetService with the given database
 func NewSheetService(database *db.Database) *SheetService {
 	return &SheetService{
-		db:       database,
-		markdown: NewMarkdownParser(),
+		db:          database,
+		markdown:    NewMarkdownParser(),
+		sanitizeReg: regexp.MustCompile(`[^\x20-\x7E\n\t]`),
 	}
 }
 
@@ -37,4 +40,8 @@ func (s *SheetService) LastTutorialPage(page int) (*FindTutorialSheetModelSelect
 	tutorial.GuideContent = s.markdown.ParseMarkdown(tutorial.GuideContent)
 	tutorial.ExerciseContent = s.markdown.ParseMarkdown(tutorial.ExerciseContent)
 	return &tutorial, nil
+}
+
+func (s *SheetService) Sanitize(content string) string {
+	return s.sanitizeReg.ReplaceAllString(content, "")
 }
