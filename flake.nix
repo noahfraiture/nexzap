@@ -51,6 +51,7 @@
         ];
 
         packages = with pkgs; [
+          zip
           go-task
           templ
           tailwindcss_4

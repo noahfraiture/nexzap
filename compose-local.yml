@@ -7,6 +7,7 @@ services:
       - POSTGRES_DB=nexzap
     ports:
       - "5432:5432"
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nexzap"]
       interval: 10s

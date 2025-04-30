@@ -1,6 +1,6 @@
 services:
   nexzap:
-    image: nexzap:latest
+    image: nexzap:prod
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nexzap.rule=Host(`nexzap.app`)"
