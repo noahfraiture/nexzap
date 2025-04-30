@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -30,27 +29,35 @@ func (app *App) SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	submissionData, err := app.Database.GetRepository().FindSubmissionData(context.Background(), sheetUUID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to retrieve submission data. Error : %s", err), http.StatusInternalServerError)
-		return
-	}
-
-	output, status, err := app.ExerciseService.RunTest(submissionData, payload)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to run test. Error: %s", err), http.StatusInternalServerError)
-	}
-
 	// Respond with JSON containing the output and status code
 	w.Header().Set("Content-Type", "application/json")
 	response := struct {
 		Output     string `json:"output"`
 		StatusCode int    `json:"statusCode"`
 	}{
-		Output:     app.SheetService.Sanitize(output),
-		StatusCode: int(status.StatusCode),
+		Output:     "",
+		StatusCode: 0,
 	}
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	defer func() {
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
+	}()
+
+	submissionData, err := app.Database.GetRepository().FindSubmissionData(context.Background(), sheetUUID)
+	if err != nil {
+		response.Output = "Failed to retrieve submission data"
+		response.StatusCode = 520
+		return
 	}
+
+	output, status, err := app.ExerciseService.RunTest(submissionData, payload)
+	if err != nil {
+		response.Output = "Failed to run the code"
+		response.StatusCode = 520
+		return
+	}
+
+	response.Output = app.SheetService.Sanitize(output)
+	response.StatusCode = int(status.StatusCode)
 }

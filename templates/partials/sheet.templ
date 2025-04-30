@@ -114,17 +114,16 @@ templ submit(id string) {
 			</button>
 		</form>
 		// Result
-		// TODO : output on multiple line
 		<div
 			class="alert shadow-lg overflow-y-auto grow w-full p-4"
 			x-show="getStatusCode() !== -1 && !loading"
-			x-bind:class="getStatusCode() === 0 ? 'alert-success' : 'alert-error'"
+			x-bind:class="getStatusCode() === 0 ? 'alert-success' : getStatusCode() === 520 ? 'alert-warning' : 'alert-error'"
 		>
-			<span
-				x-bind:class="getStatusCode() === 0 ? 'text-success-content bg-success' : 'text-error-content bg-error'"
-				x-text="`${getStatusCode()} : ${getOutput()}`"
+			<pre
+				x-bind:class="getStatusCode() === 0 ? 'text-success-content bg-success' : getStatusCode() === 520 ? 'text-warning-content bg-warning' : 'text-error-content bg-error'"
+				x-text="`Status : ${getStatusCode()}\n${getOutput()}`"
 				class="prose"
-			></span>
+			></pre>
 		</div>
 	</div>
 }

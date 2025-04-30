@@ -337,7 +337,7 @@ func submit(id string) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"flex flex-col gap-4 md:min-h-0\"><form class=\"flex justify-center\" hx-post=\"/submit\" hx-swap=\"none\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false; updateStatus(event)\"><input type=\"hidden\" name=\"sheet\" x-model=\"getKey()\"> <input type=\"hidden\" name=\"payload\" id=\"payload\"> <button type=\"submit\" class=\"btn btn-primary w-32\" x-bind:disabled=\"loading\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = getEditorCode();\"><span class=\"card-actions\" x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form><div class=\"alert shadow-lg overflow-y-auto grow w-full p-4\" x-show=\"getStatusCode() !== -1 &amp;&amp; !loading\" x-bind:class=\"getStatusCode() === 0 ? &#39;alert-success&#39; : &#39;alert-error&#39;\"><span x-bind:class=\"getStatusCode() === 0 ? &#39;text-success-content bg-success&#39; : &#39;text-error-content bg-error&#39;\" x-text=\"`${getStatusCode()} : ${getOutput()}`\" class=\"prose\"></span></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"flex flex-col gap-4 md:min-h-0\"><form class=\"flex justify-center\" hx-post=\"/submit\" hx-swap=\"none\" x-on:htmx:before-request=\"loading = true\" x-on:htmx:after-request=\"loading = false; updateStatus(event)\"><input type=\"hidden\" name=\"sheet\" x-model=\"getKey()\"> <input type=\"hidden\" name=\"payload\" id=\"payload\"> <button type=\"submit\" class=\"btn btn-primary w-32\" x-bind:disabled=\"loading\" x-on:click=\"document.getElementById(&#39;payload&#39;).value = getEditorCode();\"><span class=\"card-actions\" x-show=\"!loading\">Submit</span> <span x-show=\"loading\" class=\"loading loading-spinner text-primary\"></span></button></form><div class=\"alert shadow-lg overflow-y-auto grow w-full p-4\" x-show=\"getStatusCode() !== -1 &amp;&amp; !loading\" x-bind:class=\"getStatusCode() === 0 ? &#39;alert-success&#39; : getStatusCode() === 520 ? &#39;alert-warning&#39; : &#39;alert-error&#39;\"><pre x-bind:class=\"getStatusCode() === 0 ? &#39;text-success-content bg-success&#39; : getStatusCode() === 520 ? &#39;text-warning-content bg-warning&#39; : &#39;text-error-content bg-error&#39;\" x-text=\"`Status : ${getStatusCode()}\\n${getOutput()}`\" class=\"prose\"></pre></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -372,7 +372,7 @@ func codeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var14, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(language)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 181, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 180, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
@@ -384,7 +384,7 @@ func codeEditor(language string, content string) templ.Component {
 		}
 		templ_7745c5c3_Var15, templ_7745c5c3_Err := templruntime.ScriptContentOutsideStringLiteral(content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 212, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/partials/sheet.templ`, Line: 211, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 		if templ_7745c5c3_Err != nil {

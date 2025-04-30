@@ -44,7 +44,6 @@ func (s *ExerciseService) init() error {
 
 type Correction = generated.FindSubmissionDataRow
 
-// TODO : message clietn side on error in running
 // RunTest executes the provided files in test mode for a given language.
 func (s *ExerciseService) RunTest(correction Correction, payload string) (string, container.RunResponse, error) {
 	if !s.initialized {
