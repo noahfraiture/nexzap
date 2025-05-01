@@ -46,6 +46,10 @@ func SetupRouter(app *App) {
 	http.HandleFunc("/", app.HomeHandler)
 	http.HandleFunc("/sheet", app.SheetHandler)
 	http.HandleFunc("/submit", app.SubmitHandler)
+
+	// TODO : protect route
+	// the import route create problem with the "unable to create file"
+	// it might be better to remove it and create data on deploy only
 	http.HandleFunc("/import", app.ImportHandler)
 	http.HandleFunc("/nuke", func(w http.ResponseWriter, r *http.Request) {
 		if err := app.Database.NukeDatabase(); err != nil {

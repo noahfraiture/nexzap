@@ -7,6 +7,17 @@ services:
       - "traefik.http.routers.nexzap.entrypoints=websecure"
       - "traefik.http.routers.nexzap.tls.certresolver=myresolver"
       - "traefik.http.services.nexzap.loadbalancer.server.port=8080"
+    environment:
+      - POSTGRES_USER=nexzap
+      - POSTGRES_DB=nexzap
+      - POSTGRES_PASSWORD_FILE=/run/secrets/nexzap-postgres-password
+      - POSTGRES_HOST=nexzap_postgres
+      - POSTGRES_PORT=5432
+      - ENV=dev
+      - MIGRATIONS_PATH=file://migrations
+      - TUTORIALS_PATH=/tutorials
+    secrets:
+      - nexzap-postgres-password
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -21,10 +32,12 @@ services:
     image: postgres:17-alpine3.21
     environment:
       - POSTGRES_USER=nexzap
-      - POSTGRES_PASSWORD=nexzap
+      - POSTGRES_PASSWORD_FILE=/run/secrets/nexzap-postgres-password
       - POSTGRES_DB=nexzap
     ports:
       - "5432:5432"
+    secrets:
+      - nexzap-postgres-password
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nexzap"]
       interval: 10s
@@ -37,6 +50,9 @@ services:
 
 volumes:
   postgres_data:
+secrets:
+  nexzap-postgres-password:
+    external: true
 networks:
   traefik:
     external: true

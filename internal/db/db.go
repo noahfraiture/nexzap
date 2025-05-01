@@ -35,13 +35,12 @@ func NewDatabase() (*Database, error) {
 	var err error
 	creds := getCredentials()
 	connStr := fmt.Sprintf(
-		"user=%s password=%s host=%s port=%s dbname=%s host=%s",
+		"user=%s password=%s host=%s port=%s dbname=%s",
 		creds.user,
 		creds.password,
 		creds.host,
 		creds.port,
 		creds.database,
-		creds.host,
 	)
 
 	// Simple retry mechanism with exponential backoff
@@ -139,8 +138,11 @@ func getCredentials() credentials {
 	if db := os.Getenv("POSTGRES_DB"); db != "" {
 		creds.database = db
 	}
-	if password, err := getPassword(); err == nil {
+	password, err := getPassword()
+	if err == nil {
 		creds.password = password
+	} else {
+		fmt.Println(err)
 	}
 	return creds
 }
