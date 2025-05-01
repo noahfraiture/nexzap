@@ -13,6 +13,26 @@ type App struct {
 	MarkdownService *services.MarkdownParser
 	SheetService    *services.SheetService
 	ImportService   *services.ImportService
+	HistoryService  *services.HistoryService
+}
+
+func NewApp(
+	database *db.Database,
+	exerciseService *services.ExerciseService,
+	markdownService *services.MarkdownParser,
+	sheetService *services.SheetService,
+	importService *services.ImportService,
+	historyService *services.HistoryService,
+
+) *App {
+	return &App{
+		Database:        database,
+		ExerciseService: exerciseService,
+		MarkdownService: markdownService,
+		SheetService:    sheetService,
+		ImportService:   importService,
+		HistoryService:  historyService,
+	}
 }
 
 // SetupRouter configures the HTTP router with handlers

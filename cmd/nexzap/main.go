@@ -34,14 +34,16 @@ func main() {
 	sheetService := services.NewSheetService(database)
 	markdownService := services.NewMarkdownParser()
 	importService := services.NewImportService(database)
+	historyService := services.NewHistoryService(database)
 
-	app := &handlers.App{
-		Database:        database,
-		ExerciseService: exerciseService,
-		MarkdownService: markdownService,
-		SheetService:    sheetService,
-		ImportService:   importService,
-	}
+	app := handlers.NewApp(
+		database,
+		exerciseService,
+		markdownService,
+		sheetService,
+		importService,
+		historyService,
+	)
 
 	// Nuke and populate the database (only in development)
 	if os.Getenv("ENV") == "dev" {

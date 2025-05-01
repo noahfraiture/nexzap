@@ -1,8 +1,9 @@
 package layouts
 
 import "nexzap/templates/partials"
+import "nexzap/internal/models"
 
-templ Base(title string) {
+templ Base(title string, tutorials []models.ListTutorialTempl) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -21,7 +22,7 @@ templ Base(title string) {
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 		</head>
 		<div class="flex flex-col h-screen">
-			@partials.Nav()
+			@partials.Nav(tutorials)
 			<main id="main" class="p-4 flex-1 min-h-0">
 				{ children... }
 			</main>

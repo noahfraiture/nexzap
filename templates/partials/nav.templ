@@ -1,10 +1,15 @@
 package partials
 
-templ Nav() {
+import "nexzap/internal/models"
+
+templ Nav(tutorials []models.ListTutorialTempl) {
 	<div class="navbar bg-primary text-primary-content px-4 flex justify-between">
-		<a hx-get="/" hx-push-url="true" hx-target="#main" class="btn btn-ghost text-lg font-semibold">NexZap</a>
-		<a href="https://buymeacoffee.com/noahcode" target="_blank" class="btn btn-soft btn-primary text-sm font-semibold">
-			Buy me a coffee
-		</a>
+		<a href="/" class="btn btn-ghost text-lg font-semibold">NexZap</a>
+		<div class="flex flex-row gap-4">
+			@HistoryModal(tutorials)
+			<a href="https://buymeacoffee.com/noahcode" target="_blank" class="btn btn-soft text-primary">
+				Buy me a coffee
+			</a>
+		</div>
 	</div>
 }

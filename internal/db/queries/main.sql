@@ -36,8 +36,9 @@ SELECT unnest(@names::text[]), unnest(@contents::text[]), @sheet_id;
 -- name: FindLastTutorialSheet :one
 SELECT
   tu.title,
+  tu.id AS tutorial_id,
   tu.code_editor,
-  s.id,
+  s.id AS sheet_id,
   s.guide_content,
   s.exercise_content,
   s.page,
@@ -48,6 +49,30 @@ FROM
   JOIN sheets s ON s.tutorial_id = tu.id
 WHERE
   s.page = @page
+  AND tu.unlock < NOW ()
+ORDER BY
+  tu.unlock DESC,
+  tu.version DESC
+LIMIT
+  1;
+
+-- name: FindSpecificTutorialSheet :one
+SELECT
+  tu.title,
+  tu.id AS tutorial_id,
+  tu.code_editor,
+  s.id AS sheet_id,
+  s.guide_content,
+  s.exercise_content,
+  s.page,
+  s.submission_content,
+  (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
+FROM
+  tutorials tu
+  JOIN sheets s ON s.tutorial_id = tu.id
+WHERE
+  s.page = @page
+  AND tu.id = @tutorial_id
   AND tu.unlock < NOW ()
 ORDER BY
   tu.unlock DESC,
@@ -69,3 +94,15 @@ WHERE
   s.id = @sheet_id
 GROUP BY
   s.id, s.docker_image, s.command, s.submission_name;
+
+-- name: ListTutorials :many
+SELECT id, title
+FROM (
+  SELECT
+    id,
+    title,
+    ROW_NUMBER() OVER (PARTITION BY title ORDER BY version DESC) AS rn
+  FROM tutorials
+  WHERE unlock < NOW ()
+) t
+WHERE rn = 1;

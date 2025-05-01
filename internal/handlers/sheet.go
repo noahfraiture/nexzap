@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"nexzap/internal/models"
 	"nexzap/internal/services"
@@ -20,25 +22,68 @@ func (app *App) SheetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	tutorial, err := app.SheetService.LastTutorialPage(pageIndex)
-	if err != nil {
-		tutorial = &services.FindTutorialSheetModelSelect{Title: "Error"}
+	tutorialId := r.URL.Query().Get("tutorial")
+
+	var sheet models.SheetTempl
+	if tutorialId != "" {
+		tutorial, err := app.SheetService.SpecificTutorialPage(tutorialId, pageIndex)
+		if err != nil {
+			fmt.Println(err)
+			tutorial = &services.FindSpecificTutorialSheetModelSelect{Title: "Error"}
+		}
+		sheet = models.NewSheetTempl(
+			tutorial.SheetID.String(),
+			tutorial.TutorialID.String(),
+			tutorial.Title,
+			tutorial.CodeEditor,
+			tutorial.GuideContent,
+			tutorial.ExerciseContent,
+			tutorial.SubmissionContent,
+			pageIndex,
+			int(tutorial.TotalPages),
+			false,
+		)
+	} else {
+		tutorial, err := app.SheetService.LastTutorialPage(pageIndex)
+		if err != nil {
+			tutorial = &services.FindLastTutorialSheetModelSelect{Title: "Error"}
+		}
+		sheet = models.NewSheetTempl(
+			tutorial.SheetID.String(),
+			tutorial.TutorialID.String(),
+			tutorial.Title,
+			tutorial.CodeEditor,
+			tutorial.GuideContent,
+			tutorial.ExerciseContent,
+			tutorial.SubmissionContent,
+			pageIndex,
+			int(tutorial.TotalPages),
+			true,
+		)
 	}
-	sheet := models.NewSheetTempl(
-		tutorial.ID.String(),
-		tutorial.Title,
-		tutorial.CodeEditor,
-		tutorial.GuideContent,
-		tutorial.ExerciseContent,
-		tutorial.SubmissionContent,
-		pageIndex,
-		int(tutorial.TotalPages),
-	)
+
+	var tutorialsTempl []models.ListTutorialTempl
+	if !isFromHtmx(r) {
+		tutorials, err := app.HistoryService.ListTutorials()
+		if err == nil {
+			tutorialsTempl = make([]models.ListTutorialTempl, len(tutorials))
+			for i, tuto := range tutorials {
+				tutorialsTempl[i] = models.NewListTutorial(tuto.ID.String(), tuto.Title)
+			}
+		} else {
+			log.Println(err)
+		}
+	}
 
 	// Set headers for sheet ID and page number
 	w.Header().Set("X-Sheet-ID", sheet.Id)
-	pages.NextContent(
+	err := pages.NextContent(
 		isFromHtmx(r),
 		sheet,
+		tutorialsTempl,
 	).Render(r.Context(), w)
+	if err != nil {
+		log.Println(err)
+	}
+
 }

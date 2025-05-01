@@ -6,7 +6,15 @@ import (
 	"strconv"
 )
 
-templ GuideContent(sheet models.SheetTempl) {
+templ Guide(sheet models.SheetTempl) {
+	<h2 class="card-title text-primary">{ sheet.Title }</h2>
+	<div class="flex flex-col md:min-h-0 md:grow">
+		@guideContent(sheet)
+		@buttons(sheet)
+	</div>
+}
+
+templ guideContent(sheet models.SheetTempl) {
 	<div class="md:min-h-0 md:overflow-y-auto md:grow prose max-w-none">
 		@templ.Raw(sheet.SheetContent)
 	</div>
@@ -22,14 +30,22 @@ templ GuideContent(sheet models.SheetTempl) {
 	</script>
 }
 
-templ Buttons(sheet models.SheetTempl) {
+func getNextUrl(base string, isLast bool, page int, id string) string {
+	if isLast {
+		return fmt.Sprintf("%s?page=%d", base, page)
+	} else {
+		return fmt.Sprintf("%s?page=%d&tutorial=%s", base, page, id)
+	}
+}
+
+templ buttons(sheet models.SheetTempl) {
 	<div class="flex justify-center items-center gap-4 mt-4">
 		if sheet.NbPage > 1 {
 			<button
 				type="button"
 				class="btn btn-primary"
-				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage-1) }
-				hx-target="#sheet"
+				hx-get={ getNextUrl("/sheet", sheet.IsLast, sheet.NbPage-1, sheet.TutorialId) }
+				hx-target="#left-panel"
 				hx-swap="innerHTML show:#left-panel:top"
 				hx-push-url="true"
 				x-on:htmx:after-request="updateSheet(event)"
@@ -40,8 +56,8 @@ templ Buttons(sheet models.SheetTempl) {
 			<button
 				type="button"
 				class="btn btn-primary"
-				hx-get={ fmt.Sprintf("/sheet?page=%d", sheet.NbPage+1) }
-				hx-target="#sheet"
+				hx-get={ getNextUrl("/sheet", sheet.IsLast, sheet.NbPage+1, sheet.TutorialId) }
+				hx-target="#left-panel"
 				hx-swap="innerHTML show:#left-panel:top"
 				hx-push-url="true"
 				x-on:htmx:after-request="updateSheet(event)"
@@ -128,6 +144,7 @@ templ submit(id string) {
 	</div>
 }
 
+// TODO : resolve blink
 templ codeEditor(language string, content string) {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/vim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/emacs.min.js"></script>

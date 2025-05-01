@@ -17,11 +17,7 @@ templ homeContent(sheet models.SheetTempl) {
 
 templ leftPanel(sheet models.SheetTempl) {
 	<div id="left-panel" class="card card-border card-body bg-base-200 shadow-lg flex flex-col md:min-h-0">
-		<h2 class="card-title text-primary">{ sheet.Title }</h2>
-		<div id="sheet" class="flex flex-col md:min-h-0 md:grow">
-			@partials.GuideContent(sheet)
-			@partials.Buttons(sheet)
-		</div>
+		@partials.Guide(sheet)
 	</div>
 }
 
@@ -32,32 +28,39 @@ templ rightPanel(sheet models.SheetTempl) {
 	</div>
 }
 
-templ NextContent(fromHtmx bool, sheet models.SheetTempl) {
+templ NextContent(fromHtmx bool, sheet models.SheetTempl, tutorials []models.ListTutorialTempl) {
 	if fromHtmx {
-		@partials.GuideContent(sheet)
-		@partials.Buttons(sheet)
+		@partials.Guide(sheet)
 		<div id="test" hx-swap-oob="innerHTML">
 			@partials.ExerciseContent(sheet.ExerciseContent)
 		</div>
-		<script>
-			editor.setValue({{ sheet.SubmissionContent }})
-		</script>
+		<div id="language-script" hx-swap-oob="true">
+			<script>
+				function setEditorMode() {
+					editor.setOption("mode", {{ sheet.CodeEditor }})
+					editor.setValue({{ sheet.SubmissionContent }})
+				}
+			</script>
+			<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor) } onload="setEditorMode()"></script>
+		</div>
 	} else {
-		@Home(fromHtmx, sheet)
+		@Home(fromHtmx, sheet, tutorials)
 	}
 }
 
-templ Home(fromHtmx bool, sheet models.SheetTempl) {
+templ Home(fromHtmx bool, sheet models.SheetTempl, tutorials []models.ListTutorialTempl) {
 	// core of codemirror
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
-	// languagss
+	// languages
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js"></script>
-	<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor) }></script>
+	<div id="language-script">
+		<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor) }></script>
+	</div>
 	if fromHtmx {
 		<title id="title" hx-swap-oob="#title">NexZap - Home</title>
 		@homeContent(sheet)
 	} else {
-		@layouts.Base("NexZap - Home") {
+		@layouts.Base("NexZap - Home", tutorials) {
 			@homeContent(sheet)
 		}
 	}

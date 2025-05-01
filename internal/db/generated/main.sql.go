@@ -15,8 +15,9 @@ import (
 const findLastTutorialSheet = `-- name: FindLastTutorialSheet :one
 SELECT
   tu.title,
+  tu.id AS tutorial_id,
   tu.code_editor,
-  s.id,
+  s.id AS sheet_id,
   s.guide_content,
   s.exercise_content,
   s.page,
@@ -37,8 +38,9 @@ LIMIT
 
 type FindLastTutorialSheetRow struct {
 	Title             string
+	TutorialID        uuid.UUID
 	CodeEditor        string
-	ID                uuid.UUID
+	SheetID           uuid.UUID
 	GuideContent      string
 	ExerciseContent   string
 	Page              int32
@@ -51,8 +53,68 @@ func (q *Queries) FindLastTutorialSheet(ctx context.Context, page int32) (FindLa
 	var i FindLastTutorialSheetRow
 	err := row.Scan(
 		&i.Title,
+		&i.TutorialID,
 		&i.CodeEditor,
-		&i.ID,
+		&i.SheetID,
+		&i.GuideContent,
+		&i.ExerciseContent,
+		&i.Page,
+		&i.SubmissionContent,
+		&i.TotalPages,
+	)
+	return i, err
+}
+
+const findSpecificTutorialSheet = `-- name: FindSpecificTutorialSheet :one
+SELECT
+  tu.title,
+  tu.id AS tutorial_id,
+  tu.code_editor,
+  s.id AS sheet_id,
+  s.guide_content,
+  s.exercise_content,
+  s.page,
+  s.submission_content,
+  (SELECT COUNT(page) FROM sheets sh WHERE sh.tutorial_id = tu.id) as total_pages
+FROM
+  tutorials tu
+  JOIN sheets s ON s.tutorial_id = tu.id
+WHERE
+  s.page = $1
+  AND tu.id = $2
+  AND tu.unlock < NOW ()
+ORDER BY
+  tu.unlock DESC,
+  tu.version DESC
+LIMIT
+  1
+`
+
+type FindSpecificTutorialSheetParams struct {
+	Page       int32
+	TutorialID uuid.UUID
+}
+
+type FindSpecificTutorialSheetRow struct {
+	Title             string
+	TutorialID        uuid.UUID
+	CodeEditor        string
+	SheetID           uuid.UUID
+	GuideContent      string
+	ExerciseContent   string
+	Page              int32
+	SubmissionContent string
+	TotalPages        int64
+}
+
+func (q *Queries) FindSpecificTutorialSheet(ctx context.Context, arg FindSpecificTutorialSheetParams) (FindSpecificTutorialSheetRow, error) {
+	row := q.db.QueryRow(ctx, findSpecificTutorialSheet, arg.Page, arg.TutorialID)
+	var i FindSpecificTutorialSheetRow
+	err := row.Scan(
+		&i.Title,
+		&i.TutorialID,
+		&i.CodeEditor,
+		&i.SheetID,
 		&i.GuideContent,
 		&i.ExerciseContent,
 		&i.Page,
@@ -188,6 +250,44 @@ func (q *Queries) InsertTutorial(ctx context.Context, arg InsertTutorialParams) 
 			return nil, err
 		}
 		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTutorials = `-- name: ListTutorials :many
+SELECT id, title
+FROM (
+  SELECT
+    id,
+    title,
+    ROW_NUMBER() OVER (PARTITION BY title ORDER BY version DESC) AS rn
+  FROM tutorials
+  WHERE unlock < NOW ()
+) t
+WHERE rn = 1
+`
+
+type ListTutorialsRow struct {
+	ID    uuid.UUID
+	Title string
+}
+
+func (q *Queries) ListTutorials(ctx context.Context) ([]ListTutorialsRow, error) {
+	rows, err := q.db.Query(ctx, listTutorials)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListTutorialsRow
+	for rows.Next() {
+		var i ListTutorialsRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

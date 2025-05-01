@@ -1,0 +1,46 @@
+package partials
+
+import (
+	"fmt"
+	"nexzap/internal/models"
+)
+
+func getHistoryUrl(base string, id string) string {
+	return fmt.Sprintf("%s?tutorial=%s", base, id)
+}
+
+templ HistoryModal(tutorials []models.ListTutorialTempl) {
+	<div x-data="{open: false}">
+		<button class="btn btn-soft text-primary" x-on:click="open = true">History</button>
+		<dialog class="modal" x-bind:open="open">
+			<div class="modal-box bg-base-100 rounded-lg shadow-lg">
+				<h3 class="text-lg font-bold text-base-content mb-4">Tutorial History</h3>
+				<div class="flex flex-wrap gap-4 p-4">
+					for _, tutorial := range tutorials {
+						<button
+							type="button"
+							class="card btn"
+							hx-get={ getHistoryUrl("/sheet", tutorial.ID) }
+							hx-target="#left-panel"
+							hx-swap="innerHTML"
+							hx-push-url="true"
+							x-on:htmx:after-request="open = false"
+						>
+							<h2 class="card-title text-base-content text-base">{ tutorial.Title }</h2>
+						</button>
+					}
+				</div>
+				// close button
+				<div class="modal-action">
+					<form method="dialog">
+						<button x-on:click="open = false" class="btn btn-outline btn-primary">Close</button>
+					</form>
+				</div>
+			</div>
+			// close on click outside or press escape
+			<form method="dialog" class="modal-backdrop">
+				<button x-on:click="open = false"></button>
+			</form>
+		</dialog>
+	</div>
+}
