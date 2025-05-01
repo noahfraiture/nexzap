@@ -2,13 +2,29 @@ mod submission;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::submission::divide_length;
 
     #[test]
-    fn test_count_char() {
-        assert_eq!(submission::count_char("hello", 'l'), 2, "Should count 2 'l's in 'hello'");
-        assert_eq!(submission::count_char("rust", 'x'), 0, "Should count 0 'x's in 'rust'");
-        assert_eq!(submission::count_char("", 'a'), 0, "Should count 0 in empty string");
-        assert_eq!(submission::count_char("aaa", 'a'), 3, "Should count 3 'a's in 'aaa'");
+    fn test_divide_length_basic() {
+        let result = divide_length(Some("hello"), 2);
+        assert_eq!(result, Ok(2)); // "hello".len() = 5, 5 / 2 = 2
+    }
+
+    #[test]
+    fn test_divide_length_none_input() {
+        let result = divide_length(None, 3);
+        assert_eq!(result, Ok(0)); // None => length = 0, 0 / 3 = 0
+    }
+
+    #[test]
+    fn test_divide_length_zero_divisor() {
+        let result = divide_length(Some("hi"), 0);
+        assert_eq!(result, Err("Division by zero".to_string())); // Divisor = 0 => error
+    }
+
+    #[test]
+    fn test_divide_length_empty_string() {
+        let result = divide_length(Some(""), 4);
+        assert_eq!(result, Ok(0)); // "".len() = 0, 0 / 4 = 0
     }
 }

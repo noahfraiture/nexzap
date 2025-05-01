@@ -1,3 +1,3 @@
-pub fn count_char(s: &str, c: char) -> usize {
-    s.chars().filter(|i| *i == c).count()
+pub fn process_names(names: Vec<String>) -> Vec<String> {
+    names
 }

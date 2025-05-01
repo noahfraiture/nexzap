@@ -1,3 +1,3 @@
-pub fn count_char(s: &str, c: char) -> usize {
-    s.chars().filter(|i| *i == c).count()
+pub fn divide_length(input: Option<&str>, divisor: i32) -> Result<i32, String> {
+    Ok(0)
 }

@@ -1,4 +1,6 @@
-# Rust Iterators Cheat Sheet
+# Rust Iterators
+
+Iterators are just one of Rust’s many features—not a core pillar, but I picked them because they’re super cool and fun to explore!
 
 ## Basics
 

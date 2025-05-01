@@ -21,7 +21,8 @@ fn main() {
     println!("{}", x);            // Works! x still owns 42
 }
 
-fn takes_ownership(text: String) {
+fn takes_ownership(mut text: String) {
+    text.push_str(" Mom!")
     println!("{}", text); // text owns the String, dropped when function ends
 }
 

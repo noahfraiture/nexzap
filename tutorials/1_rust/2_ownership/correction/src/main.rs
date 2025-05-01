@@ -2,13 +2,36 @@ mod submission;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::submission::append_and_count;
+    use std::string::String;
 
     #[test]
-    fn test_count_char() {
-        assert_eq!(submission::count_char("hello", 'l'), 2, "Should count 2 'l's in 'hello'");
-        assert_eq!(submission::count_char("rust", 'x'), 0, "Should count 0 'x's in 'rust'");
-        assert_eq!(submission::count_char("", 'a'), 0, "Should count 0 in empty string");
-        assert_eq!(submission::count_char("aaa", 'a'), 3, "Should count 3 'a's in 'aaa'");
+    fn test_append_and_count_basic() {
+        let mut input_string = String::from("Hello");
+        let suffix = " World";
+        let new_length = append_and_count(&mut input_string, suffix);
+
+        assert_eq!(new_length, 11); // "Hello World" has length 11
+        assert_eq!(input_string, "Hello World"); // Ensure the string was modified
+    }
+
+    #[test]
+    fn test_append_and_count_empty_string() {
+        let mut input_string = String::new(); // Empty string
+        let suffix = "Rust";
+        let new_length = append_and_count(&mut input_string, suffix);
+
+        assert_eq!(new_length, 4); // "Rust" has length 4
+        assert_eq!(input_string, "Rust"); // Ensure the string was modified
+    }
+
+    #[test]
+    fn test_append_and_count_empty_suffix() {
+        let mut input_string = String::from("Hello");
+        let suffix = ""; // Empty suffix
+        let new_length = append_and_count(&mut input_string, suffix);
+
+        assert_eq!(new_length, 5); // "Hello" still has length 5
+        assert_eq!(input_string, "Hello"); // No change
     }
 }

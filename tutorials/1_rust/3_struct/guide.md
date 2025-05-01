@@ -12,12 +12,12 @@ Rust’s data and behavior tools—**structs**, **enums**, **traits**, and **imp
 **Example**:
 
 ```rust
-struct Person {
+pub struct Person {
     name: String,
     age: u32,
 }
 
-enum Message {
+pub enum Message {
     Text(String),
     Image,
 }

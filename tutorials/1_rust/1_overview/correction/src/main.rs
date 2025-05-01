@@ -5,10 +5,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_count_char() {
-        assert_eq!(submission::count_char("hello", 'l'), 2, "Should count 2 'l's in 'hello'");
-        assert_eq!(submission::count_char("rust", 'x'), 0, "Should count 0 'x's in 'rust'");
-        assert_eq!(submission::count_char("", 'a'), 0, "Should count 0 in empty string");
-        assert_eq!(submission::count_char("aaa", 'a'), 3, "Should count 3 'a's in 'aaa'");
+    fn test_string_length() {
+        assert_eq!(submission::string_length("hello"), 5, "Should return 5 for 'hello'");
+        assert_eq!(submission::string_length("rust"), 4, "Should return 4 for 'rust'");
+        assert_eq!(submission::string_length(""), 0, "Should return 0 for empty string");
+        assert_eq!(submission::string_length("aaa"), 3, "Should return 3 for 'aaa'");
     }
 }

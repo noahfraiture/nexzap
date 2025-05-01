@@ -1,3 +1,3 @@
-pub fn count_char(s: &str, c: char) -> usize {
-    s.chars().filter(|i| *i == c).count()
+pub fn append_and_count(s: &mut String, suffix: &str) -> usize {
+    0
 }

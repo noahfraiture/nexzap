@@ -2,13 +2,42 @@ mod submission;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::submission::process_names;
 
     #[test]
-    fn test_count_char() {
-        assert_eq!(submission::count_char("hello", 'l'), 2, "Should count 2 'l's in 'hello'");
-        assert_eq!(submission::count_char("rust", 'x'), 0, "Should count 0 'x's in 'rust'");
-        assert_eq!(submission::count_char("", 'a'), 0, "Should count 0 in empty string");
-        assert_eq!(submission::count_char("aaa", 'a'), 3, "Should count 3 'a's in 'aaa'");
+    fn test_process_names_basic() {
+        let input = vec![
+            "Jo".to_string(),
+            "Anna".to_string(),
+            "Robert".to_string(),
+            "Li".to_string(),
+        ];
+        let expected = vec!["ANNA".to_string(), "ROBERT".to_string()];
+        let result = process_names(input);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_process_names_empty() {
+        let input: Vec<String> = vec![];
+        let expected: Vec<String> = vec![];
+        let result = process_names(input);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_process_names_all_short() {
+        let input = vec!["Jo".to_string(), "Li".to_string(), "Sam".to_string()];
+        let expected: Vec<String> = vec![];
+        let result = process_names(input);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_process_names_all_valid() {
+        let input = vec!["Anna".to_string(), "Bethany".to_string()];
+        let expected = vec!["ANNA".to_string(), "BETHANY".to_string()];
+        let result = process_names(input);
+        assert_eq!(result, expected);
     }
 }

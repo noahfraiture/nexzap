@@ -2,13 +2,21 @@ mod submission;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::submission::{Contact, Greet};
 
     #[test]
-    fn test_count_char() {
-        assert_eq!(submission::count_char("hello", 'l'), 2, "Should count 2 'l's in 'hello'");
-        assert_eq!(submission::count_char("rust", 'x'), 0, "Should count 0 'x's in 'rust'");
-        assert_eq!(submission::count_char("", 'a'), 0, "Should count 0 in empty string");
-        assert_eq!(submission::count_char("aaa", 'a'), 3, "Should count 3 'a's in 'aaa'");
+    fn test_greet_person() {
+        let contact = Contact::Person {
+            name: String::from("Alice"),
+            phone: String::from("123"),
+        };
+        assert_eq!(contact.greet(), "Hi, I'm Alice!".to_string());
     }
+
+    #[test]
+    fn test_greet_email() {
+        let contact = Contact::Email(String::from("bob@example.com"));
+        assert_eq!(contact.greet(), "bob@example.com".to_string());  // Uses default
+    }
+    // Do not test print_greeting
 }

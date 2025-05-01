@@ -1,14 +1,29 @@
-## Task: Filter and Transform a Number List
+## Task: Filter and Transform Names
 
-In this exercise, you will use Rust’s iterators to filter and transform a vector of numbers, leveraging lazy evaluation and common iterator methods.
+In this exercise, you’ll practice Rust’s iterator methods to process a vector of names, filtering and transforming them based on specific conditions.
 
 ### Instructions
 
-Write a function `process_numbers(nums: &[i32]) -> Vec<i32>` that takes a slice of integers, filters out non-positive numbers, doubles the remaining numbers, and collects the result into a `Vec<i32>`. Use `filter` and `map` in a chained iterator expression. In `main`, test with `[1, -2, 3, 0, 4]`.
+Write a function `process_names(names: Vec<String>) -> Vec<String>` that:
+- Takes a `Vec<String>` containing names.
+- Uses iterators to:
+  - Filter out names shorter than 4 characters.
+  - Transform the remaining names to uppercase.
+  - Collect the results into a new `Vec<String>`.
+- Use at least `filter` and `map` iterator methods, and chain them for conciseness.
 
 #### Example:
+- Input: `vec!["Jo".to_string(), "Anna".to_string(), "Robert".to_string(), "Li".to_string()]`
+- Output: `vec!["ANNA".to_string(), "ROBERT".to_string()]`
 
-- Input: `[1, -2, 3, 0, 4]`
-- Output: `[2, 6, 8]`
+> **Note**: Use `iter()` to avoid taking ownership of the vector’s elements, and ensure the solution is efficient by chaining operations.
 
-> **Note**: Ensure `fn main` is defined and print the result.
+---
+
+This exercise is small but requires thinking about:
+- Iterator method chaining with `filter` and `map`.
+- Working with `String` and string methods (e.g., `len()`, `to_uppercase()`).
+- Using `iter()` for borrowing to preserve the input vector.
+- Collecting results into the correct output type.
+
+Give it a try, and if you want, share your solution or ask for feedback!
