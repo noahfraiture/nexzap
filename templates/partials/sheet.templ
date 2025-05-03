@@ -150,11 +150,9 @@ templ codeEditor(language string, content string) {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/emacs.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/sublime.min.js"></script>
 	// require css in base.templ
-	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.js"></script>
 	// does not require css
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchbrackets.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/closebrackets.min.js"></script>
-	// <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/anyword-hint.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 	<div>
 		<textarea id="codemirror"></textarea>
@@ -202,16 +200,7 @@ templ codeEditor(language string, content string) {
 						lineWrapping: true,
 						autoCloseBrackets: true,
 						matchBrackets: true,
-						// extraKeys: {"Ctrl-K": "autocomplete"},
 		    })
-
-				// var arrows = [37, 38, 39, 40]
-
-				// editor.on("keyup", function(cm, e) {
-				//   if (arrows.indexOf(e.keyCode) < 0) {
-				//     editor.execCommand("autocomplete")
-				//   }
-				// })
 
 				let data = Alpine.$data(document.getElementById("submitData"))
 		    const saveToLocalStorage = debounce((cm) => {

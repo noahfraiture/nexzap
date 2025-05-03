@@ -11,10 +11,19 @@ templ Base(title string, tutorials []models.ListTutorialTempl) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title id="title">{ title }</title>
 			<link rel="stylesheet" href="/static/css/style.css"/>
+			// Analytics
+			<!-- Google tag (gtag.js) -->
+			<script async src="https://www.googletagmanager.com/gtag/js?id=G-71RFBQLRHB"></script>
+			<script>
+			  window.dataLayer = window.dataLayer || [];
+			  function gtag(){dataLayer.push(arguments);}
+			  gtag('js', new Date());
+
+			  gtag('config', 'G-71RFBQLRHB');
+			</script>
 			// Codemirror
-			// update to code mirror 6
+			// TODO : update to code mirror 6
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css"/>
-			// <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.css"/>
 			// Htmx
 			<script src="https://unpkg.com/htmx.org@2.0.4"></script>
 			// Alpine
