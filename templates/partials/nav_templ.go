@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "nexzap/internal/models"
 
+// TODO : fix when open modal, size change
 func Nav(tutorials []models.ListTutorialTempl) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

@@ -1,11 +1,8 @@
-
 # Rust Error Management Cheat Sheet
 
 Rust’s error handling is explicit, using `Option` and `Result` to make code safe but sometimes verbose. This short tutorial covers the basics with quick explanations and tiny examples. Great for robust apps, less so for rapid scripting.
 
----
-
-## `Option<T>` & `Result<T, E>`: Handling Absence and Errors
+## Option<T> & Result<T, E>: Handling Absence and Errors
 
 **What**: 
 - `Option<T>`: `Some(T)` (value) or `None` (no value). For optional data.
@@ -20,9 +17,7 @@ println!("{:?}", process(Some("hi"), 2)); // Ok(1)
 println!("{:?}", process(None, 0)); // Err("Zero!")
 ```
 
----
-
-## `match`: Pattern Matching
+## match: Pattern Matching
 
 **What**: A pattern-matching tool for handling `Option`/`Result` and more, ensuring all cases are covered.
 **Why**: Precise control, but can be verbose.
@@ -37,9 +32,7 @@ fn check(n: Option<i32>) -> &str {
 println!("{}", check(Some(5))); // Positive
 ```
 
----
-
-## Methods: `unwrap`, `unwrap_or`, `map`
+## Methods: unwrap, unwrap_or, map
 
 **What**: 
 - `unwrap()`: Gets value or panics. Avoid!
@@ -54,9 +47,7 @@ println!("{}", n.unwrap_or(0)); // 2
 println!("{}", n.map(|x| x * 2).unwrap_or(0)); // 4
 ```
 
----
-
-## `?` Operator: Error Propagation
+## ? Operator: Error Propagation
 
 **What**: Unwraps `Some`/`Ok` or returns `None`/`Err` early.
 **Why**: Cuts boilerplate, but needs matching return types.
@@ -67,19 +58,3 @@ fn parse(s: &str) -> Result<i32, &str> {
 }
 println!("{:?}", parse("42")); // Ok(42)
 ```
-
----
-
-## Tips
-- **Pros**: Catches errors early, enforces safety.
-- **Cons**: Verbose for quick scripts.
-- **Best Practices**: Use `?` for propagation, skip `unwrap`, keep errors clear.
-
----
-
-## Quick Exercise
-1. Return first char of `Option<&str>` as `Option<char>`.
-2. Parse string to `i32` with `Result` using `?`.
-3. Double `Option<i32>` with `map`, default to 0.
-
-Tame those errors and have fun!
