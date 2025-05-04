@@ -8,9 +8,7 @@ package partials
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "nexzap/internal/models"
-
-func Nav(tutorials []models.ListTutorialTempl) templ.Component {
+func InfoModal() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -31,19 +29,7 @@ func Nav(tutorials []models.ListTutorialTempl) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"navbar bg-primary text-primary-content px-4 flex justify-between\"><a href=\"/\" class=\"btn btn-ghost text-lg font-semibold\">NexZap</a><div class=\"flex flex-row gap-4\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = InfoModal().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = HistoryModal(tutorials).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"https://buymeacoffee.com/noahcode\" target=\"_blank\" class=\"btn btn-soft text-primary\">Buy me a coffee</a></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{open: false}\"><button class=\"btn btn-soft text-primary\" x-on:click=\"open = true\">Infos</button> <dialog class=\"modal modal-middle\" x-bind:open=\"open\"><div class=\"modal-box bg-base-100 rounded-lg shadow-lg\"><div class=\"prose text-base-content\"><p>Official repository:</p><p><a href=\"https://github.com/noahfraiure/nexzap\" class=\"link link-primary\" target=\"_blank\">Github repository</a></p><p>If you have any questions, please contact me:</p><p><a href=\"mailto:contact@nexzap.app\" class=\"link link-primary\">contact@nexzap.app</a></p></div><div class=\"modal-action mt-6\"><form method=\"dialog\"><button x-on:click=\"open = false\" class=\"btn btn-outline btn-primary\">Close</button></form></div></div></dialog></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

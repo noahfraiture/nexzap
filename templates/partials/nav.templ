@@ -2,10 +2,12 @@ package partials
 
 import "nexzap/internal/models"
 
+// TODO : fix when open modal, size change
 templ Nav(tutorials []models.ListTutorialTempl) {
 	<div class="navbar bg-primary text-primary-content px-4 flex justify-between">
 		<a href="/" class="btn btn-ghost text-lg font-semibold">NexZap</a>
 		<div class="flex flex-row gap-4">
+			@InfoModal()
 			@HistoryModal(tutorials)
 			<a href="https://buymeacoffee.com/noahcode" target="_blank" class="btn btn-soft text-primary">
 				Buy me a coffee
