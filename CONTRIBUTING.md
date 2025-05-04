@@ -15,6 +15,16 @@ Thanks for wanting to contribute to Nexzap, my open-source platform for learning
    - Avoid vague or funny commit messages in the main branch.
    - PR titles should also be descriptive and follow a similar format.
 5. **Test Your Changes**: Make sure your changes work locally and don’t break anything.
+   - Install tailwindcss and daisyUI with `npm install`.
+   - Install `go templ` and `sqlc`. You can choose your favorite way. If you use NixOS, using `./flake.nix` will give you a shell with these.
+      - [Templ guide](https://templ.guide/quick-start/installation)
+      - [Sqlc guide](https://docs.sqlc.dev/en/latest/overview/install.html)
+   > sqlc is to generate sql boiler plate. You don't need if you don't touch sql. templ is to compile `.templ` files to render the frontend. You don't need it if you don't touch the frontend.
+   - You can use `go-task` to run everything in a simple command. Else you will have to run the command manually. You can find them in `./Taskfile.yml`, they include
+      - `tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify`
+      - `templ generate`
+      - `sqlc generate`
+      - `go run ./cmd/nexzap`.
 6. **Submit a Pull Request (PR)**:
    - Include a clear description of your changes.
    - Reference related issues.
