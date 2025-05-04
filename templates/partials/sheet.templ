@@ -15,18 +15,18 @@ templ Guide(sheet models.SheetTempl) {
 }
 
 templ guideContent(sheet models.SheetTempl) {
-	<div class="md:min-h-0 md:overflow-y-auto md:grow prose max-w-none">
+	<div x-init="updateSnippets()" class="md:min-h-0 md:overflow-y-auto md:grow prose max-w-none">
 		@templ.Raw(sheet.SheetContent)
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/runmode/colorize.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/runmode/runmode.min.js"></script>
 	<script>
-		(function() {
+		function updateSnippets() {
 			let codeSnippets = document.getElementsByClassName("codeSnippet")
 			for (let i = 0; i < codeSnippets.length; i++) {
 				CodeMirror.runMode(codeSnippets[i].textContent, {{ sheet.CodeEditor }}, codeSnippets[i])
 			}
-		})()
+		}
 	</script>
 }
 
@@ -48,7 +48,6 @@ templ buttons(sheet models.SheetTempl) {
 				hx-target="#left-panel"
 				hx-swap="innerHTML show:#left-panel:top"
 				hx-push-url="true"
-				x-on:htmx:after-request="updateSheet(event)"
 			>Previous</button>
 		}
 		<span class="text-base">Page { strconv.Itoa(sheet.NbPage) } of { strconv.Itoa(sheet.MaxPage) }</span>
@@ -60,7 +59,6 @@ templ buttons(sheet models.SheetTempl) {
 				hx-target="#left-panel"
 				hx-swap="innerHTML show:#left-panel:top"
 				hx-push-url="true"
-				x-on:htmx:after-request="updateSheet(event)"
 			>Next</button>
 		}
 	</div>
@@ -89,15 +87,15 @@ templ EditorPanel(sheet models.SheetTempl) {
 			@keymap()
 		</div>
 		// Editor itself
-		@codeEditor(sheet.CodeEditor, sheet.SubmissionContent)
+		@codeEditor()
 		@submit(sheet.Id)
 	</div>
 }
 
 templ keymap() {
 	<div class="flex justify-center items-center gap-4">
-		<input type="checkbox" class="toggle" x-model="enabled" @change="toggleKeymap()"/>
-		<select class="select" x-model="keymap" @change="setKeymap(keymap)">
+		<input type="checkbox" class="toggle" x-model="enabled" x-on:change="toggleKeymap()"/>
+		<select class="select" x-model="keymap" x-on:change="setKeymap(keymap)">
 			<option value="default">Keymap</option>
 			<option value="vim">Vim</option>
 			<option value="emacs">Emacs</option>
@@ -117,13 +115,13 @@ templ submit(id string) {
 			x-on:htmx:after-request="loading = false; updateStatus(event)"
 		>
 			// NOTE : keep these as hidden, else the value loose \n and is invalid
-			<input type="hidden" name="sheet" x-model="getKey()"/>
-			<input type="hidden" name="payload" id="payload"/>
+			<input type="hidden" name="sheet" x-ref="sheet"/>
+			<input type="hidden" name="payload" x-ref="payload"/>
 			<button
 				type="submit"
 				class="btn btn-primary w-32"
 				x-bind:disabled="loading"
-				x-on:click="document.getElementById('payload').value = getEditorCode();"
+				x-on:click="$refs.sheet.value = getKey(); $refs.payload.value = getCode()"
 			>
 				<span class="card-actions" x-show="!loading">Submit</span>
 				<span x-show="loading" class="loading loading-spinner text-primary"></span>
@@ -145,7 +143,7 @@ templ submit(id string) {
 }
 
 // TODO : resolve blink
-templ codeEditor(language string, content string) {
+templ codeEditor() {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/vim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/emacs.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/keymap/sublime.min.js"></script>
@@ -153,72 +151,8 @@ templ codeEditor(language string, content string) {
 	// does not require css
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchbrackets.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/closebrackets.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
-	<div>
-		<textarea id="codemirror"></textarea>
-		<script>
-			let editor = undefined
-			let enable = false
-			let keymap = "default"
-			function setKeymap(newKeymap) {
-				keymap = newKeymap
-				updateKeymap()
-			}
-			function toggleKeymap() {
-				enable = !enable
-				updateKeymap()
-			}
-			function updateKeymap() {
-				if (enable) {
-					editor.setOption('keyMap', keymap)
-				} else {
-					editor.setOption('keyMap', "default")
-				}
-			}
-			function debounce(fn, delay) {
-				let timeout
-				return function(...args) {
-					clearTimeout(timeout)
-					timeout = setTimeout(() => fn(...args), delay)
-				}
-			}
-			function getEditorCode() {
-				if (editor === undefined) {
-					return ""
-				} else {
-					return editor.getValue()
-				}
-			}
-
-			document.addEventListener('alpine:init', () => {
-		    editor = CodeMirror.fromTextArea(document.getElementById("codemirror"), {
-		        mode: {{ language }},
-		        lineNumbers: true,
-						lineSeparator: false,
-		        theme: "daisyui",
-						indentUnit: 4,
-						lineWrapping: true,
-						autoCloseBrackets: true,
-						matchBrackets: true,
-		    })
-
-				let data = Alpine.$data(document.getElementById("submitData"))
-		    const saveToLocalStorage = debounce((cm) => {
-					data.saveCode(cm.getValue())
-		    }, 1000)
-
-		    editor.on("change", (cm) => {
-					saveToLocalStorage(cm)
-		    })
-
-				if (data.getSavedCode() !== "") {
-					editor.setValue(data.getSavedCode())
-				} else {
-					editor.setValue({{ content }})
-				}
-			})
-	  </script>
-	</div>
+	<textarea x-init="initEditor($el)"></textarea>
+	<input id="codemirror" type="hidden"/> // used for next script
 	// Custom theme based on daisy
 	<style>
 	  /* Custom CodeMirror theme: "daisyui" using CSS variables */

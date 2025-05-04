@@ -8,8 +8,13 @@ import (
 )
 
 templ homeContent(sheet models.SheetTempl) {
-	@submitDataScript(sheet.Id)
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full" id="submitData" x-data="submitData">
+	@submitDataScript(sheet)
+	<div
+		class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full"
+		id="submitData"
+		x-init="editor = undefined"
+		x-data={ fmt.Sprintf("submitData({mode:'%s', submission:`%s`, key:'%s'})", sheet.CodeEditor, sheet.SubmissionContent, sheet.Id) }
+	>
 		@leftPanel(sheet)
 		@rightPanel(sheet)
 	</div>
@@ -34,15 +39,20 @@ templ NextContent(fromHtmx bool, sheet models.SheetTempl, tutorials []models.Lis
 		<div id="test" hx-swap-oob="innerHTML">
 			@partials.ExerciseContent(sheet.ExerciseContent)
 		</div>
-		<div id="language-script" hx-swap-oob="true">
-			<script>
-				function setEditorMode() {
-					editor.setOption("mode", {{ sheet.CodeEditor }})
-					editor.setValue({{ sheet.SubmissionContent }})
-				}
-			</script>
-			<script src={ fmt.Sprintf("https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/%s/%s.min.js", sheet.CodeEditor, sheet.CodeEditor) } onload="setEditorMode()"></script>
-		</div>
+		// update the sheet with content key and mode
+		<input
+			id="codemirror"
+			type="hidden"
+			hx-swap-oob="outerHTML"
+			x-init={ fmt.Sprintf(
+				"updateSheet(`%[2]s`, `%[3]s`); " +
+				"const script = document.createElement('script'); " +
+				"script.src = `https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/%[1]s/%[1]s.min.js`; " +
+				"script.onload = () => { updateMode(`%[1]s`); updateSnippets() }; " +
+				"document.head.appendChild(script); ", sheet.CodeEditor, sheet.Id, sheet.SubmissionContent ) }
+		/>
+		// import mode
+		// update content
 	} else {
 		@Home(fromHtmx, sheet, tutorials)
 	}
@@ -66,25 +76,61 @@ templ Home(fromHtmx bool, sheet models.SheetTempl, tutorials []models.ListTutori
 	}
 }
 
-templ submitDataScript(id string) {
+templ submitDataScript(sheet models.SheetTempl) {
+	// <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
 	<script>
-		document.addEventListener('alpine:init', () => {
-	    Alpine.data('submitData', () => ({
+		function debounce(fn, delay) {
+			let timeout
+			return function(...args) {
+				clearTimeout(timeout)
+				timeout = setTimeout(() => fn(...args), delay)
+			}
+		}
+
+		function submitData(props) {
+			return {
 				loading: false,
-				key: {{ id }},
+				key: props.key,
+				initEditor(el) {
+					if (editor) {
+						console.log("Should not init existing")
+						return
+					}
+
+					console.log("init new")
+					editor = CodeMirror.fromTextArea(el, {
+						mode: props.mode,
+						lineNumbers: true,
+						lineSeparator: false,
+						theme: "daisyui",
+						indentUnit: 4,
+						lineWrapping: true,
+						autoCloseBrackets: true,
+						matchBrackets: true,
+					})
+					// save to local storage
+					let saveCode = debounce((cm) => {
+						console.log("saving")
+						this.code[this.key] = cm.getValue()
+					}, 1000)
+					editor.on("change", (cm) => {
+						saveCode(cm)
+					})
+					// set content
+					if (this.key in this.code && this.code[this.key] !== "") {
+						editor.setValue(this.code[this.key])
+					} else {
+						editor.setValue(props.submission)
+					}
+				},
+
+
 				statusCode: Alpine.$persist({}).as("statusCode"),
 				output: Alpine.$persist({}).as("output"),
-				code: Alpine.$persist({}).as("code"),
 				updateStatus(event) {
 					response = JSON.parse(event.detail.xhr.responseText)
 					this.statusCode[this.key] = response.statusCode
 					this.output[this.key] = response.output
-				},
-				updateSheet(event) {
-					this.key = event.detail.xhr.getResponseHeader('X-Sheet-Id')
-					if (this.key in this.code && this.code[this.key] !== "") {
-						editor.setValue(this.code[this.key])
-					}
 				},
 				getStatusCode() {
 					if (!(this.key in this.statusCode)) {
@@ -98,19 +144,46 @@ templ submitDataScript(id string) {
 					}
 					return this.output[this.key]
 				},
-				getSavedCode() {
-					if (!(this.key in this.code)) {
-						this.code[this.key] = ""
-					}
-					return this.code[this.key]
+
+				code: Alpine.$persist({}).as("code"),
+				getCode() {
+					return editor !== undefined ? editor.getValue() : ""
 				},
-				saveCode(content) {
-					this.code[this.key] = content
+
+
+				keymapEnable: false,
+				keymapMode: "default", // TODO : save in persist
+				toggleKeymap() {
+					this.keymapEnable = !this.keymapEnable;
+				},
+				setKeymapMode(content) {
+					this.keymapMode = content
+				},
+				updateKeymap() {
+					if (enable) {
+						editor.setOption("keyMap", this.keymapMode)
+					} else {
+						editor.setOption("keyMap", "default")
+					}
+				},
+
+
+				updateSheet(key, submission) {
+					this.key = key
+					if (this.key in this.code && this.code[this.key] !== "") {
+						editor.setValue(this.code[this.key])
+					} else {
+						editor.setValue(submission)
+					}
+				},
+				updateMode(mode) {
+					editor.setOption("mode", mode)
 				},
 				getKey() {
 					return this.key
-				}
-			}))
-		})
+				},
+
+			}
+		}
 	</script>
 }
