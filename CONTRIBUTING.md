@@ -14,17 +14,29 @@ Thanks for wanting to contribute to Nexzap, my open-source platform for learning
    - Use clear commit messages with a type prefix like: `feat:`, `fix:`, `tuto:`, or `refactor:`, followed by a short description (e.g., `feat: add user auth`, `fix: login error`, `tuto: add Python tutorial`).
    - Avoid vague or funny commit messages in the main branch.
    - PR titles should also be descriptive and follow a similar format.
-5. **Test Your Changes**: Make sure your changes work locally and don’t break anything.
-   - Install tailwindcss and daisyUI with `npm install`.
-   - Install `go templ` and `sqlc`. You can choose your favorite way. If you use NixOS, using `./flake.nix` will give you a shell with these.
-      - [Templ guide](https://templ.guide/quick-start/installation)
-      - [Sqlc guide](https://docs.sqlc.dev/en/latest/overview/install.html)
-   > sqlc is to generate sql boiler plate. You don't need if you don't touch sql. templ is to compile `.templ` files to render the frontend. You don't need it if you don't touch the frontend.
-   - You can use `go-task` to run everything in a simple command. Else you will have to run the command manually. You can find them in `./Taskfile.yml`, they include
-      - `tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify`
-      - `templ generate`
-      - `sqlc generate`
-      - `go run ./cmd/nexzap`.
+5. **Test Your Changes**: Ensure your changes work locally and do not introduce errors.
+   - **Set Up PostgreSQL**:
+     - Run a PostgreSQL instance using `docker compose -f compose-local.yml up -d`.
+     - Verify the instance is running with `docker ps`.
+   - **Install Frontend Dependencies**:
+     - Install TailwindCSS and DaisyUI by running `npm install` in the project root.
+   - **Install Backend Tools**:
+     - Install `go templ` and `sqlc` using your preferred method:
+       - **Standard Installation**: Follow the official guides:
+         - [Templ Installation Guide](https://templ.guide/quick-start/installation)
+         - [Sqlc Installation Guide](https://docs.sqlc.dev/en/latest/overview/install.html)
+       - **NixOS Users**: Run `nix-shell ./flake.nix` to enter a shell with `go templ` and `sqlc` preconfigured.
+     - **Note**: 
+       - `sqlc` generates SQL boilerplate code and is only required if modifying SQL queries.
+       - `go templ` compiles `.templ` files for frontend rendering and is only needed if working on frontend templates.
+   - **Run Build and Test Commands**:
+     - Use `go-task` to execute all necessary tasks with a single command: `task default`.
+     - Alternatively, run individual commands manually as defined in `./Taskfile.yml`:
+       - Compile TailwindCSS: `tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify`
+       - Generate templates: `templ generate`
+       - Generate SQL code: `sqlc generate`
+       - Run the application: `go run ./cmd/nexzap`
+     - Verify the application runs locally by accessing it in your browser (default: `http://localhost:8080`).
 6. **Submit a Pull Request (PR)**:
    - Include a clear description of your changes.
    - Reference related issues.
