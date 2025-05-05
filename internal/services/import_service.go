@@ -30,9 +30,6 @@ func NewImportService(db *db.Database) *ImportService {
 
 // RefreshTutorials reads all tutorial directories in "tutorials/" and inserts them into the database.
 func (s *ImportService) RefreshTutorials() error {
-	if os.Getenv("ENV") != "dev" {
-		return fmt.Errorf("RefreshTutorials can only be run in development environment")
-	}
 	tutorials, err := os.ReadDir(os.Getenv("TUTORIALS_PATH"))
 	if err != nil {
 		return fmt.Errorf("Failed to read tutorials directory: %v", err)
@@ -43,8 +40,9 @@ func (s *ImportService) RefreshTutorials() error {
 			return fmt.Errorf("Invalid entry in tutorials directory: %s", tutorialDir.Name())
 		}
 		path := filepath.Join("tutorials", tutorialDir.Name())
-		if err := s.ImportTutorialFromDir(path); err != nil {
-			return err
+		err = s.ImportTutorialFromDir(path)
+		if err != nil {
+			fmt.Printf("Failed to import %s\n", path)
 		}
 	}
 

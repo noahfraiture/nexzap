@@ -54,10 +54,8 @@ func main() {
 	if err := database.Populate(); err != nil {
 		log.Fatalf("Failed to populate database: %v", err)
 	}
-	if os.Getenv("ENV") == "dev" {
-		if err := importService.RefreshTutorials(); err != nil {
-			log.Fatalf("Failed to refresh tutorials: %v", err)
-		}
+	if err := importService.RefreshTutorials(); err != nil {
+		log.Fatalf("Failed to refresh tutorials: %v", err)
 	}
 
 	// Set up the router

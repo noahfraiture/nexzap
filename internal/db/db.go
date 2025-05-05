@@ -98,9 +98,6 @@ func (d *Database) Populate() error {
 }
 
 func (d *Database) NukeDatabase() error {
-	if os.Getenv("ENV") != "dev" {
-		return fmt.Errorf("NukeDatabase can only be run in development environment")
-	}
 	_, err := d.pool.Exec(context.Background(), "DROP SCHEMA IF EXISTS public CASCADE")
 	if err != nil {
 		return fmt.Errorf("failed to drop public schema: %v", err)

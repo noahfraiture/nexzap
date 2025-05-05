@@ -13,7 +13,7 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/nexzap-postgres-password
       - POSTGRES_HOST=nexzap_postgres
       - POSTGRES_PORT=5432
-      - ENV=dev
+      - ENV=prod
       - MIGRATIONS_PATH=file://migrations
       - TUTORIALS_PATH=/tutorials
     secrets:

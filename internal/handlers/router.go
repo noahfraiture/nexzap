@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"nexzap/internal/db"
 	"nexzap/internal/services"
@@ -47,16 +46,4 @@ func SetupRouter(app *App) {
 	http.HandleFunc("/sheet", app.SheetHandler)
 	http.HandleFunc("/submit", app.SubmitHandler)
 
-	// TODO : protect route
-	// the import route create problem with the "unable to create file"
-	// it might be better to remove it and create data on deploy only
-	http.HandleFunc("/import", app.ImportHandler)
-	http.HandleFunc("/nuke", func(w http.ResponseWriter, r *http.Request) {
-		if err := app.Database.NukeDatabase(); err != nil {
-			log.Fatalf("Failed to nuke database: %v", err)
-		}
-		if err := app.Database.Populate(); err != nil {
-			log.Fatalf("Failed to populate database: %v", err)
-		}
-	})
 }
