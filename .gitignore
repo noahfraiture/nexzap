@@ -6,3 +6,5 @@ start.sh
 .task/checksum
 result
 node_modules
+compose-stack.yml
+restart.sh
