@@ -20,7 +20,7 @@ fn main() {
 ```
 ## Key Features
 
-- **Memory Safety**: Ownership model ensures safe memory management at compile time, matching C++ speed without crashes or garbage collection.
+- **Memory Safety**: Ownership model ensures safe memory management at compile time.
 - **Zero-Cost Abstractions**: Pattern matching and iterators compile to lean code, adding expressiveness with no runtime cost.
 - **Strong Type System**: Strict typing catches errors like null pointers and data races early, reducing bugs.
 - **Safe Concurrency**: Borrow checker prevents data races, ideal for multithreaded applications.
@@ -29,7 +29,7 @@ fn main() {
 ## Pros
 
 - **Safety First**: Compile-time checks eliminate bugs like null pointers and buffer overflows, great for systems programming.
-- **Performance**: Matches C++ speed, ideal for game engines and embedded systems.
+- **Performance**: High speed, matching C++ is some condition.
 - **Modern Syntax**: Expressive features like pattern matching blend low-level control with high-level ease, though type system can be complex.
 - **Tooling**: `cargo`, `rustfmt`, and `clippy` streamline project setup, testing, and code quality.
 - **Growing Community**: Backed by Mozilla, adopted by Microsoft and AWS, with a growing ecosystem.
@@ -37,7 +37,7 @@ fn main() {
 ## Cons
 
 - **Steep Learning Curve**: Borrow checker and ownership rules can frustrate newcomers with complex compile errors.
-- **Verbosity**: Safety requires explicit annotations, making code wordier than Python or Go.
+- **Verbosity**: The advanced type system may require highly explicit specifications
 - **Slow Compilation and big target**: Large projects or complex targets can lead to lengthy compile times.
 - **Young Ecosystem**: Less mature than Java or Python, sometimes requiring custom solutions.
 
