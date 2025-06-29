@@ -32,7 +32,7 @@ func Nav(tutorials []models.ListTutorialTempl) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"navbar bg-primary text-primary-content px-4 flex justify-between\"><a href=\"/\" class=\"btn btn-ghost text-lg font-semibold\">NexZap</a><div class=\"flex flex-row gap-4\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"navbar bg-primary text-primary-content px-4 flex justify-between\"><a href=\"/\" class=\"btn btn-ghost text-lg font-semibold\">NexZap here</a><div class=\"flex flex-row gap-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

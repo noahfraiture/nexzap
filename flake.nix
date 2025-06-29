@@ -74,6 +74,7 @@
               migrations
               tutorials
               static
+              # TODO : remove docker as socket is mounted ?
               pkgs.docker
             ];
             pathsToLink = [
